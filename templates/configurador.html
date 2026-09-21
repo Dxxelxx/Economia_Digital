@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Configurador - Taller El Obrero
+{% endblock %}
+
+{% block contenido %}
+
+<section class="configurador">
+
+    <div class="configurador-header">
+
+        <h2>
+            Diseña tu producto
+        </h2>
+
+        <p>
+            Personaliza tu producto
+            según tus preferencias.
+        </p>
+
+    </div>
+
+
+    <div class="configurador-grid">
+
+        <!-- OPCIONES -->
+
+        <div class="opciones">
+
+            <h3>Personalización</h3>
+
+            <label>
+                Modelo
+            </label>
+
+            <select id="modelo">
+
+                <option value="modelo_clasico">
+                    Modelo clásico
+                </option>
+
+                <option value="modelo_ejecutivo">
+                    Modelo ejecutivo
+                </option>
+
+                <option value="modelo_casual">
+                    Modelo casual
+                </option>
+
+            </select>
+
+
+            <label>
+                Material
+            </label>
+
+            <select id="material">
+
+                <option value="normal">
+                    Material estándar
+                </option>
+
+                <option value="cuero_vegetal">
+                    Cuero vegetal
+                </option>
+
+            </select>
+
+
+            <label>
+                Color
+            </label>
+
+            <select id="color">
+
+                <option value="negro">
+                    Negro
+                </option>
+
+                <option value="cafe">
+                    Café
+                </option>
+
+                <option value="miel">
+                    Miel
+                </option>
+
+            </select>
+
+
+            <label>
+                Suela
+            </label>
+
+            <select id="suela">
+
+                <option value="normal">
+                    Suela clásica
+                </option>
+
+                <option value="reciclada">
+                    Suela reciclada
+                </option>
+
+            </select>
+
+
+            <label>
+                Herrajes
+            </label>
+
+            <select id="herrajes">
+
+                <option value="normal">
+                    Estándar
+                </option>
+
+                <option value="dorados">
+                    Dorados
+                </option>
+
+            </select>
+
+
+            <label>
+                Iniciales
+            </label>
+
+            <input
+                type="text"
+                id="iniciales"
+                maxlength="10"
+                placeholder="Ej: JP"
+            >
+
+            <label>
+                Cantidad
+            </label>
+
+            <input
+                type="number"
+                id="cantidad"
+                value="1"
+                min="1"
+            >
+
+        </div>
+
+
+        <!-- VISTA -->
+
+        <div class="vista-producto">
+
+            <h3>
+                Vista del producto
+            </h3>
+
+            <div
+                id="producto-preview"
+                class="producto-preview"
+            >
+                👞
+            </div>
+
+            <p>
+                Aquí mostraremos la simulación
+                visual del producto.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- RESUMEN -->
+
+    <div class="resumen-pedido">
+
+        <h3>
+            Resumen
+        </h3>
+
+        <p>
+            Precio unitario:
+            $<span id="precio-unitario">
+                0
+            </span>
+        </p>
+
+        <p>
+            Cantidad:
+            <span id="cantidad-resumen">
+                1
+            </span>
+        </p>
+
+        <p>
+            Total:
+            <strong>
+                $<span id="precio-total">
+                    0
+                </span>
+            </strong>
+        </p>
+
+        <p>
+            Entrega estimada:
+            <strong id="fecha-entrega">
+                Calculando...
+            </strong>
+        </p>
+
+        <button
+            type="button"
+            class="boton"
+            id="confirmar-pedido"
+        >
+            Confirmar pedido
+        </button>
+
+    </div>
+
+</section>
+
+
+<script src="{{ url_for('static', filename='js/configurador.js') }}">
+</script>
+
+{% endblock %}

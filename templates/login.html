@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Iniciar sesión - Taller El Obrero
+{% endblock %}
+
+{% block contenido %}
+
+<section class="login-container">
+
+    <div class="login-card">
+
+        <h2>Iniciar sesión</h2>
+
+        <p>
+            Ingresa a tu cuenta de Taller El Obrero.
+        </p>
+
+        {% with mensajes = get_flashed_messages(with_categories=true) %}
+
+            {% if mensajes %}
+
+                {% for categoria, mensaje in mensajes %}
+
+                    <div class="mensaje {{ categoria }}">
+                        {{ mensaje }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+        <form method="POST">
+
+            <label>
+                Usuario
+            </label>
+
+            <input
+                type="text"
+                name="username"
+                required
+            >
+
+            <label>
+                Contraseña
+            </label>
+
+            <input
+                type="password"
+                name="password"
+                required
+            >
+
+            <button
+                type="submit"
+                class="boton"
+            >
+                Iniciar sesión
+            </button>
+
+        </form>
+
+        <p class="registro-texto">
+            ¿No tienes una cuenta?
+        </p>
+
+        <a
+            href="{{ url_for('auth.registro') }}"
+            class="boton-secundario"
+        >
+            Crear cuenta
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}

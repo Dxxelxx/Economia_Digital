@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Pedido #{{ pedido.id }} - Taller El Obrero
+{% endblock %}
+
+{% block contenido %}
+
+<section class="pedidos-container">
+
+    <div class="cliente-header">
+
+        <h2>
+            Pedido #{{ pedido.id }}
+        </h2>
+
+        <p>
+            Detalle de tu pedido.
+        </p>
+
+    </div>
+
+
+    <div class="pedido-card">
+
+        <div>
+
+            <h3>
+                Información del pedido
+            </h3>
+
+            <p>
+                <strong>
+                    Fecha:
+                </strong>
+
+                {{ pedido.fecha_pedido.strftime('%d/%m/%Y') }}
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Estado:
+                </strong>
+
+                {{ pedido.estado }}
+
+            </p>
+
+
+            {% if pedido.fecha_entrega %}
+
+                <p>
+
+                    <strong>
+                        Fecha estimada de entrega:
+                    </strong>
+
+                    {{ pedido.fecha_entrega.strftime('%d/%m/%Y') }}
+
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <div class="pedido-card">
+
+        <div>
+
+            <h3>
+                Producto personalizado
+            </h3>
+
+            {% if pedido.configuracion %}
+
+                <p>
+                    <strong>
+                        Material:
+                    </strong>
+
+                    {{ pedido.configuracion.material }}
+                </p>
+
+
+                <p>
+                    <strong>
+                        Color:
+                    </strong>
+
+                    {{ pedido.configuracion.color }}
+                </p>
+
+
+                <p>
+                    <strong>
+                        Suela:
+                    </strong>
+
+                    {{ pedido.configuracion.suela }}
+                </p>
+
+
+                <p>
+                    <strong>
+                        Herrajes:
+                    </strong>
+
+                    {{ pedido.configuracion.herrajes }}
+                </p>
+
+
+                <p>
+                    <strong>
+                        Iniciales:
+                    </strong>
+
+                    {{ pedido.configuracion.iniciales or "Sin iniciales" }}
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <div class="pedido-card">
+
+        <div>
+
+            <h3>
+                Resumen de pago
+            </h3>
+
+
+            <p>
+
+                Subtotal:
+
+                ${{ "{:,.0f}".format(
+                    pedido.subtotal|float
+                ) }}
+
+            </p>
+
+
+            <p>
+
+                IVA:
+
+                ${{ "{:,.0f}".format(
+                    pedido.iva|float
+                ) }}
+
+            </p>
+
+
+            <p class="pedido-total">
+
+                Total:
+
+                ${{ "{:,.0f}".format(
+                    pedido.total|float
+                ) }}
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+    {% if pedido.factura %}
+
+        <div class="pedido-card">
+
+            <div>
+
+                <h3>
+                    Factura
+                </h3>
+
+                <p>
+
+                    Número:
+
+                    {{ pedido.factura.numero }}
+
+                </p>
+
+
+                <p>
+
+                    Estado:
+
+                    {{ pedido.factura.estado_dian }}
+
+                </p>
+
+
+                <p class="pedido-total">
+
+                    Total factura:
+
+                    ${{ "{:,.0f}".format(
+                        pedido.factura.total|float
+                    ) }}
+
+                </p>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <a
+        href="{{ url_for('cliente.mis_pedidos') }}"
+        class="boton-secundario"
+    >
+        ← Volver a mis pedidos
+    </a>
+
+</section>
+
+{% endblock %}

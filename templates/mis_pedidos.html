@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Mis pedidos - Taller El Obrero
+{% endblock %}
+
+{% block contenido %}
+
+<section class="pedidos-container">
+
+    <div class="cliente-header">
+
+        <h2>
+            Mis pedidos
+        </h2>
+
+        <p>
+            Consulta el estado de tus pedidos,
+            fechas de entrega y valores.
+        </p>
+
+    </div>
+
+
+    {% if pedidos %}
+
+        {% for pedido in pedidos %}
+
+            <div class="pedido-card">
+
+                <div>
+
+                    <h3>
+                        Pedido #{{ pedido.id }}
+                    </h3>
+
+                    <p>
+                        Fecha del pedido:
+                        {{ pedido.fecha_pedido.strftime('%d/%m/%Y') }}
+                    </p>
+
+                    <p>
+
+                        Estado:
+
+                        <span class="estado">
+
+                            {{ pedido.estado }}
+
+                        </span>
+
+                    </p>
+
+                    {% if pedido.fecha_entrega %}
+
+                        <p>
+
+                            Entrega estimada:
+
+                            {{ pedido.fecha_entrega.strftime('%d/%m/%Y') }}
+
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div>
+
+                    <p class="pedido-total">
+
+                        Total:
+
+                        ${{ "{:,.0f}".format(
+                            pedido.total|float
+                        ) }}
+
+                    </p>
+
+
+                    <a
+                        href="{{ url_for(
+                            'cliente.detalle_pedido',
+                            pedido_id=pedido.id
+                        ) }}"
+                        class="boton"
+                    >
+                        Ver pedido
+                    </a>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="cliente-card">
+
+            <h3>
+                No tienes pedidos todavía.
+            </h3>
+
+            <p>
+                Diseña tu primer producto
+                y realiza tu pedido.
+            </p>
+
+            <a
+                href="{{ url_for(
+                    'configurador.mostrar_configurador'
+                ) }}"
+                class="boton"
+            >
+                Diseñar producto
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

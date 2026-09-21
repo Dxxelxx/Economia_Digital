@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Crear cuenta - Taller El Obrero
+{% endblock %}
+
+{% block contenido %}
+
+<section class="login-container">
+
+    <div class="login-card">
+
+        <h2>Crear cuenta</h2>
+
+        <p>
+            Regístrate como cliente.
+        </p>
+
+        {% with mensajes = get_flashed_messages(with_categories=true) %}
+
+            {% if mensajes %}
+
+                {% for categoria, mensaje in mensajes %}
+
+                    <div class="mensaje {{ categoria }}">
+                        {{ mensaje }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+        <form method="POST">
+
+            <label>
+                Nombre completo
+            </label>
+
+            <input
+                type="text"
+                name="nombre"
+                required
+            >
+
+            <label>
+                Nombre de usuario
+            </label>
+
+            <input
+                type="text"
+                name="username"
+                required
+            >
+
+            <label>
+                Correo electrónico
+            </label>
+
+            <input
+                type="email"
+                name="email"
+                required
+            >
+
+            <label>
+                Contraseña
+            </label>
+
+            <input
+                type="password"
+                name="password"
+                required
+            >
+
+            <button
+                type="submit"
+                class="boton"
+            >
+                Registrarme
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+{% endblock %}

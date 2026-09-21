@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Dashboard - Administrador
+{% endblock %}
+
+{% block contenido %}
+
+<section class="admin-container">
+
+    <div class="admin-header">
+
+        <h2>
+            Dashboard Administrativo
+        </h2>
+
+        <p>
+            Bienvenido,
+            {{ session["usuario_nombre"] }}.
+        </p>
+
+    </div>
+
+
+    <div class="estadisticas">
+
+        <div class="estadistica">
+
+            <h3>
+                Pedidos
+            </h3>
+
+            <strong>
+                0
+            </strong>
+
+        </div>
+
+
+        <div class="estadistica">
+
+            <h3>
+                En producción
+            </h3>
+
+            <strong>
+                0
+            </strong>
+
+        </div>
+
+
+        <div class="estadistica">
+
+            <h3>
+                Inventario
+            </h3>
+
+            <strong>
+                0
+            </strong>
+
+        </div>
+
+
+        <div class="estadistica">
+
+            <h3>
+                Facturas
+            </h3>
+
+            <strong>
+                0
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <div class="admin-grid">
+
+        <a
+            href="{{ url_for('admin.inventario') }}"
+            class="admin-card"
+        >
+
+            <h3>
+                Inventario
+            </h3>
+
+            <p>
+                Gestionar materiales,
+                cantidades y existencias.
+            </p>
+
+        </a>
+
+
+        <a
+            href="{{ url_for('admin.pedidos') }}"
+            class="admin-card"
+        >
+
+            <h3>
+                Pedidos
+            </h3>
+
+            <p>
+                Consultar los pedidos
+                de los clientes.
+            </p>
+
+        </a>
+
+
+        <a
+            href="{{ url_for('admin.produccion') }}"
+            class="admin-card"
+        >
+
+            <h3>
+                Producción
+            </h3>
+
+            <p>
+                Controlar el estado
+                de fabricación.
+            </p>
+
+        </a>
+
+
+        <a
+            href="{{ url_for('admin.facturacion') }}"
+            class="admin-card"
+        >
+
+            <h3>
+                Facturación
+            </h3>
+
+            <p>
+                Consultar y gestionar
+                las facturas.
+            </p>
+
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}

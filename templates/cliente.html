@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Mi cuenta - Taller El Obrero
+{% endblock %}
+
+{% block contenido %}
+
+<section class="cliente-container">
+
+    <div class="cliente-header">
+
+        <h2>
+            Bienvenido,
+            {{ session["usuario_nombre"] }}
+        </h2>
+
+        <p>
+            Desde aquí puedes diseñar tu producto,
+            consultar tus pedidos y revisar tus facturas.
+        </p>
+
+    </div>
+
+
+    <div class="cliente-grid">
+
+        <a
+            href="{{ url_for('configurador.mostrar_configurador') }}"
+            class="cliente-card"
+        >
+
+            <h3>
+                Diseñar producto
+            </h3>
+
+            <p>
+                Personaliza tu producto,
+                selecciona materiales,
+                colores, suelas,
+                herrajes e iniciales.
+            </p>
+
+        </a>
+
+
+        <a
+            href="{{ url_for('cliente.mis_pedidos') }}"
+            class="cliente-card"
+        >
+
+            <h3>
+                Mis pedidos
+            </h3>
+
+            <p>
+                Consulta tus pedidos,
+                estados y fechas estimadas
+                de entrega.
+            </p>
+
+        </a>
+
+
+        <a
+            href="{{ url_for('auth.logout') }}"
+            class="cliente-card"
+        >
+
+            <h3>
+                Cerrar sesión
+            </h3>
+
+            <p>
+                Salir de tu cuenta
+                de Taller El Obrero.
+            </p>
+
+        </a>
+
+    </div>
+
+</section>
+
+
+<script
+    src="{{ url_for('static', filename='js/cliente.js') }}">
+</script>
+
+{% endblock %}
