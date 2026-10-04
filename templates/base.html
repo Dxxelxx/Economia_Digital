@@ -16,48 +16,9 @@
         {% endblock %}
     </title>
 
-
-    <!-- CSS PRINCIPAL -->
-
     <link
         rel="stylesheet"
-        href="{{ url_for(
-            'static',
-            filename='css/style.css'
-        ) }}"
-    >
-
-
-    <!-- CSS LOGIN -->
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for(
-            'static',
-            filename='css/login.css'
-        ) }}"
-    >
-
-
-    <!-- CSS CLIENTE -->
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for(
-            'static',
-            filename='css/cliente.css'
-        ) }}"
-    >
-
-
-    <!-- CSS ADMINISTRADOR -->
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for(
-            'static',
-            filename='css/admin.css'
-        ) }}"
+        href="{{ url_for('static', filename='css/style.css') }}"
     >
 
 </head>
@@ -66,177 +27,89 @@
 <body>
 
 
-    <!-- ==========================
-         ENCABEZADO
-    =========================== -->
+<!-- ================================= -->
+<!-- BARRA SUPERIOR -->
+<!-- ================================= -->
 
-    <header class="header">
+<header class="barra-navegacion">
 
-        <div class="header-container">
+    <!-- IZQUIERDA -->
 
-            <a
-                href="{{ url_for('principal.inicio') }}"
-                class="logo"
-            >
-                Taller El Obrero
-            </a>
+    <nav class="nav-izquierda">
 
+        <a
+            href="{{ url_for('principal.inicio') }}"
+            class="nav-enlace"
+        >
 
-            <nav class="nav">
+            <span class="nav-icono">⌂</span>
 
-                <a
-                    href="{{ url_for('principal.inicio') }}"
-                >
-                    Inicio
-                </a>
+            <span>Inicio</span>
 
+        </a>
 
-                {% if session.get("rol") == "cliente" %}
-
-                    <a
-                        href="{{ url_for('cliente.inicio') }}"
-                    >
-                        Mi cuenta
-                    </a>
+    </nav>
 
 
-                    <a
-                        href="{{ url_for(
-                            'configurador.mostrar_configurador'
-                        ) }}"
-                    >
-                        Configurador
-                    </a>
+    <!-- DERECHA -->
+
+    <nav class="nav-derecha">
+
+        <a
+            href="{{ url_for('auth.login') }}"
+            class="nav-enlace"
+        >
+
+            <span class="nav-icono">♙</span>
+
+            <span>Iniciar sesión</span>
+
+        </a>
 
 
-                    <a
-                        href="{{ url_for(
-                            'cliente.mis_pedidos'
-                        ) }}"
-                    >
-                        Mis pedidos
-                    </a>
+        <a
+            href="{{ url_for('auth.registro') }}"
+            class="nav-enlace nav-registro"
+        >
+
+            <span class="nav-icono">✦</span>
+
+            <span>Registrarse</span>
+
+        </a>
+
+    </nav>
+
+</header>
 
 
-                    <a
-                        href="{{ url_for('auth.logout') }}"
-                    >
-                        Cerrar sesión
-                    </a>
 
+<!-- ================================= -->
+<!-- CONTENIDO PRINCIPAL -->
+<!-- ================================= -->
 
-                {% elif session.get("rol") == "administrador" %}
+<main>
 
-
-                    <a
-                        href="{{ url_for(
-                            'admin.dashboard'
-                        ) }}"
-                    >
-                        Dashboard
-                    </a>
-
-
-                    <a
-                        href="{{ url_for(
-                            'admin.inventario'
-                        ) }}"
-                    >
-                        Inventario
-                    </a>
-
-
-                    <a
-                        href="{{ url_for(
-                            'admin.pedidos'
-                        ) }}"
-                    >
-                        Pedidos
-                    </a>
-
-
-                    <a
-                        href="{{ url_for(
-                            'admin.produccion'
-                        ) }}"
-                    >
-                        Producción
-                    </a>
-
-
-                    <a
-                        href="{{ url_for(
-                            'admin.facturacion'
-                        ) }}"
-                    >
-                        Facturación
-                    </a>
-
-
-                    <a
-                        href="{{ url_for('auth.logout') }}"
-                    >
-                        Cerrar sesión
-                    </a>
-
-
-                {% else %}
-
-
-                    <a
-                        href="{{ url_for('auth.login') }}"
-                    >
-                        Iniciar sesión
-                    </a>
-
-
-                    <a
-                        href="{{ url_for('auth.registro') }}"
-                    >
-                        Registrarse
-                    </a>
-
-
-                {% endif %}
-
-            </nav>
-
-        </div>
-
-    </header>
-
-
-    <!-- ==========================
-         CONTENIDO
-    =========================== -->
-
-    <main class="main">
-
-        {% block contenido %}
-
-        {% endblock %}
-
-    </main>
-
-
-    <!-- ==========================
-         PIE DE PÁGINA
-    =========================== -->
-
-    <footer class="footer">
-
-        <p>
-            © 2026 Taller El Obrero
-        </p>
-
-    </footer>
-
-
-    <!-- JAVASCRIPT GENERAL -->
-
-    {% block javascript %}
+    {% block contenido %}
 
     {% endblock %}
+
+</main>
+
+
+
+<!-- ================================= -->
+<!-- PIE DE PÁGINA -->
+<!-- ================================= -->
+
+<footer>
+
+    <p>
+        © 2026 Taller El Obrero
+    </p>
+
+</footer>
+
 
 </body>
 

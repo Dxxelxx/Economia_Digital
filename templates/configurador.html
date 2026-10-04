@@ -1,230 +1,1384 @@
 {% extends "base.html" %}
 
 {% block titulo %}
-Configurador - Taller El Obrero
+Personaliza tu producto | Taller El Obrero
 {% endblock %}
+
 
 {% block contenido %}
 
-<section class="configurador">
+<section class="configurador-pagina">
 
-    <div class="configurador-header">
+    <!-- ENCABEZADO -->
 
-        <h2>
-            Diseña tu producto
-        </h2>
+    <div class="configurador-encabezado">
+
+        <p class="etiqueta">
+            TALLER EL OBRERO · DISEÑA A TU MEDIDA
+        </p>
+
+        <h1>
+            Crea algo
+            <br>
+            hecho para ti.
+        </h1>
 
         <p>
-            Personaliza tu producto
-            según tus preferencias.
+            Personaliza tu producto y visualiza tu diseño
+            en 3D antes de realizar tu compra.
         </p>
 
     </div>
 
 
-    <div class="configurador-grid">
+    <!-- CONFIGURADOR -->
 
-        <!-- OPCIONES -->
-
-        <div class="opciones">
-
-            <h3>Personalización</h3>
-
-            <label>
-                Modelo
-            </label>
-
-            <select id="modelo">
-
-                <option value="modelo_clasico">
-                    Modelo clásico
-                </option>
-
-                <option value="modelo_ejecutivo">
-                    Modelo ejecutivo
-                </option>
-
-                <option value="modelo_casual">
-                    Modelo casual
-                </option>
-
-            </select>
+    <div class="configurador-contenedor">
 
 
-            <label>
-                Material
-            </label>
+        <!-- ============================= -->
+        <!-- VISUALIZACIÓN 3D -->
+        <!-- ============================= -->
 
-            <select id="material">
+        <div class="visor-3d">
 
-                <option value="normal">
-                    Material estándar
-                </option>
+            <div class="visor-superior">
 
-                <option value="cuero_vegetal">
-                    Cuero vegetal
-                </option>
+                <span>
+                    VISTA 3D
+                </span>
 
-            </select>
+                <span class="visor-ayuda">
+                    Arrastra para rotar
+                </span>
 
-
-            <label>
-                Color
-            </label>
-
-            <select id="color">
-
-                <option value="negro">
-                    Negro
-                </option>
-
-                <option value="cafe">
-                    Café
-                </option>
-
-                <option value="miel">
-                    Miel
-                </option>
-
-            </select>
-
-
-            <label>
-                Suela
-            </label>
-
-            <select id="suela">
-
-                <option value="normal">
-                    Suela clásica
-                </option>
-
-                <option value="reciclada">
-                    Suela reciclada
-                </option>
-
-            </select>
-
-
-            <label>
-                Herrajes
-            </label>
-
-            <select id="herrajes">
-
-                <option value="normal">
-                    Estándar
-                </option>
-
-                <option value="dorados">
-                    Dorados
-                </option>
-
-            </select>
-
-
-            <label>
-                Iniciales
-            </label>
-
-            <input
-                type="text"
-                id="iniciales"
-                maxlength="10"
-                placeholder="Ej: JP"
-            >
-
-            <label>
-                Cantidad
-            </label>
-
-            <input
-                type="number"
-                id="cantidad"
-                value="1"
-                min="1"
-            >
-
-        </div>
-
-
-        <!-- VISTA -->
-
-        <div class="vista-producto">
-
-            <h3>
-                Vista del producto
-            </h3>
-
-            <div
-                id="producto-preview"
-                class="producto-preview"
-            >
-                👞
             </div>
 
-            <p>
-                Aquí mostraremos la simulación
-                visual del producto.
-            </p>
+
+            <div
+                id="contenedor-3d"
+                class="contenedor-3d"
+            >
+            </div>
+
+
+            <div class="visor-inferior">
+
+                <span>
+                    ✦ Vista interactiva
+                </span>
+
+                <span>
+                    Zoom con rueda
+                </span>
+
+            </div>
 
         </div>
 
-    </div>
+
+        <!-- ============================= -->
+        <!-- PANEL DE PERSONALIZACIÓN -->
+        <!-- ============================= -->
+
+        <aside class="panel-configuracion">
+
+            <div class="panel-titulo">
+
+                <p class="numero-paso">
+                    01
+                </p>
+
+                <h2>
+                    Tu diseño
+                </h2>
+
+                <p>
+                    Personaliza cada detalle de tu producto.
+                </p>
+
+            </div>
 
 
-    <!-- RESUMEN -->
+            <!-- PRODUCTO -->
 
-    <div class="resumen-pedido">
+            <div class="config-grupo">
 
-        <h3>
-            Resumen
-        </h3>
+                <label>
+                    Producto
+                </label>
 
-        <p>
-            Precio unitario:
-            $<span id="precio-unitario">
-                0
-            </span>
-        </p>
+                <select id="producto">
 
-        <p>
-            Cantidad:
-            <span id="cantidad-resumen">
-                1
-            </span>
-        </p>
+                    <option value="zapato">
+                        Zapato artesanal
+                    </option>
 
-        <p>
-            Total:
-            <strong>
-                $<span id="precio-total">
-                    0
-                </span>
-            </strong>
-        </p>
+                    <option value="bolso">
+                        Bolso artesanal
+                    </option>
 
-        <p>
-            Entrega estimada:
-            <strong id="fecha-entrega">
-                Calculando...
-            </strong>
-        </p>
+                    <option value="sombrero">
+                        Sombrero artesanal
+                    </option>
 
-        <button
-            type="button"
-            class="boton"
-            id="confirmar-pedido"
-        >
-            Confirmar pedido
-        </button>
+                </select>
+
+            </div>
+
+
+            <!-- COLOR -->
+
+            <div class="config-grupo">
+
+                <label>
+                    Color
+                </label>
+
+                <div class="opciones-color">
+
+                    <button
+                        type="button"
+                        class="color-opcion seleccionado"
+                        data-color="#6b4226"
+                        data-nombre="Café artesanal"
+                        style="background:#6b4226;"
+                        aria-label="Café artesanal"
+                    ></button>
+
+                    <button
+                        type="button"
+                        class="color-opcion"
+                        data-color="#111111"
+                        data-nombre="Negro"
+                        style="background:#111111;"
+                        aria-label="Negro"
+                    ></button>
+
+                    <button
+                        type="button"
+                        class="color-opcion"
+                        data-color="#8b5e3c"
+                        data-nombre="Cuero claro"
+                        style="background:#8b5e3c;"
+                        aria-label="Cuero claro"
+                    ></button>
+
+                    <button
+                        type="button"
+                        class="color-opcion"
+                        data-color="#7d1f27"
+                        data-nombre="Vino"
+                        style="background:#7d1f27;"
+                        aria-label="Vino"
+                    ></button>
+
+                    <button
+                        type="button"
+                        class="color-opcion"
+                        data-color="#294c3a"
+                        data-nombre="Verde artesanal"
+                        style="background:#294c3a;"
+                        aria-label="Verde artesanal"
+                    ></button>
+
+                </div>
+
+                <small id="nombre-color">
+                    Café artesanal
+                </small>
+
+            </div>
+
+
+            <!-- MATERIAL -->
+
+            <div class="config-grupo">
+
+                <label>
+                    Material
+                </label>
+
+                <div class="opciones-material">
+
+                    <button
+                        type="button"
+                        class="material-opcion seleccionado"
+                        data-material="cuero"
+                    >
+                        Cuero
+                    </button>
+
+                    <button
+                        type="button"
+                        class="material-opcion"
+                        data-material="ante"
+                    >
+                        Ante
+                    </button>
+
+                    <button
+                        type="button"
+                        class="material-opcion"
+                        data-material="sintetico"
+                    >
+                        Sintético
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- SUELA -->
+
+            <div class="config-grupo">
+
+                <label>
+                    Suela
+                </label>
+
+                <select id="suela">
+
+                    <option value="clasica">
+                        Clásica
+                    </option>
+
+                    <option value="premium">
+                        Premium
+                    </option>
+
+                    <option value="urbana">
+                        Urbana
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- HERRAJES -->
+
+            <div class="config-grupo">
+
+                <label>
+                    Herrajes
+                </label>
+
+                <div class="opciones-material">
+
+                    <button
+                        type="button"
+                        class="herraje-opcion seleccionado"
+                        data-herraje="dorado"
+                    >
+                        Dorado
+                    </button>
+
+                    <button
+                        type="button"
+                        class="herraje-opcion"
+                        data-herraje="plateado"
+                    >
+                        Plateado
+                    </button>
+
+                    <button
+                        type="button"
+                        class="herraje-opcion"
+                        data-herraje="negro"
+                    >
+                        Negro
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- INICIALES -->
+
+            <div class="config-grupo">
+
+                <label for="iniciales">
+                    Iniciales
+                </label>
+
+                <input
+                    type="text"
+                    id="iniciales"
+                    maxlength="3"
+                    placeholder="Ej. ADB"
+                >
+
+                <small>
+                    Máximo 3 caracteres
+                </small>
+
+            </div>
+
+
+            <!-- RESUMEN -->
+
+            <div class="resumen-configuracion">
+
+                <div>
+
+                    <span>
+                        Diseño
+                    </span>
+
+                    <strong id="resumen-producto">
+                        Zapato artesanal
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Personalización
+                    </span>
+
+                    <strong id="resumen-personalizacion">
+                        Café · Cuero
+                    </strong>
+
+                </div>
+
+
+                <div class="precio">
+
+                    <span>
+                        Precio estimado
+                    </span>
+
+                    <strong id="precio">
+                        $320.000
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- BOTÓN -->
+
+            <button
+                type="button"
+                id="comprar-diseno"
+                class="boton-comprar-diseno"
+            >
+
+                Comprar este diseño
+
+            </button>
+
+
+            <p class="nota-configuracion">
+
+                El precio es una estimación.
+                El valor final se confirma al realizar el pedido.
+
+            </p>
+
+        </aside>
 
     </div>
 
 </section>
 
+{% endblock %}
 
-<script src="{{ url_for('static', filename='js/configurador.js') }}">
+
+{% block scripts %}
+
+<script type="module">
+
+import * as THREE from
+"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+
+import { OrbitControls } from
+"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js";
+
+
+/* =========================================
+   ESCENA
+========================================= */
+
+const contenedor =
+    document.getElementById("contenedor-3d");
+
+
+const escena =
+    new THREE.Scene();
+
+
+escena.background =
+    new THREE.Color("#e9e1d8");
+
+
+/* =========================================
+   CÁMARA
+========================================= */
+
+const camara =
+    new THREE.PerspectiveCamera(
+        45,
+        contenedor.clientWidth /
+        contenedor.clientHeight,
+        0.1,
+        1000
+    );
+
+
+camara.position.set(
+    4,
+    2.5,
+    5
+);
+
+
+/* =========================================
+   RENDERER
+========================================= */
+
+const renderer =
+    new THREE.WebGLRenderer({
+        antialias: true
+    });
+
+
+renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio, 2)
+);
+
+
+renderer.setSize(
+    contenedor.clientWidth,
+    contenedor.clientHeight
+);
+
+
+renderer.shadowMap.enabled = true;
+
+
+contenedor.appendChild(
+    renderer.domElement
+);
+
+
+/* =========================================
+   CONTROLES
+========================================= */
+
+const controles =
+    new OrbitControls(
+        camara,
+        renderer.domElement
+    );
+
+
+controles.enableDamping = true;
+
+controles.minDistance = 3;
+
+controles.maxDistance = 8;
+
+controles.target.set(
+    0,
+    0.5,
+    0
+);
+
+
+/* =========================================
+   ILUMINACIÓN
+========================================= */
+
+const luzAmbiente =
+    new THREE.HemisphereLight(
+        "#ffffff",
+        "#5b4635",
+        2
+    );
+
+
+escena.add(luzAmbiente);
+
+
+const luzPrincipal =
+    new THREE.DirectionalLight(
+        "#ffffff",
+        3
+    );
+
+
+luzPrincipal.position.set(
+    4,
+    6,
+    5
+);
+
+
+luzPrincipal.castShadow = true;
+
+escena.add(luzPrincipal);
+
+
+const luzSecundaria =
+    new THREE.DirectionalLight(
+        "#d8b08a",
+        1.5
+    );
+
+
+luzSecundaria.position.set(
+    -4,
+    3,
+    -3
+);
+
+
+escena.add(luzSecundaria);
+
+
+/* =========================================
+   GRUPO DEL PRODUCTO
+========================================= */
+
+const producto3D =
+    new THREE.Group();
+
+
+escena.add(
+    producto3D
+);
+
+
+/* =========================================
+   VARIABLES
+========================================= */
+
+let colorActual =
+    "#6b4226";
+
+let materialActual =
+    "cuero";
+
+let herrajeActual =
+    "dorado";
+
+let suelaActual =
+    "clasica";
+
+let productoActual =
+    "zapato";
+
+
+/* =========================================
+   MATERIALES
+========================================= */
+
+function crearMaterial(
+    color
+) {
+
+    let roughness = 0.65;
+
+    if (
+        materialActual === "cuero"
+    ) {
+
+        roughness = 0.55;
+
+    }
+
+    if (
+        materialActual === "ante"
+    ) {
+
+        roughness = 0.9;
+
+    }
+
+    if (
+        materialActual === "sintetico"
+    ) {
+
+        roughness = 0.35;
+
+    }
+
+
+    return new THREE.MeshStandardMaterial({
+
+        color: color,
+
+        roughness: roughness,
+
+        metalness:
+            materialActual === "sintetico"
+            ? 0.15
+            : 0
+
+    });
+
+}
+
+
+/* =========================================
+   CREAR ZAPATO
+========================================= */
+
+function crearZapato() {
+
+    producto3D.clear();
+
+
+    /* CUERPO */
+
+    const cuerpoGeometria =
+        new THREE.SphereGeometry(
+            1,
+            48,
+            24
+        );
+
+
+    const cuerpo =
+        new THREE.Mesh(
+            cuerpoGeometria,
+            crearMaterial(colorActual)
+        );
+
+
+    cuerpo.scale.set(
+        1.65,
+        0.55,
+        2.15
+    );
+
+
+    cuerpo.position.y =
+        0.65;
+
+
+    cuerpo.castShadow = true;
+
+    producto3D.add(
+        cuerpo
+    );
+
+
+    /* PARTE SUPERIOR */
+
+    const parteSuperior =
+        new THREE.BoxGeometry(
+            1.15,
+            0.35,
+            1.35
+        );
+
+
+    const superior =
+        new THREE.Mesh(
+            parteSuperior,
+            crearMaterial(colorActual)
+        );
+
+
+    superior.position.set(
+        0,
+        1.02,
+        -0.25
+    );
+
+
+    superior.rotation.x =
+        -0.15;
+
+
+    superior.castShadow = true;
+
+    producto3D.add(
+        superior
+    );
+
+
+    /* SUELA */
+
+    let grosorSuela =
+        0.22;
+
+
+    if (
+        suelaActual === "premium"
+    ) {
+
+        grosorSuela =
+            0.32;
+
+    }
+
+
+    if (
+        suelaActual === "urbana"
+    ) {
+
+        grosorSuela =
+            0.40;
+
+    }
+
+
+    const suelaGeometria =
+        new THREE.BoxGeometry(
+            3.1,
+            grosorSuela,
+            4.0
+        );
+
+
+    const suelaMaterial =
+        new THREE.MeshStandardMaterial({
+
+            color:
+                suelaActual === "urbana"
+                ? "#262626"
+                : "#eee8df",
+
+            roughness: 0.8
+
+        });
+
+
+    const suela =
+        new THREE.Mesh(
+            suelaGeometria,
+            suelaMaterial
+        );
+
+
+    suela.scale.set(
+        0.65,
+        1,
+        0.65
+    );
+
+
+    suela.position.y =
+        0.15;
+
+
+    suela.castShadow = true;
+
+    producto3D.add(
+        suela
+    );
+
+
+    /* HERREAJES */
+
+    const colorHerraje =
+        herrajeActual === "dorado"
+        ? "#c49a52"
+        : herrajeActual === "plateado"
+        ? "#bfc2c5"
+        : "#222222";
+
+
+    const herrajeMaterial =
+        new THREE.MeshStandardMaterial({
+
+            color:
+                colorHerraje,
+
+            metalness: 0.85,
+
+            roughness: 0.2
+
+        });
+
+
+    for (
+        let i = -1;
+        i <= 1;
+        i++
+    ) {
+
+        const herraje =
+            new THREE.Mesh(
+                new THREE.CylinderGeometry(
+                    0.09,
+                    0.09,
+                    0.08,
+                    24
+                ),
+                herrajeMaterial
+            );
+
+
+        herraje.rotation.x =
+            Math.PI / 2;
+
+
+        herraje.position.set(
+            i * 0.35,
+            1.16,
+            -0.55
+        );
+
+
+        producto3D.add(
+            herraje
+        );
+
+    }
+
+
+    /* INICIALES */
+
+    actualizarIniciales();
+
+}
+
+
+/* =========================================
+   INICIALES 3D
+========================================= */
+
+function actualizarIniciales() {
+
+    const anterior =
+        producto3D.getObjectByName(
+            "iniciales"
+        );
+
+
+    if (anterior) {
+
+        producto3D.remove(
+            anterior
+        );
+
+    }
+
+
+    const texto =
+        document
+            .getElementById("iniciales")
+            .value
+            .trim()
+            .toUpperCase();
+
+
+    if (!texto) {
+
+        return;
+
+    }
+
+
+    /*
+       Para esta primera versión
+       utilizamos pequeñas placas
+       representando las iniciales.
+    */
+
+    const grupo =
+        new THREE.Group();
+
+
+    grupo.name =
+        "iniciales";
+
+
+    const material =
+        new THREE.MeshStandardMaterial({
+
+            color: "#d8c4a8",
+
+            metalness: 0.1,
+
+            roughness: 0.4
+
+        });
+
+
+    for (
+        let i = 0;
+        i < Math.min(texto.length, 3);
+        i++
+    ) {
+
+        const letra =
+            new THREE.Mesh(
+                new THREE.BoxGeometry(
+                    0.16,
+                    0.16,
+                    0.04
+                ),
+                material
+            );
+
+
+        letra.position.set(
+            (i - 1) * 0.22,
+            1.35,
+            -0.55
+        );
+
+
+        grupo.add(
+            letra
+        );
+
+    }
+
+
+    producto3D.add(
+        grupo
+    );
+
+}
+
+
+/* =========================================
+   PRECIO
+========================================= */
+
+function calcularPrecio() {
+
+    let precio =
+        320000;
+
+
+    if (
+        productoActual === "bolso"
+    ) {
+
+        precio =
+            280000;
+
+    }
+
+
+    if (
+        productoActual === "sombrero"
+    ) {
+
+        precio =
+            180000;
+
+    }
+
+
+    if (
+        materialActual === "ante"
+    ) {
+
+        precio +=
+            30000;
+
+    }
+
+
+    if (
+        materialActual === "sintetico"
+    ) {
+
+        precio -=
+            20000;
+
+    }
+
+
+    if (
+        suelaActual === "premium"
+    ) {
+
+        precio +=
+            25000;
+
+    }
+
+
+    if (
+        suelaActual === "urbana"
+    ) {
+
+        precio +=
+            40000;
+
+    }
+
+
+    if (
+        herrajeActual === "dorado"
+    ) {
+
+        precio +=
+            15000;
+
+    }
+
+
+    const precioFormato =
+        new Intl.NumberFormat(
+            "es-CO",
+            {
+                style: "currency",
+                currency: "COP",
+                maximumFractionDigits: 0
+            }
+        ).format(precio);
+
+
+    document
+        .getElementById("precio")
+        .textContent =
+        precioFormato;
+
+}
+
+
+/* =========================================
+   ACTUALIZAR RESUMEN
+========================================= */
+
+function actualizarResumen() {
+
+    const producto =
+        document
+            .getElementById("producto");
+
+
+    const productoNombre =
+        producto.options[
+            producto.selectedIndex
+        ].text;
+
+
+    document
+        .getElementById(
+            "resumen-producto"
+        )
+        .textContent =
+        productoNombre;
+
+
+    document
+        .getElementById(
+            "resumen-personalizacion"
+        )
+        .textContent =
+        `${document.getElementById("nombre-color").textContent} · ${materialActual}`;
+
+}
+
+
+/* =========================================
+   CAMBIO DE COLOR
+========================================= */
+
+document
+    .querySelectorAll(".color-opcion")
+    .forEach(
+        boton => {
+
+            boton.addEventListener(
+                "click",
+                () => {
+
+                    document
+                        .querySelectorAll(
+                            ".color-opcion"
+                        )
+                        .forEach(
+                            b =>
+                                b.classList.remove(
+                                    "seleccionado"
+                                )
+                        );
+
+
+                    boton.classList.add(
+                        "seleccionado"
+                    );
+
+
+                    colorActual =
+                        boton.dataset.color;
+
+
+                    document
+                        .getElementById(
+                            "nombre-color"
+                        )
+                        .textContent =
+                        boton.dataset.nombre;
+
+
+                    crearZapato();
+
+                    calcularPrecio();
+
+                    actualizarResumen();
+
+                }
+            );
+
+        }
+    );
+
+
+/* =========================================
+   CAMBIO DE MATERIAL
+========================================= */
+
+document
+    .querySelectorAll(
+        ".material-opcion"
+    )
+    .forEach(
+        boton => {
+
+            boton.addEventListener(
+                "click",
+                () => {
+
+                    const grupo =
+                        boton.parentElement;
+
+
+                    grupo
+                        .querySelectorAll(
+                            ".material-opcion"
+                        )
+                        .forEach(
+                            b =>
+                                b.classList.remove(
+                                    "seleccionado"
+                                )
+                        );
+
+
+                    boton.classList.add(
+                        "seleccionado"
+                    );
+
+
+                    materialActual =
+                        boton.dataset.material;
+
+
+                    crearZapato();
+
+                    calcularPrecio();
+
+                    actualizarResumen();
+
+                }
+            );
+
+        }
+    );
+
+
+/* =========================================
+   CAMBIO DE HERRAJE
+========================================= */
+
+document
+    .querySelectorAll(
+        ".herraje-opcion"
+    )
+    .forEach(
+        boton => {
+
+            boton.addEventListener(
+                "click",
+                () => {
+
+                    boton
+                        .parentElement
+                        .querySelectorAll(
+                            ".herraje-opcion"
+                        )
+                        .forEach(
+                            b =>
+                                b.classList.remove(
+                                    "seleccionado"
+                                )
+                        );
+
+
+                    boton.classList.add(
+                        "seleccionado"
+                    );
+
+
+                    herrajeActual =
+                        boton.dataset.herraje;
+
+
+                    crearZapato();
+
+                }
+            );
+
+        }
+    );
+
+
+/* =========================================
+   CAMBIO DE SUELA
+========================================= */
+
+document
+    .getElementById("suela")
+    .addEventListener(
+        "change",
+        function () {
+
+            suelaActual =
+                this.value;
+
+
+            crearZapato();
+
+            calcularPrecio();
+
+        }
+    );
+
+
+/* =========================================
+   CAMBIO DE PRODUCTO
+========================================= */
+
+document
+    .getElementById("producto")
+    .addEventListener(
+        "change",
+        function () {
+
+            productoActual =
+                this.value;
+
+
+            crearZapato();
+
+            calcularPrecio();
+
+            actualizarResumen();
+
+        }
+    );
+
+
+/* =========================================
+   INICIALES
+========================================= */
+
+document
+    .getElementById("iniciales")
+    .addEventListener(
+        "input",
+        () => {
+
+            actualizarIniciales();
+
+        }
+    );
+
+
+/* =========================================
+   BOTÓN DE COMPRA
+========================================= */
+
+document
+    .getElementById("comprar-diseno")
+    .addEventListener(
+        "click",
+        () => {
+
+            /*
+                Por ahora enviamos al login.
+                Después conectaremos esto con
+                PostgreSQL y el carrito/pedido.
+            */
+
+            window.location.href =
+                "{{ url_for('auth.login') }}";
+
+        }
+    );
+
+
+/* =========================================
+   REDIMENSIONAMIENTO
+========================================= */
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        const ancho =
+            contenedor.clientWidth;
+
+        const alto =
+            contenedor.clientHeight;
+
+
+        camara.aspect =
+            ancho / alto;
+
+
+        camara.updateProjectionMatrix();
+
+
+        renderer.setSize(
+            ancho,
+            alto
+        );
+
+    }
+);
+
+
+/* =========================================
+   ANIMACIÓN
+========================================= */
+
+function animar() {
+
+    requestAnimationFrame(
+        animar
+    );
+
+
+    controles.update();
+
+
+    renderer.render(
+        escena,
+        camara
+    );
+
+}
+
+
+crearZapato();
+
+calcularPrecio();
+
+actualizarResumen();
+
+animar();
+
 </script>
 
 {% endblock %}

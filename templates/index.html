@@ -1,111 +1,327 @@
 {% extends "base.html" %}
 
-
 {% block titulo %}
-
-Inicio - Taller El Obrero
-
+Taller El Obrero | Catálogo
 {% endblock %}
 
 
 {% block contenido %}
 
 
-<section class="hero">
+<!-- ============================= -->
+<!-- PORTADA -->
+<!-- ============================= -->
 
+<section class="catalogo-portada">
 
-    <div class="hero-texto">
+    <div class="portada-contenido">
 
-        <h2>
-            Bienvenido a Taller El Obrero
-        </h2>
+        <p class="etiqueta">
+            TALLER EL OBRERO · CALI
+        </p>
 
+        <h1>
+            Hecho a mano.
+            <br>
+            Hecho para ti.
+        </h1>
 
         <p>
 
-            Personaliza tus productos
-            y realiza tus pedidos
-            de manera digital.
+            Descubre nuestra colección de productos
+            de marroquinería artesanal.
+
+        </p>
+
+        <a
+            href="#catalogo"
+            class="boton boton-principal"
+        >
+            Ver colección
+        </a>
+
+    </div>
+
+</section>
+
+
+
+<!-- ============================= -->
+<!-- PRESENTACIÓN -->
+<!-- ============================= -->
+
+<section class="presentacion">
+
+    <p class="etiqueta">
+        NUESTRA ESENCIA
+    </p>
+
+    <h2>
+        Tradición artesanal con una nueva
+        experiencia de compra.
+    </h2>
+
+    <p>
+
+        En Taller El Obrero combinamos el conocimiento
+        de nuestros artesanos con herramientas digitales
+        para ofrecer productos elaborados con cuidado,
+        calidad y personalidad.
+
+    </p>
+
+</section>
+
+
+
+<!-- ============================= -->
+<!-- CATÁLOGO -->
+<!-- ============================= -->
+
+<section
+    id="catalogo"
+    class="catalogo"
+>
+
+    <div class="catalogo-titulo">
+
+        <div>
+
+            <p class="etiqueta">
+                COLECCIÓN
+            </p>
+
+            <h2>
+                Nuestros productos
+            </h2>
+
+        </div>
+
+
+        <div class="filtros">
+
+            <button onclick="filtrarProductos('Todos')">
+                Todos
+            </button>
+
+            <button onclick="filtrarProductos('Calzado')">
+                Calzado
+            </button>
+
+            <button onclick="filtrarProductos('Bolsos')">
+                Bolsos
+            </button>
+
+            <button onclick="filtrarProductos('Sombreros')">
+                Sombreros
+            </button>
+
+            <button onclick="filtrarProductos('Morrales')">
+                Morrales
+            </button>
+
+            <button onclick="filtrarProductos('Accesorios')">
+                Accesorios
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="productos-grid">
+
+
+        {% for producto in productos %}
+
+        <article
+            class="producto-card catalogo-producto"
+            data-categoria="{{ producto.categoria }}"
+        >
+
+            <div class="producto-imagen">
+
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='img/productos/' + producto.imagen
+                    ) }}"
+                    alt="{{ producto.nombre }}"
+                    onerror="this.style.display='none'; this.parentElement.classList.add('sin-imagen');"
+                >
+
+                <span class="categoria">
+
+                    {{ producto.categoria }}
+
+                </span>
+
+            </div>
+
+
+            <div class="producto-info">
+
+                <h3>
+                    {{ producto.nombre }}
+                </h3>
+
+                <p>
+                    {{ producto.descripcion }}
+                </p>
+
+
+                <div class="producto-footer">
+
+                    <strong>
+                        ${{ "{:,.0f}".format(producto.precio).replace(",", ".") }}
+                    </strong>
+
+
+                    <a
+                        href="/cliente/producto/{{ producto.id }}"
+                        class="boton-comprar"
+                    >
+                        Ver producto
+                    </a>
+
+                </div>
+
+            </div>
+
+        </article>
+
+        {% endfor %}
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ============================= -->
+<!-- PERSONALIZACIÓN -->
+<!-- ============================= -->
+
+<section class="personalizacion">
+
+    <div>
+
+        <p class="etiqueta">
+            ¿QUIERES ALGO DIFERENTE?
+        </p>
+
+        <h2>
+            Diseña un producto
+            a tu manera.
+        </h2>
+
+        <p>
+
+            Próximamente podrás personalizar
+            colores, materiales, herrajes,
+            suelas e iniciales desde nuestro
+            configurador digital.
 
         </p>
 
 
         <a
-            href="/configurador/"
-            class="boton"
+            href="{{ url_for('auth.login') }}"
+            class="boton boton-claro"
         >
-
-            Personalizar producto
-
+            Crear mi cuenta
         </a>
 
     </div>
 
+</section>
+
+
+
+<!-- ============================= -->
+<!-- FOOTER INFORMATIVO -->
+<!-- ============================= -->
+
+<section class="confianza">
+
+    <div>
+
+        <span>✦</span>
+
+        <h3>
+            Hecho artesanalmente
+        </h3>
+
+        <p>
+            Cada producto pasa por manos expertas.
+        </p>
+
+    </div>
+
+
+    <div>
+
+        <span>♻</span>
+
+        <h3>
+            Producción responsable
+        </h3>
+
+        <p>
+            Fabricación bajo pedido y aprovechamiento
+            de materiales.
+        </p>
+
+    </div>
+
+
+    <div>
+
+        <span>✓</span>
+
+        <h3>
+            Compra segura
+        </h3>
+
+        <p>
+            Realiza tu pedido y recibe tu factura digital.
+        </p>
+
+    </div>
 
 </section>
 
 
-<section class="modulos">
+
+<script>
+
+function filtrarProductos(categoria) {
+
+    const productos =
+        document.querySelectorAll(".catalogo-producto");
 
 
-    <div class="tarjeta">
+    productos.forEach(function(producto) {
 
-        <h3>
-            Configurador
-        </h3>
+        if (
+            categoria === "Todos" ||
+            producto.dataset.categoria === categoria
+        ) {
 
-        <p>
-            Personaliza colores,
-            materiales, suelas,
-            herrajes e iniciales.
-        </p>
+            producto.style.display = "block";
 
-    </div>
+        } else {
 
+            producto.style.display = "none";
 
-    <div class="tarjeta">
+        }
 
-        <h3>
-            Pedidos
-        </h3>
+    });
 
-        <p>
-            Administra los pedidos
-            realizados por los clientes.
-        </p>
+}
 
-    </div>
-
-
-    <div class="tarjeta">
-
-        <h3>
-            Producción
-        </h3>
-
-        <p>
-            Controla el estado
-            de fabricación.
-        </p>
-
-    </div>
-
-
-    <div class="tarjeta">
-
-        <h3>
-            Facturación
-        </h3>
-
-        <p>
-            Gestiona las facturas
-            de los pedidos.
-        </p>
-
-    </div>
-
-
-</section>
+</script>
 
 
 {% endblock %}

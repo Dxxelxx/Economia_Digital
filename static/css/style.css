@@ -1,173 +1,2200 @@
-/* =====================================
+/* =========================================
    CONFIGURACIÓN GENERAL
-===================================== */
+========================================= */
 
 * {
     box-sizing: border-box;
 }
 
-
 html {
-    margin: 0;
-    padding: 0;
+    scroll-behavior: smooth;
 }
-
 
 body {
     margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f5f2ee;
+    color: #211d1a;
+}
 
-    padding: 0;
+a {
+    text-decoration: none;
+}
 
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
-    background-color: #f5f5f5;
-
-    color: #222;
+button {
+    font-family: inherit;
 }
 
 
-/* =====================================
-   HEADER
-===================================== */
+/* =========================================
+   BARRA DE NAVEGACIÓN
+========================================= */
 
-.header {
-    background-color: #1f1f1f;
-
-    color: white;
-
-    width: 100%;
-}
-
-
-.header-container {
-    max-width: 1200px;
-
-    margin: 0 auto;
-
-    padding: 18px 25px;
+.barra-navegacion {
+    height: 70px;
 
     display: flex;
-
+    align-items: center;
     justify-content: space-between;
 
-    align-items: center;
-}
+    padding: 0 7%;
 
+    background-color: #211d1a;
 
-.logo {
     color: white;
 
-    text-decoration: none;
-
-    font-size: 24px;
-
-    font-weight: bold;
+    position: relative;
+    z-index: 100;
 }
 
 
-.nav {
+/* Lado izquierdo */
+
+.nav-izquierda {
     display: flex;
-
     align-items: center;
-
-    gap: 20px;
 }
 
 
-.nav a {
+/* Lado derecho */
+
+.nav-derecha {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+
+/* Enlaces */
+
+.nav-enlace {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 10px 15px;
+
     color: white;
 
     text-decoration: none;
 
     font-size: 15px;
 
-    transition: 0.2s;
+    border-radius: 6px;
+
+    transition: all 0.25s ease;
 }
 
 
-.nav a:hover {
-    color: #d4a373;
+/* Efecto al pasar el mouse */
+
+.nav-enlace:hover {
+    background-color: rgba(255, 255, 255, 0.10);
+    color: white;
 }
 
 
-/* =====================================
-   CONTENIDO
-===================================== */
+/* Iconos */
 
-.main {
-    min-height: 80vh;
-
-    padding: 40px 20px;
+.nav-icono {
+    font-size: 20px;
+    line-height: 1;
 }
 
 
-/* =====================================
+/* Botón registrarse */
+
+.nav-registro {
+    border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+
+.nav-registro:hover {
+    background-color: white;
+    color: #211d1a;
+}
+
+
+/* =========================================
+   CONTENIDO PRINCIPAL
+========================================= */
+
+main {
+    min-height: 70vh;
+}
+
+
+/* =========================================
+   PORTADA PRINCIPAL
+========================================= */
+
+.catalogo-portada {
+    min-height: 600px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 80px 8%;
+
+    background:
+        linear-gradient(
+            rgba(30, 24, 20, 0.72),
+            rgba(30, 24, 20, 0.72)
+        ),
+        radial-gradient(
+            circle at right,
+            #765335,
+            #211d1a
+        );
+
+    color: white;
+}
+
+
+.portada-contenido {
+    max-width: 700px;
+}
+
+
+/* Texto pequeño superior */
+
+.etiqueta {
+    font-size: 13px;
+
+    letter-spacing: 2px;
+
+    font-weight: bold;
+
+    margin-bottom: 15px;
+
+    color: #c99b6a;
+}
+
+
+/* Título principal */
+
+.catalogo-portada h1 {
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: 68px;
+
+    line-height: 1.05;
+
+    margin: 15px 0 25px;
+
+    color: white;
+}
+
+
+/* Descripción */
+
+.catalogo-portada p:not(.etiqueta) {
+    font-size: 20px;
+
+    line-height: 1.6;
+
+    color: #e2ddd7;
+
+    max-width: 600px;
+}
+
+
+/* =========================================
    BOTONES
-===================================== */
+========================================= */
 
 .boton {
     display: inline-block;
 
-    padding: 12px 22px;
+    padding: 13px 25px;
 
-    background-color: #222;
-
-    color: white;
+    border-radius: 5px;
 
     text-decoration: none;
 
-    border: none;
-
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    transition: 0.2s;
+    transition: all 0.25s ease;
 }
 
 
-.boton:hover {
-    background-color: #444;
+.boton-principal {
+    margin-top: 20px;
+
+    background-color: white;
+
+    color: #211d1a;
+
+    font-weight: bold;
 }
 
 
-/* =====================================
-   FOOTER
-===================================== */
-
-.footer {
-    background-color: #1f1f1f;
+.boton-principal:hover {
+    background-color: #c99b6a;
 
     color: white;
 
+    transform: translateY(-2px);
+}
+
+
+.boton-claro {
+    margin-top: 20px;
+
+    background-color: white;
+
+    color: #211d1a;
+
+    font-weight: bold;
+}
+
+
+.boton-claro:hover {
+    background-color: #c99b6a;
+
+    color: white;
+}
+
+
+/* =========================================
+   PRESENTACIÓN
+========================================= */
+
+.presentacion {
+    max-width: 900px;
+
+    margin: auto;
+
+    padding: 100px 30px;
+
+    text-align: center;
+
+    background-color: #f5f2ee;
+}
+
+
+.presentacion h2 {
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: 42px;
+
+    line-height: 1.2;
+
+    margin: 15px 0 25px;
+
+    color: #211d1a;
+}
+
+
+.presentacion p:last-child {
+    color: #666;
+
+    font-size: 18px;
+
+    line-height: 1.7;
+
+    max-width: 700px;
+
+    margin: auto;
+}
+
+
+/* =========================================
+   SECCIÓN CATÁLOGO
+========================================= */
+
+.catalogo {
+    padding: 90px 7%;
+
+    background-color: #f4f0ea;
+}
+
+
+/* Título del catálogo */
+
+.catalogo-titulo {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: end;
+
+    margin-bottom: 40px;
+
+    gap: 30px;
+}
+
+
+.catalogo-titulo h2 {
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: 45px;
+
+    margin: 0;
+
+    color: #211d1a;
+}
+
+
+/* =========================================
+   FILTROS
+========================================= */
+
+.filtros {
+    display: flex;
+
+    gap: 8px;
+
+    flex-wrap: wrap;
+
+    justify-content: flex-end;
+}
+
+
+.filtros button {
+    background-color: white;
+
+    color: #211d1a;
+
+    border: 1px solid #d8d0c8;
+
+    padding: 9px 15px;
+
+    border-radius: 20px;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+
+.filtros button:hover {
+    background-color: #211d1a;
+
+    color: white;
+
+    border-color: #211d1a;
+}
+
+
+/* =========================================
+   GRID DE PRODUCTOS
+========================================= */
+
+.productos-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 30px;
+}
+
+
+/* =========================================
+   TARJETA DE PRODUCTO
+========================================= */
+
+.catalogo-producto {
+    padding: 0;
+
+    overflow: hidden;
+
+    background-color: white;
+
+    border: none;
+
+    border-radius: 4px;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.06);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+.catalogo-producto:hover {
+    transform: translateY(-5px);
+
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================================
+   IMAGEN DEL PRODUCTO
+========================================= */
+
+.producto-imagen {
+    height: 330px;
+
+    position: relative;
+
+    background:
+        linear-gradient(
+            135deg,
+            #806044,
+            #33261d
+        );
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    overflow: hidden;
+}
+
+
+.producto-imagen img {
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: cover;
+
+    transition: transform 0.4s ease;
+}
+
+
+.catalogo-producto:hover
+.producto-imagen img {
+    transform: scale(1.04);
+}
+
+
+/* Si no existe imagen */
+
+.producto-imagen.sin-imagen::after {
+    content: "Producto artesanal";
+
+    color: #ead9c6;
+
+    font-size: 20px;
+
+    position: absolute;
+}
+
+
+/* =========================================
+   CATEGORÍA DEL PRODUCTO
+========================================= */
+
+.categoria {
+    position: absolute;
+
+    top: 15px;
+
+    left: 15px;
+
+    padding: 7px 12px;
+
+    background-color: rgba(255, 255, 255, 0.92);
+
+    border-radius: 20px;
+
+    font-size: 12px;
+
+    color: #211d1a;
+
+    font-weight: bold;
+}
+
+
+/* =========================================
+   INFORMACIÓN DEL PRODUCTO
+========================================= */
+
+.producto-info {
+    padding: 25px;
+}
+
+
+.producto-info h3 {
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: 22px;
+
+    margin-top: 0;
+
+    margin-bottom: 10px;
+
+    color: #211d1a;
+}
+
+
+.producto-info p {
+    color: #777;
+
+    line-height: 1.5;
+
+    min-height: 50px;
+
+    margin-bottom: 15px;
+}
+
+
+/* =========================================
+   PRECIO Y BOTÓN
+========================================= */
+
+.producto-footer {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-top: 20px;
+
+    gap: 15px;
+}
+
+
+.producto-footer strong {
+    font-size: 20px;
+
+    color: #211d1a;
+}
+
+
+/* Botón ver producto */
+
+.boton-comprar {
+    background-color: #211d1a;
+
+    color: white;
+
+    padding: 10px 15px;
+
+    border-radius: 5px;
+
+    font-size: 14px;
+
+    transition: all 0.25s ease;
+}
+
+
+.boton-comprar:hover {
+    background-color: #b57945;
+
+    color: white;
+}
+
+
+/* =========================================
+   SECCIÓN PERSONALIZACIÓN
+========================================= */
+
+.personalizacion {
+    padding: 100px 10%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #211d1a,
+            #523925
+        );
+
+    color: white;
+}
+
+
+.personalizacion > div {
+    max-width: 800px;
+
+    margin: auto;
+
+    text-align: center;
+}
+
+
+.personalizacion h2 {
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: 45px;
+
+    line-height: 1.2;
+
+    margin: 15px 0 20px;
+
+    color: white;
+}
+
+
+.personalizacion p {
+    font-size: 18px;
+
+    line-height: 1.7;
+
+    color: #e2ddd7;
+}
+
+
+/* =========================================
+   SECCIÓN DE CONFIANZA
+========================================= */
+
+.confianza {
+    padding: 80px 8%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 30px;
+
+    text-align: center;
+
+    background-color: white;
+}
+
+
+.confianza > div {
+    padding: 30px;
+}
+
+
+.confianza span {
+    font-size: 40px;
+
+    color: #b57945;
+}
+
+
+.confianza h3 {
+    font-size: 20px;
+
+    margin: 15px 0 10px;
+
+    color: #211d1a;
+}
+
+
+.confianza p {
+    color: #777;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+footer {
     text-align: center;
 
     padding: 25px;
 
-    margin-top: 40px;
+    background-color: #211d1a;
+
+    color: white;
 }
 
 
-/* =====================================
-   RESPONSIVE
-===================================== */
+footer p {
+    margin: 0;
 
-@media (max-width: 800px) {
+    font-size: 14px;
+}
 
-    .header-container {
+
+/* =========================================
+   RESPONSIVE - TABLET
+========================================= */
+
+@media (max-width: 900px) {
+
+    .catalogo-titulo {
         flex-direction: column;
 
-        gap: 15px;
+        align-items: flex-start;
+
+        gap: 20px;
     }
 
 
-    .nav {
-        flex-wrap: wrap;
+    .filtros {
+        justify-content: flex-start;
+    }
 
-        justify-content: center;
+
+    .productos-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .confianza {
+        grid-template-columns: 1fr;
+    }
+
+
+    .catalogo-portada h1 {
+        font-size: 55px;
+    }
+
+}
+
+
+/* =========================================
+   RESPONSIVE - CELULAR
+========================================= */
+
+@media (max-width: 600px) {
+
+    /* Barra superior */
+
+    .barra-navegacion {
+        padding: 0 20px;
+
+        height: 65px;
+    }
+
+
+    .nav-derecha {
+        gap: 2px;
+    }
+
+
+    .nav-enlace {
+        padding: 8px;
+    }
+
+
+    .nav-enlace span:last-child {
+        display: none;
+    }
+
+
+    .nav-icono {
+        font-size: 22px;
+    }
+
+
+    /* Portada */
+
+    .catalogo-portada {
+        min-height: 550px;
+
+        padding: 60px 25px;
+    }
+
+
+    .catalogo-portada h1 {
+        font-size: 45px;
+    }
+
+
+    .catalogo-portada p:not(.etiqueta) {
+        font-size: 17px;
+    }
+
+
+    /* Presentación */
+
+    .presentacion {
+        padding: 70px 25px;
+    }
+
+
+    .presentacion h2 {
+        font-size: 32px;
+    }
+
+
+    /* Catálogo */
+
+    .catalogo {
+        padding: 70px 20px;
+    }
+
+
+    .catalogo-titulo h2 {
+        font-size: 36px;
+    }
+
+
+    /* Productos */
+
+    .productos-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .producto-imagen {
+        height: 300px;
+    }
+
+
+    /* Personalización */
+
+    .personalizacion {
+        padding: 70px 25px;
+    }
+
+
+    .personalizacion h2 {
+        font-size: 35px;
+    }
+
+
+    /* Confianza */
+
+    .confianza {
+        padding: 60px 20px;
+    }
+
+}
+
+/* =========================================
+   PÁGINAS DE AUTENTICACIÓN
+========================================= */
+
+.auth-pagina {
+
+    min-height: calc(100vh - 70px);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 70px 6%;
+
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(181, 121, 69, 0.16),
+            transparent 35%
+        ),
+        #f4f0ea;
+}
+
+
+/* =========================================
+   CONTENEDOR PRINCIPAL
+========================================= */
+
+.auth-contenedor {
+
+    width: 100%;
+
+    max-width: 1100px;
+
+    min-height: 650px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    background-color: white;
+
+    box-shadow:
+        0 25px 70px rgba(33, 29, 26, 0.15);
+
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+
+/* =========================================
+   PRESENTACIÓN
+========================================= */
+
+.auth-presentacion {
+
+    padding: 70px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            rgba(33, 29, 26, 0.88),
+            rgba(33, 29, 26, 0.95)
+        );
+
+    color: white;
+}
+
+
+.auth-presentacion h1 {
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 58px;
+
+    line-height: 1.05;
+
+    margin: 15px 0 25px;
+
+    color: white;
+}
+
+
+.auth-presentacion > p:not(.etiqueta) {
+
+    max-width: 450px;
+
+    font-size: 17px;
+
+    line-height: 1.7;
+
+    color: #ded7d0;
+}
+
+
+/* =========================================
+   FRASE
+========================================= */
+
+.auth-frase {
+
+    margin-top: 50px;
+
+    padding-top: 25px;
+
+    border-top:
+        1px solid rgba(255,255,255,0.18);
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+}
+
+
+.auth-frase span {
+
+    font-size: 28px;
+
+    color: #c99b6a;
+}
+
+
+.auth-frase p {
+
+    margin: 0;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 18px;
+
+    color: #e8dfd6;
+}
+
+
+/* =========================================
+   BENEFICIOS DEL REGISTRO
+========================================= */
+
+.auth-beneficios {
+
+    margin-top: 40px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 18px;
+}
+
+
+.auth-beneficios div {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+}
+
+
+.auth-beneficios span {
+
+    width: 35px;
+
+    height: 35px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border:
+        1px solid rgba(255,255,255,0.25);
+
+    border-radius: 50%;
+
+    color: #c99b6a;
+}
+
+
+.auth-beneficios p {
+
+    margin: 0;
+
+    color: #ded7d0;
+}
+
+
+/* =========================================
+   FORMULARIO
+========================================= */
+
+.auth-formulario {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 60px;
+}
+
+
+.auth-formulario-contenido {
+
+    width: 100%;
+
+    max-width: 420px;
+}
+
+
+/* =========================================
+   ICONO
+========================================= */
+
+.auth-icono {
+
+    width: 55px;
+
+    height: 55px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-bottom: 20px;
+
+    background-color: #f3ebe2;
+
+    color: #a56f43;
+
+    border-radius: 50%;
+
+    font-size: 25px;
+}
+
+
+/* =========================================
+   TÍTULO
+========================================= */
+
+.auth-formulario h2 {
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 38px;
+
+    margin: 0 0 8px;
+
+    color: #211d1a;
+}
+
+
+.auth-subtitulo {
+
+    margin-top: 0;
+
+    margin-bottom: 35px;
+
+    color: #777;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================
+   CAMPOS
+========================================= */
+
+.campo {
+
+    margin-bottom: 20px;
+}
+
+
+.campo label {
+
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    color: #3a332e;
+}
+
+
+.campo input {
+
+    width: 100%;
+
+    height: 50px;
+
+    padding: 0 15px;
+
+    border:
+        1px solid #d8d0c8;
+
+    border-radius: 5px;
+
+    background-color: #faf9f7;
+
+    color: #211d1a;
+
+    font-size: 15px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.campo input:focus {
+
+    border-color: #a56f43;
+
+    box-shadow:
+        0 0 0 3px rgba(165, 111, 67, 0.12);
+
+    background-color: white;
+}
+
+
+.campo input::placeholder {
+
+    color: #aaa;
+}
+
+
+/* =========================================
+   TÍTULO DEL CAMPO
+========================================= */
+
+.campo-titulo {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 8px;
+}
+
+
+.campo-titulo label {
+
+    margin: 0;
+}
+
+
+.campo-titulo a {
+
+    font-size: 12px;
+
+    color: #a56f43;
+
+    text-decoration: none;
+}
+
+
+.campo-titulo a:hover {
+
+    text-decoration: underline;
+}
+
+
+/* =========================================
+   RECORDAR SESIÓN
+========================================= */
+
+.recordar {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin: 5px 0 25px;
+
+    font-size: 13px;
+
+    color: #666;
+
+    cursor: pointer;
+}
+
+
+.recordar input {
+
+    width: 15px;
+
+    height: 15px;
+
+    accent-color: #a56f43;
+
+    cursor: pointer;
+}
+
+
+/* =========================================
+   BOTÓN PRINCIPAL AUTH
+========================================= */
+
+.boton-auth {
+
+    width: 100%;
+
+    height: 52px;
+
+    border: none;
+
+    border-radius: 5px;
+
+    background-color: #211d1a;
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.25s ease,
+        transform 0.2s ease;
+}
+
+
+.boton-auth:hover {
+
+    background-color: #a56f43;
+
+    transform: translateY(-2px);
+}
+
+
+/* =========================================
+   SEPARADOR
+========================================= */
+
+.auth-separador {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin: 30px 0 20px;
+}
+
+
+.auth-separador span {
+
+    height: 1px;
+
+    flex: 1;
+
+    background-color: #e2ddd7;
+}
+
+
+.auth-separador p {
+
+    margin: 0;
+
+    color: #999;
+
+    font-size: 12px;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================
+   BOTÓN REGISTRO
+========================================= */
+
+.boton-registro-auth {
+
+    width: 100%;
+
+    height: 50px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border:
+        1px solid #211d1a;
+
+    border-radius: 5px;
+
+    color: #211d1a;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    transition: all 0.25s ease;
+}
+
+
+.boton-registro-auth:hover {
+
+    background-color: #211d1a;
+
+    color: white;
+}
+
+
+/* =========================================
+   SEGURIDAD
+========================================= */
+
+.auth-seguridad {
+
+    text-align: center;
+
+    margin-top: 22px;
+
+    color: #999;
+
+    font-size: 12px;
+}
+
+
+/* =========================================
+   RESPONSIVE AUTH - TABLET
+========================================= */
+
+@media (max-width: 900px) {
+
+    .auth-contenedor {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .auth-presentacion {
+
+        padding: 55px;
+
+        min-height: 400px;
+    }
+
+
+    .auth-presentacion h1 {
+
+        font-size: 48px;
+    }
+
+
+    .auth-formulario {
+
+        padding: 55px;
+    }
+
+}
+
+
+/* =========================================
+   RESPONSIVE AUTH - CELULAR
+========================================= */
+
+@media (max-width: 600px) {
+
+    .auth-pagina {
+
+        padding: 30px 15px;
+
+    }
+
+
+    .auth-contenedor {
+
+        border-radius: 5px;
+
+    }
+
+
+    .auth-presentacion {
+
+        padding: 40px 30px;
+
+        min-height: 350px;
+
+    }
+
+
+    .auth-presentacion h1 {
+
+        font-size: 42px;
+
+    }
+
+
+    .auth-presentacion > p:not(.etiqueta) {
+
+        font-size: 15px;
+
+    }
+
+
+    .auth-formulario {
+
+        padding: 40px 25px;
+
+    }
+
+
+    .auth-formulario h2 {
+
+        font-size: 32px;
+
+    }
+
+}
+
+/* =========================================
+   CONFIGURADOR 3D
+========================================= */
+
+.configurador-pagina {
+
+    padding: 80px 6% 100px;
+
+    background-color: #f4f0ea;
+
+}
+
+
+/* =========================================
+   ENCABEZADO
+========================================= */
+
+.configurador-encabezado {
+
+    max-width: 1100px;
+
+    margin: 0 auto 45px;
+
+}
+
+
+.configurador-encabezado h1 {
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 58px;
+
+    line-height: 1.05;
+
+    margin: 15px 0 20px;
+
+    color: #211d1a;
+
+}
+
+
+.configurador-encabezado > p:last-child {
+
+    max-width: 650px;
+
+    font-size: 17px;
+
+    line-height: 1.7;
+
+    color: #777;
+
+}
+
+
+/* =========================================
+   CONTENEDOR
+========================================= */
+
+.configurador-contenedor {
+
+    max-width: 1100px;
+
+    min-height: 650px;
+
+    margin: auto;
+
+    display: grid;
+
+    grid-template-columns:
+        1.35fr
+        0.65fr;
+
+    background-color: white;
+
+    border-radius: 8px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 20px 60px
+        rgba(33, 29, 26, 0.12);
+
+}
+
+
+/* =========================================
+   VISOR 3D
+========================================= */
+
+.visor-3d {
+
+    min-height: 650px;
+
+    position: relative;
+
+    background-color: #e9e1d8;
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+.visor-superior {
+
+    position: absolute;
+
+    top: 25px;
+
+    left: 30px;
+
+    right: 30px;
+
+    z-index: 5;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    color: #211d1a;
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+    letter-spacing: 1.5px;
+
+}
+
+
+.visor-ayuda {
+
+    font-size: 11px;
+
+    font-weight: normal;
+
+    letter-spacing: 0;
+
+    color: #777;
+
+}
+
+
+.contenedor-3d {
+
+    width: 100%;
+
+    flex: 1;
+
+    min-height: 570px;
+
+    cursor: grab;
+
+}
+
+
+.contenedor-3d:active {
+
+    cursor: grabbing;
+
+}
+
+
+.contenedor-3d canvas {
+
+    display: block;
+
+    width: 100% !important;
+
+    height: 100% !important;
+
+}
+
+
+.visor-inferior {
+
+    padding: 20px 30px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    color: #777;
+
+    font-size: 12px;
+
+    border-top:
+        1px solid rgba(33, 29, 26, 0.08);
+
+}
+
+
+/* =========================================
+   PANEL
+========================================= */
+
+.panel-configuracion {
+
+    padding: 40px;
+
+    overflow-y: auto;
+
+    max-height: 650px;
+
+    background-color: white;
+
+}
+
+
+.panel-titulo {
+
+    padding-bottom: 25px;
+
+    border-bottom:
+        1px solid #eee7df;
+
+    margin-bottom: 25px;
+
+}
+
+
+.numero-paso {
+
+    margin: 0 0 5px;
+
+    font-size: 11px;
+
+    font-weight: bold;
+
+    letter-spacing: 2px;
+
+    color: #a56f43;
+
+}
+
+
+.panel-titulo h2 {
+
+    margin: 0 0 8px;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 30px;
+
+    color: #211d1a;
+
+}
+
+
+.panel-titulo p:last-child {
+
+    margin: 0;
+
+    color: #777;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+}
+
+
+/* =========================================
+   GRUPOS
+========================================= */
+
+.config-grupo {
+
+    margin-bottom: 25px;
+
+}
+
+
+.config-grupo > label {
+
+    display: block;
+
+    margin-bottom: 10px;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    color: #3a332e;
+
+}
+
+
+.config-grupo select,
+
+.config-grupo > input {
+
+    width: 100%;
+
+    height: 46px;
+
+    padding: 0 13px;
+
+    border:
+        1px solid #d8d0c8;
+
+    border-radius: 5px;
+
+    background-color: #faf9f7;
+
+    color: #211d1a;
+
+    outline: none;
+
+    font-size: 14px;
+
+}
+
+
+.config-grupo select:focus,
+
+.config-grupo > input:focus {
+
+    border-color: #a56f43;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(165, 111, 67, 0.10);
+
+}
+
+
+/* =========================================
+   COLORES
+========================================= */
+
+.opciones-color {
+
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+}
+
+
+.color-opcion {
+
+    width: 35px;
+
+    height: 35px;
+
+    border-radius: 50%;
+
+    border:
+        3px solid white;
+
+    box-shadow:
+        0 0 0 1px #ccc;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+.color-opcion:hover {
+
+    transform: scale(1.1);
+
+}
+
+
+.color-opcion.seleccionado {
+
+    box-shadow:
+        0 0 0 2px #a56f43;
+
+}
+
+
+.config-grupo small {
+
+    display: block;
+
+    margin-top: 8px;
+
+    font-size: 11px;
+
+    color: #999;
+
+}
+
+
+/* =========================================
+   OPCIONES MATERIAL / HERRAJE
+========================================= */
+
+.opciones-material {
+
+    display: flex;
+
+    gap: 7px;
+
+    flex-wrap: wrap;
+
+}
+
+
+.material-opcion,
+
+.herraje-opcion {
+
+    padding: 9px 12px;
+
+    border:
+        1px solid #d8d0c8;
+
+    background-color: white;
+
+    color: #555;
+
+    border-radius: 4px;
+
+    cursor: pointer;
+
+    font-size: 12px;
+
+    transition: all 0.2s ease;
+
+}
+
+
+.material-opcion:hover,
+
+.herraje-opcion:hover {
+
+    border-color: #a56f43;
+
+}
+
+
+.material-opcion.seleccionado,
+
+.herraje-opcion.seleccionado {
+
+    background-color: #211d1a;
+
+    color: white;
+
+    border-color: #211d1a;
+
+}
+
+
+/* =========================================
+   RESUMEN
+========================================= */
+
+.resumen-configuracion {
+
+    margin-top: 30px;
+
+    padding: 20px;
+
+    background-color: #f6f2ed;
+
+    border-radius: 5px;
+
+}
+
+
+.resumen-configuracion > div {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 8px 0;
+
+}
+
+
+.resumen-configuracion span {
+
+    font-size: 12px;
+
+    color: #888;
+
+}
+
+
+.resumen-configuracion strong {
+
+    font-size: 13px;
+
+    color: #211d1a;
+
+    text-align: right;
+
+}
+
+
+.resumen-configuracion .precio {
+
+    margin-top: 10px;
+
+    padding-top: 15px;
+
+    border-top:
+        1px solid #ded7d0;
+
+}
+
+
+.resumen-configuracion .precio strong {
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 23px;
+
+    color: #a56f43;
+
+}
+
+
+/* =========================================
+   BOTÓN COMPRAR
+========================================= */
+
+.boton-comprar-diseno {
+
+    width: 100%;
+
+    height: 52px;
+
+    margin-top: 20px;
+
+    border: none;
+
+    border-radius: 5px;
+
+    background-color: #211d1a;
+
+    color: white;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+
+}
+
+
+.boton-comprar-diseno:hover {
+
+    background-color: #a56f43;
+
+    transform: translateY(-2px);
+
+}
+
+
+/* =========================================
+   NOTA
+========================================= */
+
+.nota-configuracion {
+
+    margin-top: 15px;
+
+    font-size: 11px;
+
+    line-height: 1.5;
+
+    text-align: center;
+
+    color: #999;
+
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 950px) {
+
+    .configurador-contenedor {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .visor-3d {
+
+        min-height: 550px;
+
+    }
+
+
+    .contenedor-3d {
+
+        min-height: 480px;
+
+    }
+
+
+    .panel-configuracion {
+
+        max-height: none;
+
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .configurador-pagina {
+
+        padding: 50px 15px 70px;
+
+    }
+
+
+    .configurador-encabezado h1 {
+
+        font-size: 42px;
+
+    }
+
+
+    .configurador-contenedor {
+
+        border-radius: 5px;
+
+    }
+
+
+    .visor-3d {
+
+        min-height: 450px;
+
+    }
+
+
+    .contenedor-3d {
+
+        min-height: 380px;
+
+    }
+
+
+    .panel-configuracion {
+
+        padding: 30px 20px;
+
+    }
+
+
+    .visor-superior {
+
+        left: 18px;
+
+        right: 18px;
+
+    }
+
+
+    .visor-inferior {
+
+        padding: 15px 18px;
+
     }
 
 }
