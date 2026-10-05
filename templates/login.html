@@ -68,7 +68,14 @@ Iniciar sesión | Taller El Obrero
                 <form
                     method="POST"
                     action="{{ url_for('auth.login') }}"
-                >
+                
+                    >
+
+                    <input
+                        type="hidden"
+                        name="next"
+                        value="{{ next or '' }}"
+                    >
 
 
                     <!-- CORREO -->

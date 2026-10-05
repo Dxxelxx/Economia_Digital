@@ -7,6 +7,7 @@ from flask import (
 )
 
 from models.pedido import Pedido
+from models.producto import Producto
 
 
 cliente = Blueprint(
@@ -15,26 +16,39 @@ cliente = Blueprint(
 )
 
 
+# ==========================================================
+# VERIFICAR CLIENTE
+# ==========================================================
+
 def cliente_requerido():
 
     if "usuario_id" not in session:
 
         return redirect(
-            url_for("auth.login")
+            url_for(
+                "auth.login",
+                next=url_for(
+                    "cliente.inicio"
+                )
+            )
         )
+
 
     if session.get("rol") != "cliente":
 
         return redirect(
-            url_for("admin.dashboard")
+            url_for(
+                "principal.inicio"
+            )
         )
+
 
     return None
 
 
-# =====================================
+# ==========================================================
 # INICIO CLIENTE
-# =====================================
+# ==========================================================
 
 @cliente.route("/")
 def inicio():
@@ -45,14 +59,71 @@ def inicio():
 
         return acceso
 
+
     return render_template(
         "cliente.html"
     )
 
 
-# =====================================
+# ==========================================================
+# VER PRODUCTO
+# ==========================================================
+
+@cliente.route("/producto/<int:producto_id>")
+def producto(producto_id):
+
+    # --------------------------------------
+    # BUSCAR PRODUCTO
+    # --------------------------------------
+
+    producto = Producto.query.get(
+        producto_id
+    )
+
+
+    # --------------------------------------
+    # SI NO EXISTE
+    # --------------------------------------
+
+    if producto is None:
+
+        return """
+        <div style="
+            font-family: Arial;
+            text-align: center;
+            padding: 80px;
+        ">
+
+            <h1>
+                Producto no encontrado
+            </h1>
+
+            <p>
+                El producto solicitado no existe
+                en la base de datos.
+            </p>
+
+            <a href="/">
+                Volver al catálogo
+            </a>
+
+        </div>
+        """
+
+
+    # --------------------------------------
+    # MOSTRAR PRODUCTO
+    # --------------------------------------
+
+    return render_template(
+        "producto.html",
+        producto=producto
+    )
+
+
+# ==========================================================
 # MIS PEDIDOS
-# =====================================
+# ==========================================================
 
 @cliente.route("/mis-pedidos")
 def mis_pedidos():
@@ -63,7 +134,12 @@ def mis_pedidos():
 
         return acceso
 
-    pedidos = Pedido.query.all()
+
+    # Solo pedidos del usuario actual
+    pedidos = Pedido.query.filter_by(
+        usuario_id=session["usuario_id"]
+    ).all()
+
 
     return render_template(
         "mis_pedidos.html",
@@ -71,9 +147,9 @@ def mis_pedidos():
     )
 
 
-# =====================================
+# ==========================================================
 # DETALLE PEDIDO
-# =====================================
+# ==========================================================
 
 @cliente.route("/pedido/<int:pedido_id>")
 def detalle_pedido(pedido_id):
@@ -84,9 +160,11 @@ def detalle_pedido(pedido_id):
 
         return acceso
 
+
     pedido = Pedido.query.get_or_404(
         pedido_id
     )
+
 
     return render_template(
         "detalle_pedido.html",

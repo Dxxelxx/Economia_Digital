@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Finalizar compra | Taller El Obrero
+{% endblock %}
+
+
+{% block contenido %}
+
+<section class="checkout">
+
+    <div class="checkout-contenedor">
+
+
+        <!-- PRODUCTO -->
+
+        <div class="checkout-producto">
+
+            <p class="etiqueta">
+                TU COMPRA
+            </p>
+
+            <h1>
+                Finalizar compra
+            </h1>
+
+
+            <div class="checkout-card">
+
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='img/productos/' + producto.imagen
+                    ) }}"
+                    alt="{{ producto.nombre }}"
+                >
+
+
+                <div>
+
+                    <h2>
+                        {{ producto.nombre }}
+                    </h2>
+
+                    <p>
+                        {{ producto.descripcion }}
+                    </p>
+
+                    <strong>
+                        ${{ "{:,.0f}".format(producto.precio).replace(",", ".") }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="checkout-entrega">
+
+                <span>Tiempo de elaboración</span>
+
+                <strong>
+                    5 a 7 días hábiles
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- PAGO -->
+
+        <div class="checkout-pago">
+
+            <h2>
+                Método de pago
+            </h2>
+
+            <p>
+                Selecciona el método que deseas utilizar.
+            </p>
+
+
+            <form
+                method="POST"
+                action="{{ url_for(
+                    'cliente.comprar_producto',
+                    producto_id=producto.id
+                ) }}"
+            >
+
+
+                <label class="metodo-pago">
+
+                    <input
+                        type="radio"
+                        name="metodo_pago"
+                        value="PSE"
+                        required
+                    >
+
+                    <span>
+                        PSE
+                    </span>
+
+                </label>
+
+
+                <label class="metodo-pago">
+
+                    <input
+                        type="radio"
+                        name="metodo_pago"
+                        value="Nequi"
+                    >
+
+                    <span>
+                        Nequi
+                    </span>
+
+                </label>
+
+
+                <label class="metodo-pago">
+
+                    <input
+                        type="radio"
+                        name="metodo_pago"
+                        value="Bre-B"
+                    >
+
+                    <span>
+                        Bre-B
+                    </span>
+
+                </label>
+
+
+                <label class="metodo-pago">
+
+                    <input
+                        type="radio"
+                        name="metodo_pago"
+                        value="Tarjeta"
+                    >
+
+                    <span>
+                        Tarjeta
+                    </span>
+
+                </label>
+
+
+                <div class="checkout-total">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong>
+                        ${{ "{:,.0f}".format(producto.precio).replace(",", ".") }}
+                    </strong>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="boton boton-principal boton-pagar"
+                >
+                    Confirmar compra
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

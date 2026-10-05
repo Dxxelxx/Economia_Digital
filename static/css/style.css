@@ -2198,3 +2198,486 @@ footer p {
     }
 
 }
+
+/* =========================================================
+   DETALLE DE PRODUCTO
+   ========================================================= */
+
+.producto-detalle-pagina {
+
+    min-height: 80vh;
+
+    padding: 70px 30px 100px;
+
+    display: flex;
+
+    justify-content: center;
+
+    background: #f8f6f2;
+
+}
+
+
+.producto-detalle-contenedor {
+
+    width: 100%;
+
+    max-width: 1050px;
+
+}
+
+
+/* =========================================================
+   MIGAS
+   ========================================================= */
+
+.producto-migas {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    margin-bottom: 35px;
+
+    font-size: 13px;
+
+    color: #777;
+
+}
+
+
+.producto-migas a {
+
+    color: #222;
+
+    text-decoration: none;
+
+}
+
+
+.producto-migas a:hover {
+
+    text-decoration: underline;
+
+}
+
+
+/* =========================================================
+   TARJETA
+   ========================================================= */
+
+.producto-detalle-card {
+
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+
+    background: #fff;
+
+    border-radius: 24px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.08);
+
+}
+
+
+/* =========================================================
+   IMAGEN
+   ========================================================= */
+
+.producto-detalle-imagen {
+
+    min-height: 520px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 45px;
+
+    background: #f0ede7;
+
+}
+
+
+.producto-detalle-imagen img {
+
+    width: 100%;
+
+    height: 420px;
+
+    object-fit: contain;
+
+    display: block;
+
+}
+
+
+/* =========================================================
+   SIN IMAGEN
+   ========================================================= */
+
+.producto-sin-imagen {
+
+    width: 100%;
+
+    height: 420px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #888;
+
+}
+
+
+.producto-sin-imagen span {
+
+    font-size: 45px;
+
+    margin-bottom: 10px;
+
+}
+
+
+/* =========================================================
+   INFORMACIÓN
+   ========================================================= */
+
+.producto-detalle-info {
+
+    padding: 55px 55px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+}
+
+
+.producto-detalle-categoria {
+
+    display: inline-block;
+
+    margin-bottom: 15px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    letter-spacing: 2px;
+
+    text-transform: uppercase;
+
+    color: #8a6d46;
+
+}
+
+
+.producto-detalle-info h1 {
+
+    margin: 0 0 18px;
+
+    font-size: 42px;
+
+    line-height: 1.08;
+
+    color: #1e1e1e;
+
+}
+
+
+.producto-detalle-precio {
+
+    font-size: 30px;
+
+    font-weight: 700;
+
+    color: #1e1e1e;
+
+}
+
+
+.producto-linea {
+
+    width: 55px;
+
+    height: 2px;
+
+    margin: 25px 0;
+
+    background: #8a6d46;
+
+}
+
+
+.producto-detalle-descripcion {
+
+    margin: 0 0 28px;
+
+    color: #666;
+
+    font-size: 15px;
+
+    line-height: 1.7;
+
+}
+
+
+/* =========================================================
+   BENEFICIOS
+   ========================================================= */
+
+.producto-beneficios {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 18px;
+
+    margin-bottom: 32px;
+
+}
+
+
+.producto-beneficio {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 14px;
+
+}
+
+
+.producto-beneficio > span {
+
+    width: 32px;
+
+    height: 32px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #f1ede6;
+
+    color: #8a6d46;
+
+}
+
+
+.producto-beneficio strong {
+
+    display: block;
+
+    margin-bottom: 3px;
+
+    font-size: 14px;
+
+    color: #222;
+
+}
+
+
+.producto-beneficio p {
+
+    margin: 0;
+
+    color: #777;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+}
+
+
+/* =========================================================
+   BOTÓN COMPRAR
+   ========================================================= */
+
+.producto-boton-comprar {
+
+    width: 100%;
+
+    min-height: 55px;
+
+    padding: 0 22px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    box-sizing: border-box;
+
+    border-radius: 12px;
+
+    background: #1e1e1e;
+
+    color: #fff;
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+
+}
+
+
+.producto-boton-comprar:hover {
+
+    background: #8a6d46;
+
+    transform: translateY(-2px);
+
+}
+
+
+.producto-boton-comprar span {
+
+    font-size: 20px;
+
+}
+
+
+/* =========================================================
+   REGISTRO
+   ========================================================= */
+
+.producto-registrarse {
+
+    display: block;
+
+    margin-top: 15px;
+
+    text-align: center;
+
+    color: #777;
+
+    font-size: 13px;
+
+    text-decoration: none;
+
+}
+
+
+.producto-registrarse strong {
+
+    color: #8a6d46;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+    .producto-detalle-card {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .producto-detalle-imagen {
+
+        min-height: 350px;
+
+        padding: 30px;
+
+    }
+
+
+    .producto-detalle-imagen img {
+
+        height: 300px;
+
+    }
+
+
+    .producto-detalle-info {
+
+        padding: 40px 30px;
+
+    }
+
+
+    .producto-detalle-info h1 {
+
+        font-size: 32px;
+
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    .producto-detalle-pagina {
+
+        padding: 40px 15px 70px;
+
+    }
+
+
+    .producto-detalle-info {
+
+        padding: 30px 22px;
+
+    }
+
+
+    .producto-detalle-imagen {
+
+        min-height: 280px;
+
+        padding: 20px;
+
+    }
+
+
+    .producto-detalle-imagen img {
+
+        height: 240px;
+
+    }
+
+}

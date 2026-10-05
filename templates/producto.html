@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+
+
+{% block titulo %}
+
+{{ producto.nombre }} | Taller El Obrero
+
+{% endblock %}
+
+
+
+{% block contenido %}
+
+<section class="producto-detalle-pagina">
+
+
+    <!-- ====================================== -->
+    <!-- CONTENEDOR -->
+    <!-- ====================================== -->
+
+    <div class="producto-detalle-contenedor">
+
+
+        <!-- ================================== -->
+        <!-- MIGAS -->
+        <!-- ================================== -->
+
+        <div class="producto-migas">
+
+            <a
+                href="{{ url_for('principal.inicio') }}"
+            >
+                Inicio
+            </a>
+
+            <span>
+                /
+            </span>
+
+            <span>
+                {{ producto.categoria }}
+            </span>
+
+        </div>
+
+
+
+        <!-- ================================== -->
+        <!-- PRODUCTO -->
+        <!-- ================================== -->
+
+        <div class="producto-detalle-card">
+
+
+            <!-- ============================== -->
+            <!-- IMAGEN -->
+            <!-- ============================== -->
+
+            <div class="producto-detalle-imagen">
+
+                {% if producto.imagen %}
+
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='img/productos/' + producto.imagen
+                        ) }}"
+                        alt="{{ producto.nombre }}"
+                    >
+
+                {% else %}
+
+                    <div class="producto-sin-imagen">
+
+                        <span>
+                            ✦
+                        </span>
+
+                        <p>
+                            Imagen próximamente
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+
+            <!-- ============================== -->
+            <!-- INFORMACIÓN -->
+            <!-- ============================== -->
+
+            <div class="producto-detalle-info">
+
+
+                <span class="producto-detalle-categoria">
+
+                    {{ producto.categoria }}
+
+                </span>
+
+
+                <h1>
+
+                    {{ producto.nombre }}
+
+                </h1>
+
+
+                <div class="producto-detalle-precio">
+
+                    ${{ "{:,.0f}".format(
+                        producto.precio_base
+                    ).replace(",", ".") }}
+
+                </div>
+
+
+                <div class="producto-linea"></div>
+
+
+                <p class="producto-detalle-descripcion">
+
+                    {{ producto.descripcion }}
+
+                </p>
+
+
+
+                <!-- ========================== -->
+                <!-- BENEFICIOS -->
+                <!-- ========================== -->
+
+                <div class="producto-beneficios">
+
+
+                    <div class="producto-beneficio">
+
+                        <span>
+                            ✦
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Elaboración artesanal
+                            </strong>
+
+                            <p>
+                                Fabricado cuidadosamente
+                                por nuestros artesanos.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="producto-beneficio">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Compra segura
+                            </strong>
+
+                            <p>
+                                Recibe confirmación de tu
+                                pedido y factura digital.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="producto-beneficio">
+
+                        <span>
+                            ◷
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Tiempo de elaboración
+                            </strong>
+
+                            <p>
+                                Aproximadamente 5 a 10
+                                días hábiles.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- ========================== -->
+                <!-- BOTÓN -->
+                <!-- ========================== -->
+
+                {% if session.get("usuario_id") %}
+
+
+                    <a
+                        href="{{ url_for(
+                            'pedidos.crear',
+                            producto_id=producto.id
+                        ) }}"
+                        class="producto-boton-comprar"
+                    >
+
+                        Comprar producto
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                {% else %}
+
+
+                    <a
+                        href="{{ url_for(
+                            'auth.login',
+                            next=url_for(
+                                'cliente.producto',
+                                producto_id=producto.id
+                            )
+                        ) }}"
+                        class="producto-boton-comprar"
+                    >
+
+                        Iniciar sesión para comprar
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for(
+                            'auth.registro',
+                            next=url_for(
+                                'cliente.producto',
+                                producto_id=producto.id
+                            )
+                        ) }}"
+                        class="producto-registrarse"
+                    >
+
+                        ¿No tienes cuenta?
+                        <strong>
+                            Regístrate
+                        </strong>
+
+                    </a>
+
+
+                {% endif %}
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

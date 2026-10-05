@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Compra realizada | Taller El Obrero
+{% endblock %}
+
+
+{% block contenido %}
+
+<section class="compra-exitosa">
+
+    <div class="compra-exitosa-card">
+
+        <div class="compra-icono">
+            ✓
+        </div>
+
+
+        <p class="etiqueta">
+            TALLER EL OBRERO
+        </p>
+
+
+        <h1>
+            ¡Compra realizada!
+        </h1>
+
+
+        <p>
+            Tu pedido ha sido recibido correctamente.
+        </p>
+
+
+        <div class="resumen-compra">
+
+            <div>
+
+                <span>
+                    Producto
+                </span>
+
+                <strong>
+                    {{ compra.producto_nombre }}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Método de pago
+                </span>
+
+                <strong>
+                    {{ compra.metodo_pago }}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Total
+                </span>
+
+                <strong>
+                    ${{ "{:,.0f}".format(compra.precio).replace(",", ".") }}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Entrega estimada
+                </span>
+
+                <strong>
+                    5 a 7 días hábiles
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="factura-aviso">
+
+            <span>✓</span>
+
+            <div>
+
+                <strong>
+                    Factura digital
+                </strong>
+
+                <p>
+                    Tu factura digital estará disponible
+                    después de confirmar el pago.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <a
+            href="{{ url_for('principal.inicio') }}"
+            class="boton boton-principal"
+        >
+            Volver al inicio
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}

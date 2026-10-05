@@ -178,11 +178,14 @@ Taller El Obrero | Catálogo
 
 
                     <a
-                        href="/cliente/producto/{{ producto.id }}"
-                        class="boton-comprar"
+                     href="{{ url_for(
+                     'cliente.producto',
+                     producto_id=producto.id
+                     ) }}"
+                     class="boton-comprar"
                     >
-                        Ver producto
-                    </a>
+                     Ver producto
+                </a>
 
                 </div>
 
@@ -226,12 +229,12 @@ Taller El Obrero | Catálogo
         </p>
 
 
-        <a
-            href="{{ url_for('auth.login') }}"
-            class="boton boton-claro"
-        >
-            Crear mi cuenta
-        </a>
+<a
+    href="{{ url_for('configurador.inicio') }}"
+    class="boton boton-claro"
+>
+    Diseña tu producto
+</a>
 
     </div>
 

@@ -130,9 +130,14 @@ Crear cuenta | Taller El Obrero
                 <!-- ================================= -->
 
                 <form
-                    method="POST"
-                    action="{{ url_for('auth.registro') }}"
+                  method="POST"
+                action="{{ url_for('auth.registro') }}"
                 >
+               <input
+                type="hidden"
+                name="next"
+                value="{{ next or '' }}"
+               >
 
 
                     <!-- NOMBRE -->
