@@ -11,405 +11,383 @@ from flask import (
 from database.connection import db
 from models.usuario import Usuario
 
-
 auth = Blueprint("auth", __name__)
 
 
-# ==========================================================
+# =========================================================
 # LOGIN
-# ==========================================================
+# =========================================================
 
 @auth.route("/login", methods=["GET", "POST"])
 def login():
 
+    siguiente = request.args.get("next", "")
+
     if request.method == "POST":
 
-        username = request.form.get("username", "").strip()
+        identificador = (
+            request.form.get("username")
+            or request.form.get("correo")
+            or request.form.get("email")
+            or ""
+        ).strip()
+
         password = request.form.get("password", "")
 
-        next_page = request.form.get("next", "").strip()
+        siguiente = request.form.get("next") or siguiente or ""
 
-
-        # ------------------------------------------
-        # VALIDACIÓN
-        # ------------------------------------------
-
-        if not username or not password:
-
-            flash(
-                "Por favor completa todos los campos.",
-                "error"
-            )
-
+        # Validar usuario/correo
+        if not identificador:
+            flash("Debes ingresar tu usuario o correo.", "error")
             return render_template(
                 "login.html",
-                next=next_page
+                next=siguiente
             )
 
+        # Validar contraseña
+        if not password:
+            flash("Debes ingresar tu contraseña.", "error")
+            return render_template(
+                "login.html",
+                next=siguiente
+            )
 
-        # ------------------------------------------
-        # BUSCAR USUARIO
-        # ------------------------------------------
-
-        usuario = Usuario.query.filter_by(
-            username=username
+        # Buscar usuario por username o correo
+        usuario = Usuario.query.filter(
+            (Usuario.username == identificador) |
+            (Usuario.email == identificador.lower())
         ).first()
 
-
-        # ------------------------------------------
-        # COMPROBAR CONTRASEÑA
-        # ------------------------------------------
-
+        # Verificar contraseña
         if usuario and usuario.verificar_password(password):
+
+            session.clear()
 
             session["usuario_id"] = usuario.id
             session["usuario_nombre"] = usuario.nombre
             session["usuario_username"] = usuario.username
+            session["usuario_email"] = usuario.email
             session["rol"] = usuario.rol
-
 
             # Administrador
             if usuario.rol == "administrador":
-
                 return redirect(
                     url_for("admin.dashboard")
                 )
 
-
             # Si venía desde otra página
-            if next_page:
-
-                return redirect(next_page)
-
+            if siguiente:
+                return redirect(siguiente)
 
             # Cliente
             return redirect(
                 url_for("cliente.inicio")
             )
 
-
-        # ------------------------------------------
-        # LOGIN INCORRECTO
-        # ------------------------------------------
-
         flash(
-            "Usuario o contraseña incorrectos.",
+            "Usuario/correo o contraseña incorrectos.",
             "error"
         )
 
         return render_template(
             "login.html",
-            next=next_page
+            next=siguiente
         )
 
-
-    # ------------------------------------------
-    # GET
-    # ------------------------------------------
-
-    next_page = request.args.get(
-        "next",
-        ""
-    )
-
-
+    # IMPORTANTE:
+    # Esto soluciona el error del GET /auth/login
     return render_template(
         "login.html",
-        next=next_page
+        next=siguiente
     )
 
 
-# ==========================================================
+# =========================================================
 # REGISTRO
-# ==========================================================
+# =========================================================
 
 @auth.route("/registro", methods=["GET", "POST"])
 def registro():
 
-    next_page = request.args.get(
-        "next",
-        ""
-    )
+    siguiente = request.args.get("next", "")
 
+    # -----------------------------------------------------
+    # CUANDO EL USUARIO ENVÍA EL FORMULARIO
+    # -----------------------------------------------------
 
-    # ======================================================
-    # GET
-    # ======================================================
+    if request.method == "POST":
 
-    if request.method == "GET":
-
-        return render_template(
-            "registro.html",
-            next=next_page
-        )
-
-
-    # ======================================================
-    # POST
-    # ======================================================
-
-    nombre = request.form.get(
-        "nombre",
-        ""
-    ).strip()
-
-    username = request.form.get(
-        "username",
-        ""
-    ).strip()
-
-    email = request.form.get(
-        "email",
-        ""
-    ).strip().lower()
-
-
-    # Por compatibilidad
-    if not email:
-
-        email = request.form.get(
-            "correo",
+        nombre = request.form.get(
+            "nombre",
             ""
+        ).strip()
+
+        username = request.form.get(
+            "username",
+            ""
+        ).strip()
+
+        email = (
+            request.form.get("email")
+            or request.form.get("correo")
+            or ""
         ).strip().lower()
 
-
-    password = request.form.get(
-        "password",
-        ""
-    )
-
-    confirmar_password = request.form.get(
-        "confirmar_password",
-        ""
-    )
-
-
-    # ------------------------------------------
-    # NEXT
-    # ------------------------------------------
-
-    next_form = request.form.get(
-        "next",
-        ""
-    ).strip()
-
-
-    if next_form:
-
-        next_page = next_form
-
-
-    # ======================================================
-    # VALIDACIONES
-    # ======================================================
-
-    if not nombre:
-
-        flash(
-            "Debes ingresar tu nombre completo.",
-            "error"
+        password = request.form.get(
+            "password",
+            ""
         )
 
-        return render_template(
-            "registro.html",
-            next=next_page
+        confirmar_password = request.form.get(
+            "confirmar_password",
+            ""
         )
 
-
-    if not username:
-
-        flash(
-            "Debes ingresar un nombre de usuario.",
-            "error"
+        siguiente = (
+            request.form.get("next")
+            or siguiente
+            or ""
         )
 
-        return render_template(
-            "registro.html",
-            next=next_page
-        )
+        # -------------------------------------------------
+        # VALIDAR NOMBRE
+        # -------------------------------------------------
 
-
-    if not email:
-
-        flash(
-            "Debes ingresar tu correo electrónico.",
-            "error"
-        )
-
-        return render_template(
-            "registro.html",
-            next=next_page
-        )
-
-
-    if not password:
-
-        flash(
-            "Debes ingresar una contraseña.",
-            "error"
-        )
-
-        return render_template(
-            "registro.html",
-            next=next_page
-        )
-
-
-    if password != confirmar_password:
-
-        flash(
-            "Las contraseñas no coinciden.",
-            "error"
-        )
-
-        return render_template(
-            "registro.html",
-            next=next_page
-        )
-
-
-    # ======================================================
-    # COMPROBAR EXISTENCIA
-    # ======================================================
-
-    usuario_existente = Usuario.query.filter(
-        (Usuario.username == username) |
-        (Usuario.email == email)
-    ).first()
-
-
-    if usuario_existente:
-
-        if usuario_existente.username == username:
+        if not nombre:
 
             flash(
-                "Ese nombre de usuario ya está registrado.",
+                "Debes ingresar tu nombre completo.",
                 "error"
             )
 
-        else:
+            return render_template(
+                "registro.html",
+                next=siguiente
+            )
+
+        # -------------------------------------------------
+        # GENERAR USERNAME SI NO SE ESCRIBIÓ
+        # -------------------------------------------------
+
+        if not username:
+
+            if email:
+
+                base_username = email.split("@")[0]
+
+            else:
+
+                base_username = (
+                    nombre
+                    .lower()
+                    .replace(" ", "")
+                )
+
+            username = base_username
+
+            contador = 1
+
+            while Usuario.query.filter_by(
+                username=username
+            ).first():
+
+                username = (
+                    f"{base_username}{contador}"
+                )
+
+                contador += 1
+
+        # -------------------------------------------------
+        # VALIDAR CORREO
+        # -------------------------------------------------
+
+        if not email:
 
             flash(
-                "Ese correo electrónico ya está registrado.",
+                "Debes ingresar tu correo electrónico.",
                 "error"
             )
 
+            return render_template(
+                "registro.html",
+                next=siguiente
+            )
 
-        return render_template(
-            "registro.html",
-            next=next_page
+        # -------------------------------------------------
+        # VALIDAR CONTRASEÑA
+        # -------------------------------------------------
+
+        if not password:
+
+            flash(
+                "Debes ingresar una contraseña.",
+                "error"
+            )
+
+            return render_template(
+                "registro.html",
+                next=siguiente
+            )
+
+        # -------------------------------------------------
+        # CONFIRMAR CONTRASEÑA
+        # -------------------------------------------------
+
+        if password != confirmar_password:
+
+            flash(
+                "Las contraseñas no coinciden.",
+                "error"
+            )
+
+            return render_template(
+                "registro.html",
+                next=siguiente
+            )
+
+        # -------------------------------------------------
+        # LONGITUD MÍNIMA
+        # -------------------------------------------------
+
+        if len(password) < 6:
+
+            flash(
+                "La contraseña debe tener al menos 6 caracteres.",
+                "error"
+            )
+
+            return render_template(
+                "registro.html",
+                next=siguiente
+            )
+
+        # -------------------------------------------------
+        # COMPROBAR SI YA EXISTE
+        # -------------------------------------------------
+
+        usuario_existente = Usuario.query.filter(
+            (Usuario.username == username) |
+            (Usuario.email == email)
+        ).first()
+
+        if usuario_existente:
+
+            if usuario_existente.username == username:
+
+                flash(
+                    "Ese nombre de usuario ya está registrado.",
+                    "error"
+                )
+
+            else:
+
+                flash(
+                    "Ese correo electrónico ya está registrado.",
+                    "error"
+                )
+
+            return render_template(
+                "registro.html",
+                next=siguiente
+            )
+
+        # -------------------------------------------------
+        # CREAR USUARIO
+        # -------------------------------------------------
+
+        usuario = Usuario(
+            nombre=nombre,
+            username=username,
+            email=email,
+            rol="cliente"
         )
 
+        usuario.establecer_password(password)
 
-    # ======================================================
-    # CREAR USUARIO
-    # ======================================================
+        # -------------------------------------------------
+        # GUARDAR EN POSTGRESQL
+        # -------------------------------------------------
 
-    usuario = Usuario(
-        nombre=nombre,
-        username=username,
-        email=email,
-        rol="cliente"
-    )
+        try:
 
+            db.session.add(usuario)
 
-    usuario.establecer_password(
-        password
-    )
+            db.session.commit()
 
+        except Exception as error:
 
-    # ======================================================
-    # GUARDAR
-    # ======================================================
+            db.session.rollback()
 
-    try:
+            print(
+                "================================"
+            )
 
-        db.session.add(usuario)
+            print(
+                "ERROR AL REGISTRAR USUARIO:"
+            )
 
-        db.session.commit()
+            print(error)
 
+            print(
+                "================================"
+            )
 
-    except Exception as error:
+            flash(
+                "No se pudo crear la cuenta. "
+                "Revisa los datos e inténtalo nuevamente.",
+                "error"
+            )
 
-        db.session.rollback()
+            return render_template(
+                "registro.html",
+                next=siguiente
+            )
 
-        print(
-            "===================================="
-        )
+        # -------------------------------------------------
+        # INICIAR SESIÓN AUTOMÁTICAMENTE
+        # -------------------------------------------------
 
-        print(
-            "ERROR REGISTRANDO USUARIO:"
-        )
+        session.clear()
 
-        print(
-            error
-        )
+        session["usuario_id"] = usuario.id
+        session["usuario_nombre"] = usuario.nombre
+        session["usuario_username"] = usuario.username
+        session["usuario_email"] = usuario.email
+        session["rol"] = usuario.rol
 
-        print(
-            "===================================="
-        )
+        # -------------------------------------------------
+        # REDIRECCIÓN
+        # -------------------------------------------------
 
-        flash(
-            "No se pudo crear la cuenta.",
-            "error"
-        )
+        if siguiente:
 
-        return render_template(
-            "registro.html",
-            next=next_page
-        )
-
-
-    # ======================================================
-    # SESIÓN AUTOMÁTICA
-    # ======================================================
-
-    session["usuario_id"] = usuario.id
-    session["usuario_nombre"] = usuario.nombre
-    session["usuario_username"] = usuario.username
-    session["rol"] = "cliente"
-
-
-    flash(
-        f"¡Bienvenido, {usuario.nombre}!",
-        "success"
-    )
-
-
-    # ======================================================
-    # REDIRECCIÓN
-    # ======================================================
-
-    if next_page:
+            return redirect(siguiente)
 
         return redirect(
-            next_page
+            url_for("cliente.inicio")
         )
 
 
-    return redirect(
-        url_for(
-            "cliente.inicio"
-        )
+    # =====================================================
+    # IMPORTANTE:
+    # CUANDO ENTRAMOS DIRECTAMENTE A /auth/registro
+    # =====================================================
+
+    return render_template(
+        "registro.html",
+        next=siguiente
     )
 
 
-# ==========================================================
-# LOGOUT
-# ==========================================================
+# =========================================================
+# CERRAR SESIÓN
+# =========================================================
 
 @auth.route("/logout")
 def logout():
 
     session.clear()
 
-    flash(
-        "Sesión cerrada correctamente.",
-        "success"
-    )
-
     return redirect(
-        url_for(
-            "principal.inicio"
-        )
+        url_for("principal.inicio")
     )

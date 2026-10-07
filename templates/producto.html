@@ -13,23 +13,16 @@
 
 <section class="producto-detalle-pagina">
 
-
-    <!-- ====================================== -->
-    <!-- CONTENEDOR -->
-    <!-- ====================================== -->
-
     <div class="producto-detalle-contenedor">
 
 
         <!-- ================================== -->
-        <!-- MIGAS -->
+        <!-- MIGAS DE PAN -->
         <!-- ================================== -->
 
         <div class="producto-migas">
 
-            <a
-                href="{{ url_for('principal.inicio') }}"
-            >
+            <a href="{{ url_for('principal.inicio') }}">
                 Inicio
             </a>
 
@@ -38,7 +31,15 @@
             </span>
 
             <span>
-                {{ producto.categoria }}
+                Catálogo
+            </span>
+
+            <span>
+                /
+            </span>
+
+            <span>
+                {{ producto.nombre }}
             </span>
 
         </div>
@@ -52,62 +53,50 @@
         <div class="producto-detalle-card">
 
 
-            <!-- ============================== -->
-            <!-- IMAGEN -->
-            <!-- ============================== -->
+            <!-- ================================== -->
+            <!-- IMAGEN / REPRESENTACIÓN -->
+            <!-- ================================== -->
 
             <div class="producto-detalle-imagen">
 
-                {% if producto.imagen %}
+                <div class="producto-sin-imagen">
 
-                    <img
-                        src="{{ url_for(
-                            'static',
-                            filename='img/productos/' + producto.imagen
-                        ) }}"
-                        alt="{{ producto.nombre }}"
-                    >
+                    <span>
+                        ✦
+                    </span>
 
-                {% else %}
+                    <p>
+                        {{ producto.nombre }}
+                    </p>
 
-                    <div class="producto-sin-imagen">
-
-                        <span>
-                            ✦
-                        </span>
-
-                        <p>
-                            Imagen próximamente
-                        </p>
-
-                    </div>
-
-                {% endif %}
+                </div>
 
             </div>
 
 
 
-            <!-- ============================== -->
+            <!-- ================================== -->
             <!-- INFORMACIÓN -->
-            <!-- ============================== -->
+            <!-- ================================== -->
 
             <div class="producto-detalle-info">
 
 
+                <!-- TIPO -->
+
                 <span class="producto-detalle-categoria">
-
-                    {{ producto.categoria }}
-
+                    PRODUCTO ARTESANAL
                 </span>
 
 
+                <!-- NOMBRE -->
+
                 <h1>
-
                     {{ producto.nombre }}
-
                 </h1>
 
+
+                <!-- PRECIO -->
 
                 <div class="producto-detalle-precio">
 
@@ -121,6 +110,8 @@
                 <div class="producto-linea"></div>
 
 
+                <!-- DESCRIPCIÓN -->
+
                 <p class="producto-detalle-descripcion">
 
                     {{ producto.descripcion }}
@@ -129,12 +120,14 @@
 
 
 
-                <!-- ========================== -->
+                <!-- ================================== -->
                 <!-- BENEFICIOS -->
-                <!-- ========================== -->
+                <!-- ================================== -->
 
                 <div class="producto-beneficios">
 
+
+                    <!-- BENEFICIO 1 -->
 
                     <div class="producto-beneficio">
 
@@ -159,6 +152,8 @@
 
 
 
+                    <!-- BENEFICIO 2 -->
+
                     <div class="producto-beneficio">
 
                         <span>
@@ -182,6 +177,8 @@
 
 
 
+                    <!-- BENEFICIO 3 -->
+
                     <div class="producto-beneficio">
 
                         <span>
@@ -191,7 +188,7 @@
                         <div>
 
                             <strong>
-                                Tiempo de elaboración
+                                Elaboración bajo pedido
                             </strong>
 
                             <p>
@@ -208,19 +205,23 @@
 
 
 
-                <!-- ========================== -->
-                <!-- BOTÓN -->
-                <!-- ========================== -->
+                <!-- ================================== -->
+                <!-- ACCIONES -->
+                <!-- ================================== -->
 
                 {% if session.get("usuario_id") %}
 
+
+                    <!-- ================================== -->
+                    <!-- COMPRAR PRODUCTO NORMAL -->
+                    <!-- ================================== -->
 
                     <a
                         href="{{ url_for(
                             'pedidos.crear',
                             producto_id=producto.id
                         ) }}"
-                        class="producto-boton-comprar"
+                        class="boton-comprar"
                     >
 
                         Comprar producto
@@ -232,8 +233,28 @@
                     </a>
 
 
+                    <!-- ================================== -->
+                    <!-- PERSONALIZAR EN 3D -->
+                    <!-- ================================== -->
+
+                    <a
+                        href="{{ url_for(
+                            'configurador.inicio'
+                        ) }}?producto_id={{ producto.id }}"
+                        class="producto-personalizar"
+                    >
+
+                        ✦ Personalizar este producto en 3D
+
+                    </a>
+
+
                 {% else %}
 
+
+                    <!-- ================================== -->
+                    <!-- INICIAR SESIÓN PARA COMPRAR -->
+                    <!-- ================================== -->
 
                     <a
                         href="{{ url_for(
@@ -255,6 +276,10 @@
                     </a>
 
 
+                    <!-- ================================== -->
+                    <!-- REGISTRARSE -->
+                    <!-- ================================== -->
+
                     <a
                         href="{{ url_for(
                             'auth.registro',
@@ -267,6 +292,7 @@
                     >
 
                         ¿No tienes cuenta?
+
                         <strong>
                             Regístrate
                         </strong>

@@ -1,62 +1,43 @@
-from flask import (
-    Blueprint,
-    render_template,
-    session,
-    redirect,
-    url_for
-)
+from flask import Blueprint, render_template, session, redirect, url_for
 
 
-# =========================================
-# BLUEPRINT CONFIGURADOR
-# =========================================
-
-configurador = Blueprint(
-    "configurador",
-    __name__
-)
+configurador = Blueprint("configurador", __name__)
 
 
-# =========================================
-# PÁGINA DEL CONFIGURADOR
-# =========================================
+# =========================================================
+# CONFIGURADOR PRINCIPAL
+# =========================================================
 
 @configurador.route("/")
 def inicio():
 
-    # -------------------------------------
-    # VERIFICAR SI EL USUARIO INICIÓ SESIÓN
-    # -------------------------------------
-
+    # Verificar que haya sesión
     if "usuario_id" not in session:
-
         return redirect(
             url_for(
                 "auth.login",
-                next=url_for(
-                    "configurador.inicio"
-                )
+                next=url_for("configurador.inicio")
             )
         )
 
-
-    # -------------------------------------
-    # VERIFICAR QUE SEA CLIENTE
-    # -------------------------------------
-
+    # Verificar que sea cliente
     if session.get("rol") != "cliente":
-
         return redirect(
-            url_for(
-                "principal.inicio"
-            )
+            url_for("principal.inicio")
         )
-
-
-    # -------------------------------------
-    # MOSTRAR CONFIGURADOR
-    # -------------------------------------
 
     return render_template(
         "configurador.html"
+    )
+
+
+# =========================================================
+# COMPATIBILIDAD CON cliente.html
+# =========================================================
+
+@configurador.route("/mostrar")
+def mostrar_configurador():
+
+    return redirect(
+        url_for("configurador.inicio")
     )

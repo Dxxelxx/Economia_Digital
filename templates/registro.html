@@ -11,10 +11,9 @@ Crear cuenta | Taller El Obrero
 
     <div class="auth-contenedor">
 
-
-        <!-- ================================= -->
-        <!-- PRESENTACIÓN -->
-        <!-- ================================= -->
+        <!-- ========================================= -->
+        <!-- LADO IZQUIERDO -->
+        <!-- ========================================= -->
 
         <div class="auth-presentacion">
 
@@ -23,84 +22,56 @@ Crear cuenta | Taller El Obrero
             </p>
 
             <h1>
-                Crea tu
+                Crea tu cuenta
                 <br>
-                cuenta.
+                y descubre lo artesanal.
             </h1>
 
             <p>
-                Regístrate para realizar tus compras,
-                consultar tus pedidos y disfrutar de
-                nuestra experiencia digital.
+                Regístrate para personalizar tus productos,
+                realizar pedidos y seguir todo el proceso
+                de fabricación de tu pieza artesanal.
             </p>
 
+            <div class="auth-frase">
 
-            <div class="auth-beneficios">
+                <span>✦</span>
 
-                <div>
-
-                    <span>✦</span>
-
-                    <p>
-                        Compra productos artesanales
-                    </p>
-
-                </div>
-
-
-                <div>
-
-                    <span>✓</span>
-
-                    <p>
-                        Personaliza tus productos
-                    </p>
-
-                </div>
-
-
-                <div>
-
-                    <span>♧</span>
-
-                    <p>
-                        Recibe tu factura digital
-                    </p>
-
-                </div>
+                <p>
+                    Hecho a mano.
+                    <br>
+                    Hecho para ti.
+                </p>
 
             </div>
 
         </div>
 
 
-        <!-- ================================= -->
-        <!-- FORMULARIO -->
-        <!-- ================================= -->
+        <!-- ========================================= -->
+        <!-- LADO DERECHO -->
+        <!-- ========================================= -->
 
         <div class="auth-formulario">
 
             <div class="auth-formulario-contenido">
 
-
                 <div class="auth-icono">
                     ✦
                 </div>
 
-
                 <h2>
                     Crear cuenta
                 </h2>
-
 
                 <p class="auth-subtitulo">
                     Completa tus datos para registrarte.
                 </p>
 
 
-                <!-- ================================= -->
-                <!-- MENSAJES FLASH -->
-                <!-- ================================= -->
+                <!-- ===================================== -->
+                <!-- MENSAJES DE FLASK -->
+                <!-- ===================================== -->
 
                 {% with mensajes = get_flashed_messages(with_categories=true) %}
 
@@ -110,10 +81,8 @@ Crear cuenta | Taller El Obrero
 
                             {% for categoria, mensaje in mensajes %}
 
-                                <div class="mensaje {{ categoria }}">
-
+                                <div class="mensaje-auth {{ categoria }}">
                                     {{ mensaje }}
-
                                 </div>
 
                             {% endfor %}
@@ -125,19 +94,22 @@ Crear cuenta | Taller El Obrero
                 {% endwith %}
 
 
-                <!-- ================================= -->
+                <!-- ===================================== -->
                 <!-- FORMULARIO -->
-                <!-- ================================= -->
+                <!-- ===================================== -->
 
                 <form
-                  method="POST"
-                action="{{ url_for('auth.registro') }}"
+                    method="POST"
+                    action="{{ url_for('auth.registro') }}"
                 >
-               <input
-                type="hidden"
-                name="next"
-                value="{{ next or '' }}"
-               >
+
+                    <!-- NEXT -->
+
+                    <input
+                        type="hidden"
+                        name="next"
+                        value="{{ next or '' }}"
+                    >
 
 
                     <!-- NOMBRE -->
@@ -152,7 +124,7 @@ Crear cuenta | Taller El Obrero
                             type="text"
                             id="nombre"
                             name="nombre"
-                            placeholder="Tu nombre completo"
+                            placeholder="Ej. Daniel Becerra"
                             autocomplete="name"
                             required
                         >
@@ -172,14 +144,12 @@ Crear cuenta | Taller El Obrero
                             type="text"
                             id="username"
                             name="username"
-                            placeholder="Ej. daniel123"
+                            placeholder="Ej. danielbecerra"
                             autocomplete="username"
-                            minlength="3"
-                            required
                         >
 
                         <small>
-                            Este será el usuario que utilizarás para iniciar sesión.
+                            Puedes dejarlo vacío y el sistema lo generará.
                         </small>
 
                     </div>
@@ -205,25 +175,6 @@ Crear cuenta | Taller El Obrero
                     </div>
 
 
-                    <!-- TELÉFONO -->
-
-                    <div class="campo">
-
-                        <label for="telefono">
-                            Teléfono
-                        </label>
-
-                        <input
-                            type="tel"
-                            id="telefono"
-                            name="telefono"
-                            placeholder="300 000 0000"
-                            autocomplete="tel"
-                        >
-
-                    </div>
-
-
                     <!-- CONTRASEÑA -->
 
                     <div class="campo">
@@ -236,15 +187,11 @@ Crear cuenta | Taller El Obrero
                             type="password"
                             id="password"
                             name="password"
-                            placeholder="Crea una contraseña"
+                            placeholder="Mínimo 6 caracteres"
                             autocomplete="new-password"
                             minlength="6"
                             required
                         >
-
-                        <small>
-                            Mínimo 6 caracteres.
-                        </small>
 
                     </div>
 
@@ -280,7 +227,8 @@ Crear cuenta | Taller El Obrero
                         >
 
                         <span>
-                            Acepto los términos y condiciones.
+                            Acepto los términos y condiciones
+                            del servicio.
                         </span>
 
                     </label>
@@ -292,17 +240,15 @@ Crear cuenta | Taller El Obrero
                         type="submit"
                         class="boton-auth"
                     >
-
                         Crear mi cuenta
-
                     </button>
 
                 </form>
 
 
-                <!-- ================================= -->
-                <!-- LOGIN -->
-                <!-- ================================= -->
+                <!-- ===================================== -->
+                <!-- YA TIENE CUENTA -->
+                <!-- ===================================== -->
 
                 <div class="auth-separador">
 
@@ -321,16 +267,12 @@ Crear cuenta | Taller El Obrero
                     href="{{ url_for('auth.login') }}"
                     class="boton-registro-auth"
                 >
-
                     Iniciar sesión
-
                 </a>
 
 
                 <p class="auth-seguridad">
-
                     🔒 Tus datos están protegidos
-
                 </p>
 
             </div>

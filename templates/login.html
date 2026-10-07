@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+
 {% block titulo %}
 Iniciar sesión | Taller El Obrero
 {% endblock %}
@@ -12,7 +13,9 @@ Iniciar sesión | Taller El Obrero
     <div class="auth-contenedor">
 
 
+        <!-- ========================================= -->
         <!-- LADO IZQUIERDO -->
+        <!-- ========================================= -->
 
         <div class="auth-presentacion">
 
@@ -20,11 +23,13 @@ Iniciar sesión | Taller El Obrero
                 TALLER EL OBRERO · CALI
             </p>
 
+
             <h1>
                 Bienvenido
                 <br>
                 de nuevo.
             </h1>
+
 
             <p>
                 Ingresa a tu cuenta para continuar
@@ -32,12 +37,16 @@ Iniciar sesión | Taller El Obrero
                 colección artesanal.
             </p>
 
+
             <div class="auth-frase">
 
-                <span>✦</span>
+                <span>
+                    ✦
+                </span>
 
                 <p>
                     Hecho a mano.
+                    <br>
                     Hecho para ti.
                 </p>
 
@@ -46,30 +55,79 @@ Iniciar sesión | Taller El Obrero
         </div>
 
 
+
+        <!-- ========================================= -->
         <!-- LADO DERECHO -->
+        <!-- ========================================= -->
 
         <div class="auth-formulario">
 
             <div class="auth-formulario-contenido">
 
+
+                <!-- ICONO -->
+
                 <div class="auth-icono">
                     ♙
                 </div>
 
+
                 <h2>
                     Iniciar sesión
                 </h2>
+
 
                 <p class="auth-subtitulo">
                     Ingresa tus datos para continuar.
                 </p>
 
 
+
+                <!-- ================================= -->
+                <!-- MENSAJES -->
+                <!-- ================================= -->
+
+                {% with mensajes = get_flashed_messages(
+                    with_categories=true
+                ) %}
+
+                    {% if mensajes %}
+
+                        <div class="mensajes">
+
+                            {% for categoria, mensaje in mensajes %}
+
+                                <div
+                                    class="mensaje mensaje-{{ categoria }}"
+                                >
+
+                                    {{ mensaje }}
+
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                {% endwith %}
+
+
+
+                <!-- ================================= -->
+                <!-- FORMULARIO -->
+                <!-- ================================= -->
+
                 <form
                     method="POST"
                     action="{{ url_for('auth.login') }}"
-                
-                    >
+                >
+
+
+                    <!-- ================================= -->
+                    <!-- DESTINO ORIGINAL -->
+                    <!-- ================================= -->
 
                     <input
                         type="hidden"
@@ -78,34 +136,47 @@ Iniciar sesión | Taller El Obrero
                     >
 
 
-                    <!-- CORREO -->
+
+                    <!-- ================================= -->
+                    <!-- USUARIO / CORREO -->
+                    <!-- ================================= -->
 
                     <div class="campo">
 
-                        <label for="correo">
-                            Correo electrónico
+                        <label for="username">
+
+                            Usuario o correo electrónico
+
                         </label>
 
+
                         <input
-                            type="email"
-                            id="correo"
-                            name="correo"
-                            placeholder="tucorreo@email.com"
+                            type="text"
+                            id="username"
+                            name="username"
+                            placeholder="Tu usuario o correo"
+                            autocomplete="username"
                             required
                         >
 
                     </div>
 
 
+
+                    <!-- ================================= -->
                     <!-- CONTRASEÑA -->
+                    <!-- ================================= -->
 
                     <div class="campo">
 
                         <div class="campo-titulo">
 
                             <label for="password">
+
                                 Contraseña
+
                             </label>
+
 
                             <a href="#">
                                 ¿Olvidaste tu contraseña?
@@ -113,18 +184,23 @@ Iniciar sesión | Taller El Obrero
 
                         </div>
 
+
                         <input
                             type="password"
                             id="password"
                             name="password"
                             placeholder="Ingresa tu contraseña"
+                            autocomplete="current-password"
                             required
                         >
 
                     </div>
 
 
+
+                    <!-- ================================= -->
                     <!-- RECORDAR -->
+                    <!-- ================================= -->
 
                     <label class="recordar">
 
@@ -140,7 +216,10 @@ Iniciar sesión | Taller El Obrero
                     </label>
 
 
+
+                    <!-- ================================= -->
                     <!-- BOTÓN -->
+                    <!-- ================================= -->
 
                     <button
                         type="submit"
@@ -154,7 +233,10 @@ Iniciar sesión | Taller El Obrero
                 </form>
 
 
+
+                <!-- ================================= -->
                 <!-- REGISTRO -->
+                <!-- ================================= -->
 
                 <div class="auth-separador">
 
@@ -178,6 +260,11 @@ Iniciar sesión | Taller El Obrero
 
                 </a>
 
+
+
+                <!-- ================================= -->
+                <!-- SEGURIDAD -->
+                <!-- ================================= -->
 
                 <p class="auth-seguridad">
 
