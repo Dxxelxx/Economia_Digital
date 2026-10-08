@@ -1,26 +1,42 @@
 {% extends "base.html" %}
 
+
 {% block titulo %}
-Mis pedidos - Taller El Obrero
+Mis pedidos | Taller El Obrero
 {% endblock %}
+
 
 {% block contenido %}
 
 <section class="pedidos-container">
 
+
+    <!-- ========================================= -->
+    <!-- ENCABEZADO -->
+    <!-- ========================================= -->
+
     <div class="cliente-header">
 
-        <h2>
+        <p class="cliente-etiqueta">
+            TALLER EL OBRERO · COMPRAS
+        </p>
+
+        <h1>
             Mis pedidos
-        </h2>
+        </h1>
 
         <p>
-            Consulta el estado de tus pedidos,
-            fechas de entrega y valores.
+            Consulta tus compras, estados
+            y fechas estimadas de entrega.
         </p>
 
     </div>
 
+
+
+    <!-- ========================================= -->
+    <!-- PEDIDOS -->
+    <!-- ========================================= -->
 
     {% if pedidos %}
 
@@ -28,16 +44,28 @@ Mis pedidos - Taller El Obrero
 
             <div class="pedido-card">
 
+
                 <div>
 
                     <h3>
                         Pedido #{{ pedido.id }}
                     </h3>
 
-                    <p>
-                        Fecha del pedido:
-                        {{ pedido.fecha_pedido.strftime('%d/%m/%Y') }}
-                    </p>
+
+                    {% if pedido.fecha_pedido %}
+
+                        <p>
+
+                            Fecha del pedido:
+
+                            {{ pedido.fecha_pedido.strftime(
+                                '%d/%m/%Y'
+                            ) }}
+
+                        </p>
+
+                    {% endif %}
+
 
                     <p>
 
@@ -51,13 +79,16 @@ Mis pedidos - Taller El Obrero
 
                     </p>
 
+
                     {% if pedido.fecha_entrega %}
 
                         <p>
 
                             Entrega estimada:
 
-                            {{ pedido.fecha_entrega.strftime('%d/%m/%Y') }}
+                            {{ pedido.fecha_entrega.strftime(
+                                '%d/%m/%Y'
+                            ) }}
 
                         </p>
 
@@ -74,7 +105,7 @@ Mis pedidos - Taller El Obrero
 
                         ${{ "{:,.0f}".format(
                             pedido.total|float
-                        ) }}
+                        ).replace(",", ".") }}
 
                     </p>
 
@@ -91,35 +122,59 @@ Mis pedidos - Taller El Obrero
 
                 </div>
 
+
             </div>
 
         {% endfor %}
 
+
     {% else %}
+
+
+        <!-- ========================================= -->
+        <!-- SIN PEDIDOS -->
+        <!-- ========================================= -->
 
         <div class="cliente-card">
 
+
+            <div class="cliente-accion-icono">
+                📦
+            </div>
+
+
             <h3>
-                No tienes pedidos todavía.
+                Todavía no tienes pedidos
             </h3>
 
+
             <p>
-                Diseña tu primer producto
-                y realiza tu pedido.
+                Explora nuestro catálogo y encuentra
+                un producto artesanal para ti.
             </p>
 
+
             <a
-                href="{{ url_for(
-                    'configurador.mostrar_configurador'
-                ) }}"
+                href="{{ url_for('principal.inicio') }}#catalogo"
                 class="boton"
             >
-                Diseñar producto
+                Ver catálogo
             </a>
+
+
+            <a
+                href="{{ url_for('configurador.inicio') }}"
+                class="producto-personalizar"
+            >
+                ✦ Diseñar un producto en 3D
+            </a>
+
 
         </div>
 
+
     {% endif %}
+
 
 </section>
 

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+
+{% block titulo %}
+Mis facturas | Taller El Obrero
+{% endblock %}
+
+
+{% block contenido %}
+
+<section class="pedidos-container">
+
+
+    <div class="cliente-header">
+
+        <p class="cliente-etiqueta">
+            TALLER EL OBRERO · DOCUMENTOS
+        </p>
+
+        <h1>
+            Mis facturas
+        </h1>
+
+        <p>
+            Consulta tus facturas y recibos
+            electrónicos de compra.
+        </p>
+
+    </div>
+
+
+    {% if facturas %}
+
+        {% for factura in facturas %}
+
+            <div class="pedido-card">
+
+                <div>
+
+                    <h3>
+                        Factura {{ factura.numero }}
+                    </h3>
+
+                    <p>
+                        Fecha:
+                        {{ factura.fecha.strftime('%d/%m/%Y') }}
+                    </p>
+
+                    <p>
+                        Estado:
+                        <span class="estado">
+                            {{ factura.estado_dian }}
+                        </span>
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <p class="pedido-total">
+
+                        Total:
+
+                        ${{ "{:,.0f}".format(
+                            factura.total|float
+                        ).replace(",", ".") }}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="cliente-card">
+
+            <div class="cliente-accion-icono">
+                🧾
+            </div>
+
+            <h3>
+                Todavía no tienes facturas
+            </h3>
+
+            <p>
+                Cuando realices una compra y se genere
+                tu factura electrónica, aparecerá aquí.
+            </p>
+
+
+            <a
+                href="{{ url_for('principal.inicio') }}#catalogo"
+                class="boton"
+            >
+                Ver catálogo
+            </a>
+
+        </div>
+
+    {% endif %}
+
+
+</section>
+
+{% endblock %}

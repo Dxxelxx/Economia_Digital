@@ -8,6 +8,7 @@ from flask import (
 
 from models.pedido import Pedido
 from models.producto import Producto
+from models.cliente import Cliente
 
 
 cliente = Blueprint(
@@ -27,27 +28,21 @@ def cliente_requerido():
         return redirect(
             url_for(
                 "auth.login",
-                next=url_for(
-                    "cliente.inicio"
-                )
+                next=url_for("cliente.inicio")
             )
         )
-
 
     if session.get("rol") != "cliente":
 
         return redirect(
-            url_for(
-                "principal.inicio"
-            )
+            url_for("principal.inicio")
         )
-
 
     return None
 
 
 # ==========================================================
-# INICIO CLIENTE
+# INICIO DEL CLIENTE
 # ==========================================================
 
 @cliente.route("/")
@@ -56,9 +51,7 @@ def inicio():
     acceso = cliente_requerido()
 
     if acceso:
-
         return acceso
-
 
     return render_template(
         "cliente.html"
@@ -72,18 +65,7 @@ def inicio():
 @cliente.route("/producto/<int:producto_id>")
 def producto(producto_id):
 
-    # --------------------------------------
-    # BUSCAR PRODUCTO
-    # --------------------------------------
-
-    producto = Producto.query.get(
-        producto_id
-    )
-
-
-    # --------------------------------------
-    # SI NO EXISTE
-    # --------------------------------------
+    producto = Producto.query.get(producto_id)
 
     if producto is None:
 
@@ -110,11 +92,6 @@ def producto(producto_id):
         </div>
         """
 
-
-    # --------------------------------------
-    # MOSTRAR PRODUCTO
-    # --------------------------------------
-
     return render_template(
         "producto.html",
         producto=producto
@@ -131,14 +108,38 @@ def mis_pedidos():
     acceso = cliente_requerido()
 
     if acceso:
-
         return acceso
 
 
-    # Solo pedidos del usuario actual
-    pedidos = Pedido.query.filter_by(
-        usuario_id=session["usuario_id"]
-    ).all()
+    # ==========================================
+    # BUSCAR CLIENTE POR CORREO
+    # ==========================================
+
+    email = session.get(
+        "usuario_email"
+    )
+
+
+    cliente_actual = Cliente.query.filter_by(
+        email=email
+    ).first()
+
+
+    # ==========================================
+    # SI TODAVÍA NO EXISTE
+    # ==========================================
+
+    if cliente_actual is None:
+
+        pedidos = []
+
+    else:
+
+        pedidos = Pedido.query.filter_by(
+            cliente_id=cliente_actual.id
+        ).order_by(
+            Pedido.fecha_pedido.desc()
+        ).all()
 
 
     return render_template(
@@ -148,7 +149,7 @@ def mis_pedidos():
 
 
 # ==========================================================
-# DETALLE PEDIDO
+# DETALLE DEL PEDIDO
 # ==========================================================
 
 @cliente.route("/pedido/<int:pedido_id>")
@@ -157,16 +158,30 @@ def detalle_pedido(pedido_id):
     acceso = cliente_requerido()
 
     if acceso:
-
         return acceso
-
 
     pedido = Pedido.query.get_or_404(
         pedido_id
     )
 
-
     return render_template(
         "detalle_pedido.html",
         pedido=pedido
+    )
+
+# ==========================================================
+# MIS FACTURAS
+# ==========================================================
+
+@cliente.route("/mis-facturas")
+def mis_facturas():
+
+    acceso = cliente_requerido()
+
+    if acceso:
+        return acceso
+
+    return render_template(
+        "mis_facturas.html",
+        facturas=[]
     )

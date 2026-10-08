@@ -10,6 +10,7 @@ from flask import (
 
 from database.connection import db
 from models.usuario import Usuario
+from models.cliente import Cliente
 
 auth = Blueprint("auth", __name__)
 
@@ -111,11 +112,11 @@ def registro():
 
     siguiente = request.args.get("next", "")
 
-    # -----------------------------------------------------
-    # CUANDO EL USUARIO ENVÍA EL FORMULARIO
-    # -----------------------------------------------------
-
     if request.method == "POST":
+
+        # ==========================================
+        # DATOS DEL FORMULARIO
+        # ==========================================
 
         nombre = request.form.get(
             "nombre",
@@ -133,6 +134,21 @@ def registro():
             or ""
         ).strip().lower()
 
+        documento = request.form.get(
+            "documento",
+            ""
+        ).strip()
+
+        telefono = request.form.get(
+            "telefono",
+            ""
+        ).strip()
+
+        direccion = request.form.get(
+            "direccion",
+            ""
+        ).strip()
+
         password = request.form.get(
             "password",
             ""
@@ -149,9 +165,10 @@ def registro():
             or ""
         )
 
-        # -------------------------------------------------
-        # VALIDAR NOMBRE
-        # -------------------------------------------------
+
+        # ==========================================
+        # VALIDACIONES
+        # ==========================================
 
         if not nombre:
 
@@ -165,23 +182,66 @@ def registro():
                 next=siguiente
             )
 
-        # -------------------------------------------------
-        # GENERAR USERNAME SI NO SE ESCRIBIÓ
-        # -------------------------------------------------
+
+        if not email:
+
+            flash(
+                "Debes ingresar tu correo electrónico.",
+                "error"
+            )
+
+            return render_template(
+                "registro.html",
+                next=siguiente
+            )
+
+
+        if not password:
+
+            flash(
+                "Debes ingresar una contraseña.",
+                "error"
+            )
+
+            return render_template(
+                "registro.html",
+                next=siguiente
+            )
+
+
+        if password != confirmar_password:
+
+            flash(
+                "Las contraseñas no coinciden.",
+                "error"
+            )
+
+            return render_template(
+                "registro.html",
+                next=siguiente
+            )
+
+
+        if len(password) < 6:
+
+            flash(
+                "La contraseña debe tener al menos 6 caracteres.",
+                "error"
+            )
+
+            return render_template(
+                "registro.html",
+                next=siguiente
+            )
+
+
+        # ==========================================
+        # GENERAR USUARIO AUTOMÁTICAMENTE
+        # ==========================================
 
         if not username:
 
-            if email:
-
-                base_username = email.split("@")[0]
-
-            else:
-
-                base_username = (
-                    nombre
-                    .lower()
-                    .replace(" ", "")
-                )
+            base_username = email.split("@")[0]
 
             username = base_username
 
@@ -197,78 +257,17 @@ def registro():
 
                 contador += 1
 
-        # -------------------------------------------------
-        # VALIDAR CORREO
-        # -------------------------------------------------
 
-        if not email:
-
-            flash(
-                "Debes ingresar tu correo electrónico.",
-                "error"
-            )
-
-            return render_template(
-                "registro.html",
-                next=siguiente
-            )
-
-        # -------------------------------------------------
-        # VALIDAR CONTRASEÑA
-        # -------------------------------------------------
-
-        if not password:
-
-            flash(
-                "Debes ingresar una contraseña.",
-                "error"
-            )
-
-            return render_template(
-                "registro.html",
-                next=siguiente
-            )
-
-        # -------------------------------------------------
-        # CONFIRMAR CONTRASEÑA
-        # -------------------------------------------------
-
-        if password != confirmar_password:
-
-            flash(
-                "Las contraseñas no coinciden.",
-                "error"
-            )
-
-            return render_template(
-                "registro.html",
-                next=siguiente
-            )
-
-        # -------------------------------------------------
-        # LONGITUD MÍNIMA
-        # -------------------------------------------------
-
-        if len(password) < 6:
-
-            flash(
-                "La contraseña debe tener al menos 6 caracteres.",
-                "error"
-            )
-
-            return render_template(
-                "registro.html",
-                next=siguiente
-            )
-
-        # -------------------------------------------------
-        # COMPROBAR SI YA EXISTE
-        # -------------------------------------------------
+        # ==========================================
+        # VERIFICAR USUARIO EXISTENTE
+        # ==========================================
 
         usuario_existente = Usuario.query.filter(
-            (Usuario.username == username) |
+            (Usuario.username == username)
+            |
             (Usuario.email == email)
         ).first()
+
 
         if usuario_existente:
 
@@ -291,9 +290,10 @@ def registro():
                 next=siguiente
             )
 
-        # -------------------------------------------------
+
+        # ==========================================
         # CREAR USUARIO
-        # -------------------------------------------------
+        # ==========================================
 
         usuario = Usuario(
             nombre=nombre,
@@ -302,35 +302,48 @@ def registro():
             rol="cliente"
         )
 
-        usuario.establecer_password(password)
+        usuario.establecer_password(
+            password
+        )
 
-        # -------------------------------------------------
-        # GUARDAR EN POSTGRESQL
-        # -------------------------------------------------
+
+        # ==========================================
+        # GUARDAR USUARIO
+        # ==========================================
 
         try:
 
             db.session.add(usuario)
 
+            db.session.flush()
+
+
+            # ======================================
+            # CREAR CLIENTE
+            # ======================================
+
+            cliente = Cliente(
+                nombre=nombre,
+                documento=documento if documento else None,
+                telefono=telefono if telefono else None,
+                email=email,
+                direccion=direccion if direccion else None
+            )
+
+            db.session.add(cliente)
+
             db.session.commit()
+
 
         except Exception as error:
 
             db.session.rollback()
 
             print(
-                "================================"
-            )
-
-            print(
-                "ERROR AL REGISTRAR USUARIO:"
+                "ERROR AL REGISTRAR USUARIO/CLIENTE:"
             )
 
             print(error)
-
-            print(
-                "================================"
-            )
 
             flash(
                 "No se pudo crear la cuenta. "
@@ -343,21 +356,27 @@ def registro():
                 next=siguiente
             )
 
-        # -------------------------------------------------
-        # INICIAR SESIÓN AUTOMÁTICAMENTE
-        # -------------------------------------------------
+
+        # ==========================================
+        # CREAR SESIÓN
+        # ==========================================
 
         session.clear()
 
         session["usuario_id"] = usuario.id
+
         session["usuario_nombre"] = usuario.nombre
+
         session["usuario_username"] = usuario.username
+
         session["usuario_email"] = usuario.email
+
         session["rol"] = usuario.rol
 
-        # -------------------------------------------------
+
+        # ==========================================
         # REDIRECCIÓN
-        # -------------------------------------------------
+        # ==========================================
 
         if siguiente:
 
@@ -366,7 +385,6 @@ def registro():
         return redirect(
             url_for("cliente.inicio")
         )
-
 
     # =====================================================
     # IMPORTANTE:

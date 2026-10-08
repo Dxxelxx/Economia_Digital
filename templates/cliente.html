@@ -1,90 +1,487 @@
 {% extends "base.html" %}
 
+
 {% block titulo %}
-Mi cuenta - Taller El Obrero
+Mi cuenta | Taller El Obrero
 {% endblock %}
+
 
 {% block contenido %}
 
-<section class="cliente-container">
+<section class="cliente-panel">
 
-    <div class="cliente-header">
 
-        <h2>
-            Bienvenido,
-            {{ session["usuario_nombre"] }}
-        </h2>
+    <!-- ================================================= -->
+    <!-- ENCABEZADO -->
+    <!-- ================================================= -->
 
-        <p>
-            Desde aquí puedes diseñar tu producto,
-            consultar tus pedidos y revisar tus facturas.
-        </p>
+    <div class="cliente-panel-header">
+
+        <div>
+
+            <p class="cliente-etiqueta">
+                TALLER EL OBRERO · MI CUENTA
+            </p>
+
+            <h1>
+                Hola,
+                <strong>
+                    {{ session.get("usuario_nombre") }}
+                </strong>
+            </h1>
+
+            <p>
+                Bienvenido a tu espacio personal.
+                Desde aquí puedes gestionar tus compras,
+                diseños y documentos.
+            </p>
+
+        </div>
+
+
+        <div class="cliente-cuenta-activa">
+
+            <span>
+                ✓
+            </span>
+
+            <div>
+
+                <strong>
+                    Cuenta activa
+                </strong>
+
+                <small>
+                    Cliente Taller El Obrero
+                </small>
+
+            </div>
+
+        </div>
 
     </div>
 
 
-    <div class="cliente-grid">
+
+    <!-- ================================================= -->
+    <!-- ACCIONES PRINCIPALES -->
+    <!-- ================================================= -->
+
+    <div class="cliente-acciones">
+
+
+        <!-- CATÁLOGO -->
 
         <a
-            href="{{ url_for('configurador.mostrar_configurador') }}"
-            class="cliente-card"
+            href="{{ url_for('principal.inicio') }}#catalogo"
+            class="cliente-accion cliente-accion-catalogo"
         >
 
-            <h3>
-                Diseñar producto
-            </h3>
+            <div class="cliente-accion-icono">
+                🛍
+            </div>
 
-            <p>
-                Personaliza tu producto,
-                selecciona materiales,
-                colores, suelas,
-                herrajes e iniciales.
-            </p>
+            <div>
+
+                <span>
+                    COMPRAR
+                </span>
+
+                <h2>
+                    Ver catálogo
+                </h2>
+
+                <p>
+                    Explora nuestros productos
+                    artesanales y realiza una compra.
+                </p>
+
+            </div>
+
+            <b>
+                →
+            </b>
 
         </a>
 
+
+
+        <!-- DISEÑO 3D -->
+
+        <a
+            href="{{ url_for('configurador.inicio') }}"
+            class="cliente-accion cliente-accion-diseño"
+        >
+
+            <div class="cliente-accion-icono">
+                ✦
+            </div>
+
+            <div>
+
+                <span>
+                    PERSONALIZACIÓN
+                </span>
+
+                <h2>
+                    Diseñar en 3D
+                </h2>
+
+                <p>
+                    Personaliza colores, materiales,
+                    suelas, herrajes e iniciales.
+                </p>
+
+            </div>
+
+            <b>
+                →
+            </b>
+
+        </a>
+
+
+
+        <!-- PEDIDOS -->
 
         <a
             href="{{ url_for('cliente.mis_pedidos') }}"
-            class="cliente-card"
+            class="cliente-accion"
         >
 
-            <h3>
-                Mis pedidos
-            </h3>
+            <div class="cliente-accion-icono">
+                📦
+            </div>
 
-            <p>
-                Consulta tus pedidos,
-                estados y fechas estimadas
-                de entrega.
-            </p>
+            <div>
+
+                <span>
+                    COMPRAS
+                </span>
+
+                <h2>
+                    Mis pedidos
+                </h2>
+
+                <p>
+                    Consulta el estado y seguimiento
+                    de tus compras.
+                </p>
+
+            </div>
+
+            <b>
+                →
+            </b>
 
         </a>
 
 
+
+        <!-- FACTURAS -->
+
         <a
-            href="{{ url_for('auth.logout') }}"
-            class="cliente-card"
+            href="{{ url_for('cliente.mis_facturas') }}"
+            class="cliente-accion"
         >
 
-            <h3>
-                Cerrar sesión
-            </h3>
+            <div class="cliente-accion-icono">
+                🧾
+            </div>
 
-            <p>
-                Salir de tu cuenta
-                de Taller El Obrero.
-            </p>
+            <div>
+
+                <span>
+                    DOCUMENTOS
+                </span>
+
+                <h2>
+                    Mis facturas
+                </h2>
+
+                <p>
+                    Consulta tus facturas y
+                    recibos electrónicos.
+                </p>
+
+            </div>
+
+            <b>
+                →
+            </b>
 
         </a>
 
     </div>
 
+
+
+    <!-- ================================================= -->
+    <!-- ACCESOS RÁPIDOS -->
+    <!-- ================================================= -->
+
+    <div class="cliente-bloque">
+
+        <div class="cliente-bloque-titulo">
+
+            <p>
+                ACCESOS RÁPIDOS
+            </p>
+
+            <h2>
+                ¿Qué quieres hacer?
+            </h2>
+
+        </div>
+
+
+        <div class="cliente-enlaces">
+
+
+            <!-- INICIO -->
+
+            <a
+                href="{{ url_for('principal.inicio') }}"
+                class="cliente-enlace"
+            >
+
+                <span>
+                    🏠
+                </span>
+
+                <div>
+
+                    <strong>
+                        Volver al inicio
+                    </strong>
+
+                    <small>
+                        Ir a la página principal
+                    </small>
+
+                </div>
+
+                <b>
+                    →
+                </b>
+
+            </a>
+
+
+
+            <!-- CATÁLOGO -->
+
+            <a
+                href="{{ url_for('principal.inicio') }}#catalogo"
+                class="cliente-enlace"
+            >
+
+                <span>
+                    🛍
+                </span>
+
+                <div>
+
+                    <strong>
+                        Explorar catálogo
+                    </strong>
+
+                    <small>
+                        Ver productos disponibles
+                    </small>
+
+                </div>
+
+                <b>
+                    →
+                </b>
+
+            </a>
+
+
+
+            <!-- DISEÑADOR -->
+
+            <a
+                href="{{ url_for('configurador.inicio') }}"
+                class="cliente-enlace"
+            >
+
+                <span>
+                    ✦
+                </span>
+
+                <div>
+
+                    <strong>
+                        Crear un diseño
+                    </strong>
+
+                    <small>
+                        Personalizar un producto en 3D
+                    </small>
+
+                </div>
+
+                <b>
+                    →
+                </b>
+
+            </a>
+
+
+
+            <!-- PEDIDOS -->
+
+            <a
+                href="{{ url_for('cliente.mis_pedidos') }}"
+                class="cliente-enlace"
+            >
+
+                <span>
+                    📦
+                </span>
+
+                <div>
+
+                    <strong>
+                        Consultar pedidos
+                    </strong>
+
+                    <small>
+                        Ver compras y estados
+                    </small>
+
+                </div>
+
+                <b>
+                    →
+                </b>
+
+            </a>
+
+
+
+            <!-- FACTURAS -->
+
+            <a
+                href="{{ url_for('cliente.mis_facturas') }}"
+                class="cliente-enlace"
+            >
+
+                <span>
+                    🧾
+                </span>
+
+                <div>
+
+                    <strong>
+                        Ver facturas
+                    </strong>
+
+                    <small>
+                        Consultar documentos electrónicos
+                    </small>
+
+                </div>
+
+                <b>
+                    →
+                </b>
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================================================= -->
+    <!-- DATOS DE LA CUENTA -->
+    <!-- ================================================= -->
+
+    <div class="cliente-bloque">
+
+        <div class="cliente-bloque-titulo">
+
+            <p>
+                MI CUENTA
+            </p>
+
+            <h2>
+                Información personal
+            </h2>
+
+        </div>
+
+
+        <div class="cliente-datos">
+
+
+            <div>
+
+                <span>
+                    Nombre
+                </span>
+
+                <strong>
+                    {{ session.get("usuario_nombre") }}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Usuario
+                </span>
+
+                <strong>
+                    {{ session.get("usuario_username") }}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Correo
+                </span>
+
+                <strong>
+                    {{ session.get("usuario_email") }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================================================= -->
+    <!-- CERRAR SESIÓN -->
+    <!-- ================================================= -->
+
+    <div class="cliente-cerrar">
+
+        <a href="{{ url_for('auth.logout') }}">
+
+            Cerrar sesión
+
+            <span>
+                →
+            </span>
+
+        </a>
+
+    </div>
+
+
 </section>
-
-
-<script
-    src="{{ url_for('static', filename='js/cliente.js') }}">
-</script>
 
 {% endblock %}

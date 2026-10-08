@@ -19,7 +19,7 @@ class Cliente(db.Model):
     documento = db.Column(
         db.String(30),
         unique=True,
-        nullable=False
+        nullable=True
     )
 
     telefono = db.Column(
@@ -27,7 +27,8 @@ class Cliente(db.Model):
     )
 
     email = db.Column(
-        db.String(120)
+        db.String(120),
+        unique=True
     )
 
     direccion = db.Column(
@@ -39,7 +40,10 @@ class Cliente(db.Model):
         default=datetime.utcnow
     )
 
-    # Relación con pedidos
+    # -----------------------------------------
+    # RELACIÓN CON PEDIDOS
+    # -----------------------------------------
+
     pedidos = db.relationship(
         "Pedido",
         backref="cliente",
