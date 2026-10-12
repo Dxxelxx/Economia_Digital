@@ -160,9 +160,30 @@ def detalle_pedido(pedido_id):
     if acceso:
         return acceso
 
-    pedido = Pedido.query.get_or_404(
-        pedido_id
-    )
+    email = (
+        session.get("usuario_email") or ""
+    ).strip().lower()
+
+    cliente_actual = Cliente.query.filter_by(
+        email=email
+    ).first()
+
+    if cliente_actual is None:
+        from flask import flash
+
+        flash(
+            "No se encontró tu registro de cliente.",
+            "error"
+        )
+
+        return redirect(
+            url_for("cliente.mis_pedidos")
+        )
+
+    pedido = Pedido.query.filter_by(
+        id=pedido_id,
+        cliente_id=cliente_actual.id
+    ).first_or_404()
 
     return render_template(
         "detalle_pedido.html",

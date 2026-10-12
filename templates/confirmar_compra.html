@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Confirmar compra | Taller El Obrero
+{% endblock %}
+
+{% block contenido %}
+
+<section class="compra-pagina">
+
+    <div class="compra-encabezado">
+
+        <div>
+            <span class="compra-etiqueta">
+                TALLER EL OBRERO · TIENDA DIGITAL
+            </span>
+
+            <h1>Confirmar compra</h1>
+
+            <p>
+                Revisa tu producto y completa los datos
+                necesarios para registrar tu pedido.
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for(
+                'cliente.producto',
+                producto_id=producto.id
+            ) }}"
+            class="compra-volver"
+        >
+            ← Volver al producto
+        </a>
+
+    </div>
+
+
+    <div class="compra-layout">
+
+        <div class="compra-formulario">
+
+            <div class="compra-card">
+
+                <div class="compra-card-titulo">
+                    <span>01</span>
+
+                    <div>
+                        <h2>Datos de entrega</h2>
+
+                        <p>
+                            Necesitamos esta información
+                            para gestionar tu pedido.
+                        </p>
+                    </div>
+                </div>
+
+                <form
+                    method="POST"
+                    action="{{ url_for(
+                        'pedidos.comprar',
+                        producto_id=producto.id
+                    ) }}"
+                >
+
+                    <div class="compra-campo">
+
+                        <label for="cantidad">
+                            Cantidad
+                        </label>
+
+                        <input
+                            type="number"
+                            id="cantidad"
+                            name="cantidad"
+                            value="1"
+                            min="1"
+                            max="100"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="compra-campo">
+
+                        <label for="documento">
+                            Documento de identidad
+                        </label>
+
+                        <input
+                            type="text"
+                            id="documento"
+                            name="documento"
+                            maxlength="30"
+                            placeholder="Número de documento"
+                        >
+
+                        <small>
+                            Si ya tienes un registro de cliente,
+                            conservaremos los datos asociados.
+                        </small>
+
+                    </div>
+
+
+                    <div class="compra-campo">
+
+                        <label for="telefono">
+                            Teléfono de contacto
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="telefono"
+                            name="telefono"
+                            maxlength="30"
+                            placeholder="Tu número de teléfono"
+                        >
+
+                    </div>
+
+
+                    <div class="compra-campo">
+
+                        <label for="direccion">
+                            Dirección de entrega
+                        </label>
+
+                        <input
+                            type="text"
+                            id="direccion"
+                            name="direccion"
+                            maxlength="200"
+                            placeholder="Dirección de entrega"
+                        >
+
+                    </div>
+
+
+                    <div class="compra-nota">
+                        <span>✦</span>
+
+                        <p>
+                            Elaboramos nuestros productos
+                            con cuidado artesanal. La fecha
+                            de entrega se confirmará durante
+                            la gestión del pedido.
+                        </p>
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="compra-boton-principal"
+                    >
+                        Confirmar pedido
+                        <span>→</span>
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <aside class="compra-resumen">
+
+            <div class="compra-resumen-superior">
+
+                <span class="compra-etiqueta">
+                    RESUMEN
+                </span>
+
+                <h2>Tu producto</h2>
+
+            </div>
+
+
+           <div class="compra-producto-imagen">
+
+    {% if producto.imagen %}
+
+        <img
+            src="{{ url_for(
+                'static',
+                filename='img/productos/' + producto.imagen
+            ) }}"
+            alt="{{ producto.nombre }}"
+            onerror="this.style.display='none';
+                     this.nextElementSibling.style.display='flex';"
+        >
+
+        <div
+            class="compra-producto-placeholder"
+            style="display: none;"
+        >
+            <span>✦</span>
+            <p>Imagen no disponible</p>
+        </div>
+
+    {% else %}
+
+        <div class="compra-producto-placeholder">
+            <span>✦</span>
+            <p>Imagen próximamente</p>
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+            <h3>{{ producto.nombre }}</h3>
+
+            <p class="compra-descripcion">
+                {{ producto.descripcion or
+                   "Producto artesanal de Taller El Obrero." }}
+            </p>
+
+
+            <div class="compra-separador"></div>
+
+
+           <div class="compra-precio-linea">
+    <span>Precio unitario</span>
+
+    <strong id="precio-unitario">
+        ${{ "{:,.0f}".format(
+            producto.precio_base|float
+        ).replace(",", ".") }}
+    </strong>
+</div>
+
+<div class="compra-precio-linea">
+    <span>Cantidad</span>
+
+    <strong id="resumen-cantidad">1</strong>
+</div>
+
+<div class="compra-separador"></div>
+
+<div class="compra-precio-linea">
+    <span>Subtotal</span>
+
+    <strong id="precio-subtotal">$0</strong>
+</div>
+
+<div class="compra-precio-linea">
+    <span>IVA (19 %)</span>
+
+    <strong id="precio-iva">$0</strong>
+</div>
+
+<div class="compra-separador"></div>
+
+<p class="compra-total-label">
+    Total de tu compra
+</p>
+
+<p class="compra-total" id="precio-total">
+    $0
+</p>
+
+<p class="compra-nota-iva">
+    El precio se actualiza automáticamente según
+    la cantidad seleccionada.
+</p>
+
+        </aside>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const cantidadInput = document.getElementById("cantidad");
+    const resumenCantidad = document.getElementById("resumen-cantidad");
+
+    const subtotalElemento = document.getElementById("precio-subtotal");
+    const ivaElemento = document.getElementById("precio-iva");
+    const totalElemento = document.getElementById("precio-total");
+
+    // Precio unitario del producto enviado por Flask.
+    const precioUnitario = Number(
+        "{{ producto.precio_base }}"
+    );
+
+    // Formato de moneda colombiana.
+    function formatoMoneda(valor) {
+        return new Intl.NumberFormat("es-CO", {
+            style: "currency",
+            currency: "COP",
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(valor);
+    }
+
+    function actualizarPrecios() {
+
+        let cantidad = parseInt(cantidadInput.value, 10);
+
+        if (!Number.isFinite(cantidad) || cantidad < 1) {
+            cantidad = 1;
+        }
+
+        if (cantidad > 100) {
+            cantidad = 100;
+        }
+
+        const subtotal = precioUnitario * cantidad;
+
+        // Coincide con el cálculo del backend:
+        // IVA del 19 %, redondeado a dos decimales.
+        const iva = Math.round(
+            (subtotal * 0.19 + Number.EPSILON) * 100
+        ) / 100;
+
+        const total = subtotal + iva;
+
+        resumenCantidad.textContent = cantidad;
+
+        subtotalElemento.textContent = formatoMoneda(subtotal);
+
+        ivaElemento.textContent = formatoMoneda(iva);
+
+        totalElemento.textContent = formatoMoneda(total);
+    }
+
+    // Actualizar al cambiar la cantidad.
+    cantidadInput.addEventListener("input", actualizarPrecios);
+
+    cantidadInput.addEventListener("change", actualizarPrecios);
+
+    // Mostrar los valores correctos al abrir la página.
+    actualizarPrecios();
+
+});
+</script>
+
+{% endblock %}

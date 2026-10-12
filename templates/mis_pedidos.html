@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 
-
 {% block titulo %}
 Mis pedidos | Taller El Obrero
 {% endblock %}
@@ -8,173 +7,398 @@ Mis pedidos | Taller El Obrero
 
 {% block contenido %}
 
-<section class="pedidos-container">
+<section class="mis-pedidos-pagina">
+
+    <div class="pedidos-hero">
+
+        <div class="pedidos-hero-contenido">
+
+            <div class="pedidos-migas">
+                <a href="{{ url_for('cliente.inicio') }}">
+                    Mi cuenta
+                </a>
+
+                <span>/</span>
+
+                <span>Mis pedidos</span>
+            </div>
+
+            <span class="pedidos-etiqueta">
+                TALLER EL OBRERO · MI ESPACIO
+            </span>
+
+            <h1>
+                Tus pedidos,<br>
+                <span>siempre a tu alcance.</span>
+            </h1>
+
+            <p>
+                Consulta tus compras, sigue el proceso de
+                elaboración artesanal y revisa los detalles
+                de cada pedido.
+            </p>
+
+        </div>
 
 
-    <!-- ========================================= -->
-    <!-- ENCABEZADO -->
-    <!-- ========================================= -->
+        <div class="pedidos-hero-ilustracion">
 
-    <div class="cliente-header">
+            <div class="pedidos-circulo">
+                <span>✦</span>
+            </div>
 
-        <p class="cliente-etiqueta">
-            TALLER EL OBRERO · COMPRAS
-        </p>
+            <div class="pedidos-sello">
+                <span>HECHO A MANO</span>
+                <strong>EL OBRERO</strong>
+                <span>CALI · COLOMBIA</span>
+            </div>
 
-        <h1>
-            Mis pedidos
-        </h1>
-
-        <p>
-            Consulta tus compras, estados
-            y fechas estimadas de entrega.
-        </p>
+        </div>
 
     </div>
 
 
+    <div class="pedidos-resumen">
 
-    <!-- ========================================= -->
-    <!-- PEDIDOS -->
-    <!-- ========================================= -->
+        <article class="pedidos-resumen-card">
+
+            <div class="pedidos-resumen-icono">
+                ◇
+            </div>
+
+            <div>
+                <span>Total de pedidos</span>
+
+                <strong>
+                    {{ pedidos|length }}
+                </strong>
+            </div>
+
+        </article>
+
+
+        <article class="pedidos-resumen-card">
+
+            <div class="pedidos-resumen-icono">
+                ↻
+            </div>
+
+            <div>
+                <span>En proceso</span>
+
+                <strong>
+                    {{
+                        pedidos
+                        | selectattr(
+                            "estado",
+                            "in",
+                            [
+                                "Pendiente",
+                                "Confirmado",
+                                "En producción",
+                                "En proceso"
+                            ]
+                        )
+                        | list
+                        | length
+                    }}
+                </strong>
+            </div>
+
+        </article>
+
+
+        <article class="pedidos-resumen-card">
+
+            <div class="pedidos-resumen-icono">
+                ✓
+            </div>
+
+            <div>
+                <span>Entregados</span>
+
+                <strong>
+                    {{
+                        pedidos
+                        | selectattr(
+                            "estado",
+                            "equalto",
+                            "Entregado"
+                        )
+                        | list
+                        | length
+                    }}
+                </strong>
+            </div>
+
+        </article>
+
+    </div>
+
+
+    <div class="pedidos-seccion-encabezado">
+
+        <div>
+            <span class="pedidos-etiqueta">
+                HISTORIAL DE COMPRAS
+            </span>
+
+            <h2>Mis pedidos</h2>
+
+            <p>
+                Aquí encontrarás el seguimiento de tus compras.
+            </p>
+        </div>
+
+
+        <a
+            href="{{ url_for('principal.inicio') }}#catalogo"
+            class="pedidos-boton-secundario"
+        >
+            <span>＋</span>
+            Explorar catálogo
+        </a>
+
+    </div>
+
 
     {% if pedidos %}
 
-        {% for pedido in pedidos %}
+        <div class="pedidos-lista">
 
-            <div class="pedido-card">
+            {% for pedido in pedidos %}
+
+                <article class="pedido-moderno">
+
+                    <div class="pedido-moderno-superior">
+
+                        <div class="pedido-moderno-identidad">
+
+                            <div class="pedido-moderno-icono">
+                                📦
+                            </div>
+
+                            <div>
+
+                                <span class="pedido-numero-label">
+                                    NÚMERO DE PEDIDO
+                                </span>
+
+                                <h3>
+                                    #{{ "%05d"|format(pedido.id) }}
+                                </h3>
+
+                                <p>
+                                    {% if pedido.fecha_pedido %}
+                                        Realizado el
+                                        {{
+                                            pedido.fecha_pedido.strftime(
+                                                "%d/%m/%Y"
+                                            )
+                                        }}
+                                    {% else %}
+                                        Fecha no disponible
+                                    {% endif %}
+                                </p>
+
+                            </div>
+
+                        </div>
 
 
-                <div>
+                        <span class="pedido-estado
+                            {% if pedido.estado == 'Entregado' %}
+                                estado-entregado
+                            {% elif pedido.estado in [
+                                'En producción',
+                                'En proceso'
+                            ] %}
+                                estado-produccion
+                            {% elif pedido.estado == 'Cancelado' %}
+                                estado-cancelado
+                            {% else %}
+                                estado-pendiente
+                            {% endif %}
+                        ">
 
-                    <h3>
-                        Pedido #{{ pedido.id }}
-                    </h3>
-
-
-                    {% if pedido.fecha_pedido %}
-
-                        <p>
-
-                            Fecha del pedido:
-
-                            {{ pedido.fecha_pedido.strftime(
-                                '%d/%m/%Y'
-                            ) }}
-
-                        </p>
-
-                    {% endif %}
-
-
-                    <p>
-
-                        Estado:
-
-                        <span class="estado">
+                            <span class="pedido-estado-punto"></span>
 
                             {{ pedido.estado }}
 
                         </span>
 
-                    </p>
+                    </div>
 
 
-                    {% if pedido.fecha_entrega %}
-
-                        <p>
-
-                            Entrega estimada:
-
-                            {{ pedido.fecha_entrega.strftime(
-                                '%d/%m/%Y'
-                            ) }}
-
-                        </p>
-
-                    {% endif %}
-
-                </div>
+                    <div class="pedido-moderno-separador"></div>
 
 
-                <div>
+                    <div class="pedido-moderno-detalles">
 
-                    <p class="pedido-total">
+                        <div class="pedido-detalle-item">
 
-                        Total:
+                            <span>Unidades</span>
 
-                        ${{ "{:,.0f}".format(
-                            pedido.total|float
-                        ).replace(",", ".") }}
+                            <strong>
+                                {{ pedido.cantidad }}
+                            </strong>
 
-                    </p>
-
-
-                    <a
-                        href="{{ url_for(
-                            'cliente.detalle_pedido',
-                            pedido_id=pedido.id
-                        ) }}"
-                        class="boton"
-                    >
-                        Ver pedido
-                    </a>
-
-                </div>
+                        </div>
 
 
-            </div>
+                        <div class="pedido-detalle-item">
 
-        {% endfor %}
+                            <span>Entrega estimada</span>
 
+                            <strong>
+                                {% if pedido.fecha_entrega %}
+                                    {{
+                                        pedido.fecha_entrega.strftime(
+                                            "%d/%m/%Y"
+                                        )
+                                    }}
+                                {% else %}
+                                    Por confirmar
+                                {% endif %}
+                            </strong>
 
-    {% else %}
-
-
-        <!-- ========================================= -->
-        <!-- SIN PEDIDOS -->
-        <!-- ========================================= -->
-
-        <div class="cliente-card">
-
-
-            <div class="cliente-accion-icono">
-                📦
-            </div>
-
-
-            <h3>
-                Todavía no tienes pedidos
-            </h3>
+                        </div>
 
 
-            <p>
-                Explora nuestro catálogo y encuentra
-                un producto artesanal para ti.
-            </p>
+                        <div class="pedido-detalle-item pedido-detalle-total">
+
+                            <span>Total del pedido</span>
+
+                            <strong>
+                                ${{
+                                    "{:,.0f}".format(
+                                        pedido.total|float
+                                    ).replace(",", ".")
+                                }}
+                            </strong>
+
+                            <small>IVA incluido si aplica</small>
+
+                        </div>
+
+                    </div>
 
 
-            <a
-                href="{{ url_for('principal.inicio') }}#catalogo"
-                class="boton"
-            >
-                Ver catálogo
-            </a>
+                    <div class="pedido-moderno-separador"></div>
 
 
-            <a
-                href="{{ url_for('configurador.inicio') }}"
-                class="producto-personalizar"
-            >
-                ✦ Diseñar un producto en 3D
-            </a>
+                    <div class="pedido-moderno-inferior">
 
+                        <div class="pedido-seguimiento-resumen">
+
+                            <span class="pedido-seguimiento-icono">
+                                ✦
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    Seguimiento de tu compra
+                                </strong>
+
+                                <p>
+                                    Consulta los detalles y el estado
+                                    actual de tu pedido.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <a
+                            href="{{ url_for(
+                                'cliente.detalle_pedido',
+                                pedido_id=pedido.id
+                            ) }}"
+                            class="pedido-boton-detalle"
+                        >
+                            Ver pedido
+                            <span>→</span>
+                        </a>
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
 
         </div>
 
 
+    {% else %}
+
+        <div class="pedidos-vacio">
+
+            <div class="pedidos-vacio-ilustracion">
+                <span>📦</span>
+                <i>✦</i>
+            </div>
+
+            <span class="pedidos-etiqueta">
+                TU HISTORIAL DE COMPRAS
+            </span>
+
+            <h3>
+                Tu próxima historia comienza aquí.
+            </h3>
+
+            <p>
+                Todavía no tienes pedidos registrados.
+                Explora nuestras piezas artesanales o crea
+                un diseño personalizado para comenzar.
+            </p>
+
+            <div class="pedidos-vacio-acciones">
+
+                <a
+                    href="{{ url_for('principal.inicio') }}#catalogo"
+                    class="pedidos-boton-principal"
+                >
+                    Explorar catálogo
+                    <span>→</span>
+                </a>
+
+                <a
+                    href="{{ url_for('configurador.inicio') }}"
+                    class="pedidos-boton-secundario"
+                >
+                    ✦ Diseñar en 3D
+                </a>
+
+            </div>
+
+        </div>
+
     {% endif %}
 
+
+    <div class="pedidos-pie">
+
+        <div>
+            <span class="pedidos-pie-icono">✦</span>
+
+            <div>
+                <strong>Hecho a mano. Hecho para ti.</strong>
+
+                <p>
+                    Tradición artesanal con una experiencia digital.
+                </p>
+            </div>
+        </div>
+
+
+        <a href="{{ url_for('cliente.inicio') }}">
+            Volver a mi cuenta
+            <span>→</span>
+        </a>
+
+    </div>
 
 </section>
 

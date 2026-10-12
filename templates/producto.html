@@ -57,21 +57,38 @@
             <!-- IMAGEN / REPRESENTACIÓN -->
             <!-- ================================== -->
 
-            <div class="producto-detalle-imagen">
+           <div class="producto-detalle-imagen">
 
-                <div class="producto-sin-imagen">
+    {% if producto.imagen %}
 
-                    <span>
-                        ✦
-                    </span>
+        <img
+            src="{{ url_for(
+                'static',
+                filename='img/productos/' + producto.imagen
+            ) }}"
+            alt="{{ producto.nombre }}"
+            onerror="this.style.display='none';
+                     this.nextElementSibling.style.display='flex';"
+        >
 
-                    <p>
-                        {{ producto.nombre }}
-                    </p>
+        <div
+            class="producto-sin-imagen"
+            style="display: none;"
+        >
+            <span>✦</span>
+            <p>Imagen no disponible</p>
+        </div>
 
-                </div>
+    {% else %}
 
-            </div>
+        <div class="producto-sin-imagen">
+            <span>✦</span>
+            <p>Imagen próximamente</p>
+        </div>
+
+    {% endif %}
+
+</div>
 
 
 
@@ -217,20 +234,15 @@
                     <!-- ================================== -->
 
                     <a
-                        href="{{ url_for(
-                            'pedidos.crear',
-                            producto_id=producto.id
-                        ) }}"
-                        class="boton-comprar"
-                    >
-
-                        Comprar producto
-
-                        <span>
-                            →
-                        </span>
-
-                    </a>
+                     href="{{ url_for(
+                     'pedidos.comprar',
+                      producto_id=producto.id
+                     ) }}"
+                     class="producto-boton-comprar"
+                     >
+                      Comprar producto
+                     <span>→</span>
+                   </a>
 
 
                     <!-- ================================== -->
