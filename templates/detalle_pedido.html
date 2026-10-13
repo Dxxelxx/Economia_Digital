@@ -1,231 +1,280 @@
 {% extends "base.html" %}
 
 {% block titulo %}
-Pedido #{{ pedido.id }} - Taller El Obrero
+Pedido #{{ pedido.id }} | Taller El Obrero
 {% endblock %}
 
 {% block contenido %}
 
-<section class="pedidos-container">
+<section class="detalle-pedido">
 
-    <div class="cliente-header">
+    <!-- ENCABEZADO -->
+    <div class="detalle-pedido-encabezado">
 
-        <h2>
-            Pedido #{{ pedido.id }}
-        </h2>
+        <div>
+            <p class="detalle-pedido-etiqueta">
+                TALLER EL OBRERO · MIS COMPRAS
+            </p>
 
-        <p>
-            Detalle de tu pedido.
-        </p>
+            <h1>
+                Pedido <span>#{{ pedido.id }}</span>
+            </h1>
+
+            <p class="detalle-pedido-descripcion">
+                Gracias por elegir nuestros productos artesanales.
+                Aquí puedes consultar los detalles de tu compra.
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('cliente.mis_pedidos') }}"
+            class="detalle-pedido-volver"
+        >
+            ← Volver a mis pedidos
+        </a>
 
     </div>
 
 
-    <div class="pedido-card">
+    <!-- ESTADO DEL PEDIDO -->
+    <div class="detalle-pedido-estado">
 
-        <div>
-
-            <h3>
-                Información del pedido
-            </h3>
-
-            <p>
-                <strong>
-                    Fecha:
-                </strong>
-
-                {{ pedido.fecha_pedido.strftime('%d/%m/%Y') }}
-            </p>
-
-
-            <p>
-
-                <strong>
-                    Estado:
-                </strong>
-
-                {{ pedido.estado }}
-
-            </p>
-
-
-            {% if pedido.fecha_entrega %}
-
-                <p>
-
-                    <strong>
-                        Fecha estimada de entrega:
-                    </strong>
-
-                    {{ pedido.fecha_entrega.strftime('%d/%m/%Y') }}
-
-                </p>
-
+        <div class="detalle-pedido-estado-icono">
+            {% if pedido.estado == "Entregado" %}
+                ✓
+            {% elif pedido.estado == "Cancelado" %}
+                ×
+            {% else %}
+                ◷
             {% endif %}
-
         </div>
 
-    </div>
-
-
-    <div class="pedido-card">
-
-        <div>
-
-            <h3>
-                Producto personalizado
-            </h3>
-
-            {% if pedido.configuracion %}
-
-                <p>
-                    <strong>
-                        Material:
-                    </strong>
-
-                    {{ pedido.configuracion.material }}
-                </p>
-
-
-                <p>
-                    <strong>
-                        Color:
-                    </strong>
-
-                    {{ pedido.configuracion.color }}
-                </p>
-
-
-                <p>
-                    <strong>
-                        Suela:
-                    </strong>
-
-                    {{ pedido.configuracion.suela }}
-                </p>
-
-
-                <p>
-                    <strong>
-                        Herrajes:
-                    </strong>
-
-                    {{ pedido.configuracion.herrajes }}
-                </p>
-
-
-                <p>
-                    <strong>
-                        Iniciales:
-                    </strong>
-
-                    {{ pedido.configuracion.iniciales or "Sin iniciales" }}
-                </p>
-
-            {% endif %}
-
-        </div>
-
-    </div>
-
-
-    <div class="pedido-card">
-
-        <div>
-
-            <h3>
-                Resumen de pago
-            </h3>
-
-
+        <div class="detalle-pedido-estado-info">
+            <span>ESTADO ACTUAL</span>
+            <h2>{{ pedido.estado }}</h2>
             <p>
-
-                Subtotal:
-
-                ${{ "{:,.0f}".format(
-                    pedido.subtotal|float
-                ) }}
-
+                {% if pedido.estado == "Pendiente" %}
+                    Tu pedido está pendiente de gestión.
+                {% elif pedido.estado == "En producción" %}
+                    Estamos trabajando en la preparación de tu pedido.
+                {% elif pedido.estado == "Enviado" %}
+                    Tu pedido está en camino.
+                {% elif pedido.estado == "Entregado" %}
+                    Tu pedido ha sido entregado.
+                {% elif pedido.estado == "Cancelado" %}
+                    Este pedido ha sido cancelado.
+                {% else %}
+                    Consulta aquí el estado actual de tu compra.
+                {% endif %}
             </p>
+        </div>
 
-
-            <p>
-
-                IVA:
-
-                ${{ "{:,.0f}".format(
-                    pedido.iva|float
-                ) }}
-
-            </p>
-
-
-            <p class="pedido-total">
-
-                Total:
-
-                ${{ "{:,.0f}".format(
-                    pedido.total|float
-                ) }}
-
-            </p>
-
+        <div class="detalle-pedido-fecha">
+            <span>FECHA DEL PEDIDO</span>
+            <strong>
+                {{ pedido.fecha_pedido.strftime("%d/%m/%Y") if pedido.fecha_pedido else "No disponible" }}
+            </strong>
         </div>
 
     </div>
 
 
-    {% if pedido.factura %}
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="detalle-pedido-columnas">
 
-        <div class="pedido-card">
+        <!-- PRODUCTO Y DETALLES -->
+        <div class="detalle-pedido-columna-principal">
 
-            <div>
+            <article class="detalle-pedido-tarjeta">
 
-                <h3>
-                    Factura
+                <div class="detalle-pedido-titulo-tarjeta">
+                    <div>
+                        <span class="detalle-pedido-mini-etiqueta">
+                            TU COMPRA
+                        </span>
+
+                        <h2>Producto personalizado</h2>
+                    </div>
+
+                    <span class="detalle-pedido-cantidad">
+                        Cantidad: {{ pedido.cantidad }}
+                    </span>
+                </div>
+
+
+                <div class="detalle-pedido-producto">
+
+                    <div class="detalle-pedido-producto-icono">
+                        ✦
+                    </div>
+
+                    <div class="detalle-pedido-producto-info">
+                        <h3>
+                            {{ pedido.configuracion.producto.nombre
+                               if pedido.configuracion and pedido.configuracion.producto
+                               else "Producto del Taller El Obrero" }}
+                        </h3>
+
+                        <p>
+                            Una pieza artesanal preparada
+                            para tu compra.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="detalle-pedido-separador"></div>
+
+
+                <h3 class="detalle-pedido-subtitulo">
+                    Detalles de la personalización
                 </h3>
 
-                <p>
+                <div class="detalle-pedido-opciones">
 
-                    Número:
+                    <div>
+                        <span>Material</span>
+                        <strong>
+                            {{ pedido.configuracion.material or "Estándar" }}
+                        </strong>
+                    </div>
 
-                    {{ pedido.factura.numero }}
+                    <div>
+                        <span>Color</span>
+                        <strong>
+                            {{ pedido.configuracion.color or "Estándar" }}
+                        </strong>
+                    </div>
 
-                </p>
+                    <div>
+                        <span>Suela</span>
+                        <strong>
+                            {{ pedido.configuracion.suela or "Estándar" }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Herrajes</span>
+                        <strong>
+                            {{ pedido.configuracion.herrajes or "Estándar" }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Iniciales</span>
+                        <strong>
+                            {{ pedido.configuracion.iniciales or "Sin iniciales" }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </article>
 
 
-                <p>
+            <!-- ENTREGA -->
+            <article class="detalle-pedido-tarjeta detalle-pedido-entrega">
 
-                    Estado:
+                <div class="detalle-pedido-entrega-icono">
+                    📦
+                </div>
 
-                    {{ pedido.factura.estado_dian }}
+                <div>
+                    <span class="detalle-pedido-mini-etiqueta">
+                        INFORMACIÓN DE ENTREGA
+                    </span>
 
-                </p>
+                    <h2>Fecha estimada de entrega</h2>
 
+                    <p>
+                        {{ pedido.fecha_entrega.strftime("%d/%m/%Y")
+                           if pedido.fecha_entrega
+                           else "Fecha por confirmar" }}
+                    </p>
 
-                <p class="pedido-total">
+                    <small>
+                        La fecha es estimada y puede variar según
+                        el proceso de elaboración.
+                    </small>
+                </div>
 
-                    Total factura:
-
-                    ${{ "{:,.0f}".format(
-                        pedido.factura.total|float
-                    ) }}
-
-                </p>
-
-            </div>
+            </article>
 
         </div>
 
-    {% endif %}
+
+        <!-- RESUMEN DEL PAGO -->
+        <aside class="detalle-pedido-resumen">
+
+            <div class="detalle-pedido-resumen-encabezado">
+                <span>RESUMEN DE COMPRA</span>
+                <h2>Tu pedido</h2>
+            </div>
 
 
-    <a
-        href="{{ url_for('cliente.mis_pedidos') }}"
-        class="boton-secundario"
-    >
-        ← Volver a mis pedidos
-    </a>
+            <div class="detalle-pedido-resumen-linea">
+                <span>Subtotal</span>
+
+                <strong>
+                    ${{ "{:,.0f}".format(pedido.subtotal|float).replace(",", ".") }}
+                </strong>
+            </div>
+
+
+            <div class="detalle-pedido-resumen-linea">
+                <span>IVA</span>
+
+                <strong>
+                    ${{ "{:,.0f}".format(pedido.iva|float).replace(",", ".") }}
+                </strong>
+            </div>
+
+
+            <div class="detalle-pedido-resumen-separador"></div>
+
+
+            <div class="detalle-pedido-total">
+                <span>Total de la compra</span>
+
+                <strong>
+                    ${{ "{:,.0f}".format(pedido.total|float).replace(",", ".") }}
+                </strong>
+            </div>
+
+
+            <div class="detalle-pedido-resumen-nota">
+                <span>✓</span>
+
+                <p>
+                    Los valores corresponden al pedido registrado
+                    en el sistema.
+                </p>
+            </div>
+
+
+            <a
+                href="{{ url_for('cliente.mis_pedidos') }}"
+                class="detalle-pedido-boton"
+            >
+                Consultar mis pedidos
+                <span>→</span>
+            </a>
+
+        </aside>
+
+    </div>
+
+
+    <!-- PIE -->
+    <div class="detalle-pedido-pie">
+        <span>✦</span>
+
+        <p>
+            Gracias por apoyar el trabajo artesanal de
+            <strong>Taller El Obrero.</strong>
+        </p>
+    </div>
 
 </section>
 
