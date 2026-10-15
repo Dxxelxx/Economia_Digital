@@ -1,153 +1,323 @@
 {% extends "base.html" %}
 
 {% block titulo %}
-Dashboard - Administrador
+Panel administrativo | Taller El Obrero
 {% endblock %}
 
 {% block contenido %}
 
-<section class="admin-container">
+<section class="admin-panel">
 
-    <div class="admin-header">
+    <!-- ENCABEZADO -->
 
-        <h2>
-            Dashboard Administrativo
-        </h2>
+    <header class="admin-encabezado">
 
-        <p>
-            Bienvenido,
-            {{ session["usuario_nombre"] }}.
-        </p>
-
-    </div>
-
-
-    <div class="estadisticas">
-
-        <div class="estadistica">
-
-            <h3>
-                Pedidos
-            </h3>
-
-            <strong>
-                0
-            </strong>
-
-        </div>
-
-
-        <div class="estadistica">
-
-            <h3>
-                En producción
-            </h3>
-
-            <strong>
-                0
-            </strong>
-
-        </div>
-
-
-        <div class="estadistica">
-
-            <h3>
-                Inventario
-            </h3>
-
-            <strong>
-                0
-            </strong>
-
-        </div>
-
-
-        <div class="estadistica">
-
-            <h3>
-                Facturas
-            </h3>
-
-            <strong>
-                0
-            </strong>
-
-        </div>
-
-    </div>
-
-
-    <div class="admin-grid">
-
-        <a
-            href="{{ url_for('admin.inventario') }}"
-            class="admin-card"
-        >
-
-            <h3>
-                Inventario
-            </h3>
-
-            <p>
-                Gestionar materiales,
-                cantidades y existencias.
+        <div>
+            <p class="admin-etiqueta">
+                TALLER EL OBRERO · ADMINISTRACIÓN
             </p>
 
+            <h1>
+                Panel de <span>control</span>
+            </h1>
+
+            <p class="admin-descripcion">
+                Gestiona los pedidos, productos y operaciones
+                de tu negocio desde un solo lugar.
+            </p>
+        </div>
+
+        <div class="admin-bienvenida">
+            <span class="admin-avatar">A</span>
+
+            <div>
+                <small>Sesión administrativa</small>
+
+                <strong>
+                    {{ session.get("usuario_nombre", "Administrador") }}
+                </strong>
+            </div>
+        </div>
+
+    </header>
+
+
+    <!-- INDICADORES -->
+
+    <div class="admin-estadisticas">
+
+        <article class="admin-estadistica">
+
+            <div class="admin-estadistica-superior">
+                <span>VENTAS REGISTRADAS</span>
+                <span class="admin-estadistica-icono">＄</span>
+            </div>
+
+            <strong class="admin-estadistica-valor">
+                ${{ "{:,.0f}".format(ventas_registradas|float).replace(",", ".") }}
+            </strong>
+
+            <p>
+                Valor de pedidos no cancelados
+            </p>
+
+        </article>
+
+
+        <article class="admin-estadistica">
+
+            <div class="admin-estadistica-superior">
+                <span>TOTAL DE PEDIDOS</span>
+                <span class="admin-estadistica-icono">▤</span>
+            </div>
+
+            <strong class="admin-estadistica-valor">
+                {{ total_pedidos }}
+            </strong>
+
+            <p>
+                Pedidos registrados en el sistema
+            </p>
+
+        </article>
+
+
+        <article class="admin-estadistica">
+
+            <div class="admin-estadistica-superior">
+                <span>PENDIENTES</span>
+                <span class="admin-estadistica-icono">◷</span>
+            </div>
+
+            <strong class="admin-estadistica-valor">
+                {{ pedidos_pendientes }}
+            </strong>
+
+            <p>
+                Pedidos por gestionar
+            </p>
+
+        </article>
+
+
+        <article class="admin-estadistica">
+
+            <div class="admin-estadistica-superior">
+                <span>PRODUCTOS ACTIVOS</span>
+                <span class="admin-estadistica-icono">✦</span>
+            </div>
+
+            <strong class="admin-estadistica-valor">
+                {{ total_productos }}
+            </strong>
+
+            <p>
+                Productos disponibles en catálogo
+            </p>
+
+        </article>
+
+    </div>
+
+
+    <!-- MÓDULOS ADMINISTRATIVOS -->
+
+    <div class="admin-seccion-encabezado">
+
+        <div>
+            <p class="admin-etiqueta">
+                GESTIÓN DEL NEGOCIO
+            </p>
+
+            <h2>
+                Accesos administrativos
+            </h2>
+        </div>
+
+    </div>
+
+
+    <div class="admin-modulos">
+
+        <a
+            href="{{ url_for('admin.pedidos') }}"
+            class="admin-modulo"
+        >
+            <span class="admin-modulo-icono">📦</span>
+
+            <div>
+                <h3>Pedidos</h3>
+
+                <p>
+                    Consulta las compras y gestiona sus estados.
+                </p>
+            </div>
+
+            <span class="admin-modulo-flecha">→</span>
         </a>
 
 
         <a
-            href="{{ url_for('admin.pedidos') }}"
-            class="admin-card"
+            href="{{ url_for('admin.inventario') }}"
+            class="admin-modulo"
         >
+            <span class="admin-modulo-icono">🧵</span>
 
-            <h3>
-                Pedidos
-            </h3>
+            <div>
+                <h3>Inventario</h3>
 
-            <p>
-                Consultar los pedidos
-                de los clientes.
-            </p>
+                <p>
+                    Controla los materiales y las existencias.
+                </p>
+            </div>
 
+            <span class="admin-modulo-flecha">→</span>
         </a>
 
 
         <a
             href="{{ url_for('admin.produccion') }}"
-            class="admin-card"
+            class="admin-modulo"
         >
+            <span class="admin-modulo-icono">🛠️</span>
 
-            <h3>
-                Producción
-            </h3>
+            <div>
+                <h3>Producción</h3>
 
-            <p>
-                Controlar el estado
-                de fabricación.
-            </p>
+                <p>
+                    Organiza y consulta los trabajos del taller.
+                </p>
+            </div>
 
+            <span class="admin-modulo-flecha">→</span>
         </a>
 
 
         <a
             href="{{ url_for('admin.facturacion') }}"
-            class="admin-card"
+            class="admin-modulo"
         >
+            <span class="admin-modulo-icono">🧾</span>
 
-            <h3>
-                Facturación
-            </h3>
+            <div>
+                <h3>Facturación</h3>
 
-            <p>
-                Consultar y gestionar
-                las facturas.
-            </p>
+                <p>
+                    Consulta y gestiona las facturas.
+                </p>
+            </div>
 
+            <span class="admin-modulo-flecha">→</span>
         </a>
 
     </div>
+
+
+    <!-- PEDIDOS RECIENTES -->
+
+    <div class="admin-seccion-encabezado admin-seccion-recientes">
+
+        <div>
+            <p class="admin-etiqueta">
+                ACTIVIDAD RECIENTE
+            </p>
+
+            <h2>
+                Últimos pedidos
+            </h2>
+        </div>
+
+        <a
+            href="{{ url_for('admin.pedidos') }}"
+            class="admin-ver-todo"
+        >
+            Ver todos →
+        </a>
+
+    </div>
+
+
+    <div class="admin-tabla-contenedor">
+
+        <table class="admin-tabla">
+
+            <thead>
+                <tr>
+                    <th>PEDIDO</th>
+                    <th>CLIENTE</th>
+                    <th>FECHA</th>
+                    <th>ESTADO</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for pedido in pedidos_recientes %}
+
+                <tr>
+
+                    <td>
+                        <strong>#{{ pedido.id }}</strong>
+                    </td>
+
+                    <td>
+                        {{ pedido.cliente.nombre
+                           if pedido.cliente
+                           else "Cliente no disponible" }}
+                    </td>
+
+                    <td>
+                        {{ pedido.fecha_pedido.strftime("%d/%m/%Y")
+                           if pedido.fecha_pedido
+                           else "—" }}
+                    </td>
+
+                    <td>
+                        <span class="admin-estado">
+                            {{ pedido.estado }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <strong>
+                            ${{ "{:,.0f}".format(pedido.total|float).replace(",", ".") }}
+                        </strong>
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="5" class="admin-tabla-vacia">
+                        <span>📦</span>
+
+                        <p>
+                            Todavía no hay pedidos registrados.
+                        </p>
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- NOTA INFERIOR -->
+
+    <footer class="admin-pie">
+        <span>✦</span>
+
+        <p>
+            Administración de
+            <strong>Taller El Obrero</strong>
+        </p>
+    </footer>
 
 </section>
 

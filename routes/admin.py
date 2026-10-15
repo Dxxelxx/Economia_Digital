@@ -6,9 +6,19 @@ from flask import (
     url_for
 )
 
+from sqlalchemy import func
+
+from database.connection import db
+from models.pedido import Pedido
+from models.producto import Producto
+
 
 admin = Blueprint("admin", __name__)
 
+
+# =====================================================
+# VERIFICAR ACCESO DEL ADMINISTRADOR
+# =====================================================
 
 def administrador_requerido():
 
@@ -25,9 +35,9 @@ def administrador_requerido():
     return None
 
 
-# =====================================
-# DASHBOARD
-# =====================================
+# =====================================================
+# DASHBOARD PRINCIPAL
+# =====================================================
 
 @admin.route("/")
 def dashboard():
@@ -37,14 +47,81 @@ def dashboard():
     if acceso:
         return acceso
 
+    # ---------------------------------------------
+    # TOTAL DE PEDIDOS
+    # ---------------------------------------------
+
+    total_pedidos = (
+        db.session.query(func.count(Pedido.id))
+        .scalar()
+        or 0
+    )
+
+    # ---------------------------------------------
+    # TOTAL DE PRODUCTOS ACTIVOS
+    # ---------------------------------------------
+
+    total_productos = (
+        Producto.query
+        .filter_by(activo=True)
+        .count()
+    )
+
+    # ---------------------------------------------
+    # PEDIDOS PENDIENTES
+    # ---------------------------------------------
+
+    pedidos_pendientes = (
+        Pedido.query
+        .filter_by(estado="Pendiente")
+        .count()
+    )
+
+    # ---------------------------------------------
+    # VENTAS REGISTRADAS
+    # ---------------------------------------------
+    # Por ahora se suma el total de los pedidos
+    # que no estén cancelados.
+    #
+    # Esto representa el valor de los pedidos
+    # registrados, no necesariamente dinero cobrado.
+
+    ventas_registradas = (
+        db.session.query(
+            func.coalesce(func.sum(Pedido.total), 0)
+        )
+        .filter(Pedido.estado != "Cancelado")
+        .scalar()
+    )
+
+    # ---------------------------------------------
+    # PEDIDOS RECIENTES
+    # ---------------------------------------------
+
+    pedidos_recientes = (
+        Pedido.query
+        .order_by(Pedido.fecha_pedido.desc())
+        .limit(5)
+        .all()
+    )
+
+    # ---------------------------------------------
+    # RENDERIZAR DASHBOARD
+    # ---------------------------------------------
+
     return render_template(
-        "admin/dashboard.html"
+        "admin/dashboard.html",
+        total_pedidos=total_pedidos,
+        total_productos=total_productos,
+        pedidos_pendientes=pedidos_pendientes,
+        ventas_registradas=ventas_registradas,
+        pedidos_recientes=pedidos_recientes
     )
 
 
-# =====================================
+# =====================================================
 # INVENTARIO
-# =====================================
+# =====================================================
 
 @admin.route("/inventario")
 def inventario():
@@ -59,9 +136,9 @@ def inventario():
     )
 
 
-# =====================================
+# =====================================================
 # PEDIDOS
-# =====================================
+# =====================================================
 
 @admin.route("/pedidos")
 def pedidos():
@@ -76,9 +153,9 @@ def pedidos():
     )
 
 
-# =====================================
+# =====================================================
 # PRODUCCIÓN
-# =====================================
+# =====================================================
 
 @admin.route("/produccion")
 def produccion():
@@ -93,9 +170,9 @@ def produccion():
     )
 
 
-# =====================================
+# =====================================================
 # FACTURACIÓN
-# =====================================
+# =====================================================
 
 @admin.route("/facturacion")
 def facturacion():
