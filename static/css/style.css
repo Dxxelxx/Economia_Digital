@@ -5212,3 +5212,25 @@ footer p {
         min-width: 620px;
     }
 }
+
+/* Formulario para cerrar sesión */
+.form-cerrar-sesion {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+/* El botón conserva la apariencia de un enlace */
+.form-cerrar-sesion button.nav-enlace {
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+}
+
+/* Evitar que el formulario afecte la navegación */
+.nav-derecha {
+    align-items: center;
+}

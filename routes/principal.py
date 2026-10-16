@@ -1,4 +1,10 @@
-from flask import Blueprint, render_template
+from flask import (
+    Blueprint,
+    render_template,
+    redirect,
+    url_for,
+    session
+)
 
 principal = Blueprint(
     "principal",
@@ -8,6 +14,21 @@ principal = Blueprint(
 
 @principal.route("/")
 def inicio():
+
+    # ==========================================
+    # SI ES ADMINISTRADOR, IR AL DASHBOARD
+    # ==========================================
+
+    if "usuario_id" in session:
+
+        if session.get("rol") == "administrador":
+            return redirect(
+                url_for("admin.dashboard")
+            )
+
+    # ==========================================
+    # CATÁLOGO DE PRODUCTOS
+    # ==========================================
 
     productos = [
 
@@ -66,6 +87,10 @@ def inicio():
         }
 
     ]
+
+    # ==========================================
+    # MOSTRAR CATÁLOGO
+    # ==========================================
 
     return render_template(
         "index.html",

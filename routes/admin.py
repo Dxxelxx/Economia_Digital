@@ -41,15 +41,34 @@ ESTADOS_PEDIDO = [
 
 def administrador_requerido():
 
+    # Si no ha iniciado sesión, enviarlo al login.
     if "usuario_id" not in session:
-        return redirect(url_for("auth.login"))
 
+        return redirect(
+            url_for(
+                "auth.login",
+                next=url_for("admin.dashboard")
+            )
+        )
+
+    # Si inició sesión, pero no es administrador,
+    # impedir el acceso al panel.
     if session.get("rol") != "administrador":
+
         flash(
             "No tienes permisos para acceder al administrador.",
             "error"
         )
-        return redirect(url_for("principal.inicio"))
+
+        if session.get("rol") == "cliente":
+
+            return redirect(
+                url_for("cliente.inicio")
+            )
+
+        return redirect(
+            url_for("auth.login")
+        )
 
     return None
 

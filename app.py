@@ -1,4 +1,6 @@
-from flask import Flask
+import secrets
+
+from flask import Flask, session
 from config import Config
 from database.connection import db
 
@@ -9,11 +11,37 @@ def create_app():
 
     app.config.from_object(Config)
 
+    # Identificador nuevo en cada inicio del servidor.
+    # Las sesiones anteriores dejarán de ser válidas.
+    app.config["SERVER_SESSION_ID"] = secrets.token_urlsafe(32)
+
+    # Inicializar base de datos
     db.init_app(app)
 
-    # =========================
+    # =====================================================
+    # COMPROBAR LA SESIÓN EN CADA SOLICITUD
+    # =====================================================
+
+    @app.before_request
+    def comprobar_sesion_servidor():
+
+        # Si no hay usuario autenticado, no hay nada que comprobar.
+        if "usuario_id" not in session:
+            return None
+
+        sesion_actual = session.get("server_session_id")
+        sesion_servidor = app.config["SERVER_SESSION_ID"]
+
+        # Si la sesión pertenece a una ejecución anterior,
+        # cerrarla y obligar al usuario a identificarse otra vez.
+        if sesion_actual != sesion_servidor:
+            session.clear()
+
+        return None
+
+    # =====================================================
     # MODELOS
-    # =========================
+    # =====================================================
 
     from models.usuario import Usuario
     from models.cliente import Cliente
@@ -24,9 +52,9 @@ def create_app():
     from models.produccion import Produccion
     from models.factura import Factura
 
-    # =========================
+    # =====================================================
     # RUTAS
-    # =========================
+    # =====================================================
 
     from routes.principal import principal
     from routes.auth import auth
@@ -40,9 +68,9 @@ def create_app():
     from routes.facturacion import facturacion
     from routes.dashboard import dashboard
 
-    # =========================
+    # =====================================================
     # REGISTRAR BLUEPRINTS
-    # =========================
+    # =====================================================
 
     app.register_blueprint(principal)
 
@@ -91,9 +119,9 @@ def create_app():
         url_prefix="/dashboard"
     )
 
-    # =========================
+    # =====================================================
     # CREAR TABLAS
-    # =========================
+    # =====================================================
 
     with app.app_context():
         db.create_all()

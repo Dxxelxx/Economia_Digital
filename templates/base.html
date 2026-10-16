@@ -2,7 +2,6 @@
 <html lang="es">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -10,9 +9,19 @@
         content="width=device-width, initial-scale=1.0"
     >
 
+    <meta
+        http-equiv="Cache-Control"
+        content="no-store, no-cache, must-revalidate, max-age=0"
+    >
+
+    <meta
+        http-equiv="Pragma"
+        content="no-cache"
+    >
+
     <title>
         {% block titulo %}
-        Taller El Obrero
+            Taller El Obrero
         {% endblock %}
     </title>
 
@@ -20,279 +29,174 @@
         rel="stylesheet"
         href="{{ url_for('static', filename='css/style.css') }}"
     >
-
 </head>
-
 
 <body>
 
+    <!-- BARRA SUPERIOR -->
+    <header class="barra-navegacion">
 
-<!-- ========================================= -->
-<!-- BARRA SUPERIOR -->
-<!-- ========================================= -->
-
-<header class="barra-navegacion">
-
-    <!-- ================================= -->
-    <!-- MARCA -->
-    <!-- ================================= -->
-
-    <div class="marca-taller">
-
-        <a
-            href="{{ url_for('principal.inicio') }}"
-            class="marca-enlace"
-        >
-
-            <span class="marca-nombre">
-                Taller El Obrero
-            </span>
-
-            <span class="marca-subtitulo">
-                Cali · Colombia
-            </span>
-
-        </a>
-
-    </div>
-
-
-    <!-- ================================= -->
-    <!-- NAVEGACIÓN -->
-    <!-- ================================= -->
-
-    <nav class="navegacion-principal">
-
-
-        <!-- ============================= -->
-        <!-- IZQUIERDA -->
-        <!-- ============================= -->
-
-        <div class="nav-izquierda">
+        <!-- MARCA -->
+        <div class="marca-taller">
 
             <a
                 href="{{ url_for('principal.inicio') }}"
-                class="nav-enlace"
+                class="marca-enlace"
             >
-
-                <span class="nav-icono">
-                    ⌂
+                <span class="marca-nombre">
+                    Taller El Obrero
                 </span>
 
-                <span>
-                    Inicio
+                <span class="marca-subtitulo">
+                    Cali · Colombia
                 </span>
-
             </a>
 
         </div>
 
+        <!-- NAVEGACIÓN -->
+        <nav class="navegacion-principal">
 
-        <!-- ============================= -->
-        <!-- DERECHA -->
-        <!-- ============================= -->
+            <!-- IZQUIERDA -->
+            <div class="nav-izquierda">
 
-        <div class="nav-derecha">
+                <a
+                    href="{{ url_for('principal.inicio') }}"
+                    class="nav-enlace"
+                >
+                    <span class="nav-icono">⌂</span>
+                    <span>Inicio</span>
+                </a>
 
+            </div>
 
-            {% if session.get("usuario_id") %}
+            <!-- DERECHA -->
+            <div class="nav-derecha">
 
+                {% if session.get("usuario_id") %}
 
-                <!-- ========================= -->
-                <!-- USUARIO LOGUEADO -->
-                <!-- ========================= -->
+                    <!-- USUARIO LOGUEADO -->
+                    <span class="usuario-saludo">
+                        Hola,
+                        <strong>
+                            {{ session.get("usuario_nombre", "Usuario") }}
+                        </strong>
+                    </span>
 
-                <span class="usuario-saludo">
+                    <!-- OPCIONES DEL ADMINISTRADOR -->
+                    {% if session.get("rol") == "administrador" %}
 
-                    Hola,
-                    <strong>
-                        {{ session.get("usuario_nombre") }}
-                    </strong>
+                        <a
+                            href="{{ url_for('admin.dashboard') }}"
+                            class="nav-enlace"
+                        >
+                            <span class="nav-icono">▦</span>
+                            <span>Panel administrativo</span>
+                        </a>
 
-                </span>
+                    <!-- OPCIONES DEL CLIENTE -->
+                    {% elif session.get("rol") == "cliente" %}
 
+                        <a
+                            href="{{ url_for('configurador.inicio') }}"
+                            class="nav-enlace"
+                        >
+                            <span class="nav-icono">✦</span>
+                            <span>Diseñar</span>
+                        </a>
 
-                <!-- ========================= -->
-                <!-- DISEÑADOR -->
-                <!-- ========================= -->
+                        <a
+                            href="{{ url_for('cliente.mis_pedidos') }}"
+                            class="nav-enlace"
+                        >
+                            <span class="nav-icono">◇</span>
+                            <span>Mis pedidos</span>
+                        </a>
 
-                {% if session.get("rol") == "cliente" %}
+                    {% endif %}
 
+                    <!-- CERRAR SESIÓN -->
+                    <form
+                        action="{{ url_for('auth.logout') }}"
+                        method="POST"
+                        class="form-cerrar-sesion"
+                    >
+                        <button
+                            type="submit"
+                            class="nav-enlace nav-salir"
+                        >
+                            <span class="nav-icono">↪</span>
+                            <span>Cerrar sesión</span>
+                        </button>
+                    </form>
+
+                {% else %}
+
+                    <!-- USUARIO NO LOGUEADO -->
                     <a
-                        href="{{ url_for('configurador.inicio') }}"
+                        href="{{ url_for('auth.login') }}"
                         class="nav-enlace"
                     >
-
-                        <span class="nav-icono">
-                            ✦
-                        </span>
-
-                        <span>
-                            Diseñar
-                        </span>
-
+                        <span class="nav-icono">♙</span>
+                        <span>Iniciar sesión</span>
                     </a>
 
-
-                    <!-- ===================== -->
-                    <!-- PEDIDOS -->
-                    <!-- ===================== -->
-
                     <a
-                        href="{{ url_for('cliente.mis_pedidos') }}"
-                        class="nav-enlace"
+                        href="{{ url_for('auth.registro') }}"
+                        class="nav-enlace nav-registro"
                     >
-
-                        <span class="nav-icono">
-                            ◇
-                        </span>
-
-                        <span>
-                            Mis pedidos
-                        </span>
-
+                        <span class="nav-icono">✦</span>
+                        <span>Registrarse</span>
                     </a>
 
                 {% endif %}
 
+            </div>
 
-                <!-- ========================= -->
-                <!-- CERRAR SESIÓN -->
-                <!-- ========================= -->
+        </nav>
 
-                <a
-                    href="{{ url_for('auth.logout') }}"
-                    class="nav-enlace nav-salir"
-                >
+    </header>
 
-                    <span class="nav-icono">
-                        ↪
-                    </span>
+    <!-- CONTENIDO PRINCIPAL -->
+    <main>
 
-                    <span>
-                        Cerrar sesión
-                    </span>
+        {% block contenido %}
+        {% endblock %}
 
-                </a>
+    </main>
 
+    <!-- PIE DE PÁGINA -->
+    <footer class="pie-pagina">
 
-            {% else %}
+        <div class="footer-contenido">
 
+            <div>
+                <strong>Taller El Obrero</strong>
 
-                <!-- ========================= -->
-                <!-- USUARIO NO LOGUEADO -->
-                <!-- ========================= -->
+                <p>
+                    Marroquinería artesanal · Cali
+                </p>
+            </div>
 
-                <a
-                    href="{{ url_for('auth.login') }}"
-                    class="nav-enlace"
-                >
+            <div>
+                <p>
+                    Hecho a mano. Hecho para ti.
+                </p>
+            </div>
 
-                    <span class="nav-icono">
-                        ♙
-                    </span>
-
-                    <span>
-                        Iniciar sesión
-                    </span>
-
-                </a>
-
-
-                <a
-                    href="{{ url_for('auth.registro') }}"
-                    class="nav-enlace nav-registro"
-                >
-
-                    <span class="nav-icono">
-                        ✦
-                    </span>
-
-                    <span>
-                        Registrarse
-                    </span>
-
-                </a>
-
-
-            {% endif %}
-
+            <div>
+                <p>
+                    © 2026 Taller El Obrero
+                </p>
+            </div>
 
         </div>
 
-    </nav>
+    </footer>
 
-</header>
-
-
-
-<!-- ========================================= -->
-<!-- CONTENIDO PRINCIPAL -->
-<!-- ========================================= -->
-
-<main>
-
-    {% block contenido %}
-
+    <!-- SCRIPTS DE LAS PÁGINAS -->
+    {% block scripts %}
     {% endblock %}
 
-</main>
-
-
-
-<!-- ========================================= -->
-<!-- PIE DE PÁGINA -->
-<!-- ========================================= -->
-
-<footer class="pie-pagina">
-
-    <div class="footer-contenido">
-
-        <div>
-
-            <strong>
-                Taller El Obrero
-            </strong>
-
-            <p>
-                Marroquinería artesanal · Cali
-            </p>
-
-        </div>
-
-
-        <div>
-
-            <p>
-                Hecho a mano. Hecho para ti.
-            </p>
-
-        </div>
-
-
-        <div>
-
-            <p>
-                © 2026 Taller El Obrero
-            </p>
-
-        </div>
-
-    </div>
-
-</footer>
-
-
-
-<!-- ========================================= -->
-<!-- SCRIPTS DE LAS PÁGINAS -->
-<!-- ========================================= -->
-
-{% block scripts %}
-
-{% endblock %}
-
-
 </body>
-
 </html>

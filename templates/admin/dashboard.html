@@ -274,10 +274,20 @@ Panel administrativo | Taller El Obrero
                     </td>
 
                     <td>
-                        <span class="admin-estado">
-                            {{ pedido.estado }}
-                        </span>
-                    </td>
+                     {% set estado_clase = {
+                     "Pendiente": "pendiente",
+                     "Aceptado": "aceptado",
+                     "En producción": "produccion",
+                     "Listo para enviar": "listo",
+                     "Enviado": "enviado",
+                     "Entregado": "entregado",
+                     "Cancelado": "cancelado"
+                     }.get(pedido.estado, "pendiente") %}
+
+                      <span class="admin-estado admin-estado-{{ estado_clase }}">
+                          {{ pedido.estado }}
+                     </span>
+                  </td>
 
                     <td>
                         <strong>

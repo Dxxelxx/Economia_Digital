@@ -1,3 +1,5 @@
+from urllib.parse import urlsplit
+
 from flask import (
     Blueprint,
     render_template,
@@ -5,14 +7,60 @@ from flask import (
     redirect,
     url_for,
     session,
-    flash
+    flash,
+    current_app
 )
 
 from database.connection import db
 from models.usuario import Usuario
 from models.cliente import Cliente
 
+
 auth = Blueprint("auth", __name__)
+
+
+# =========================================================
+# VALIDAR REDIRECCIONES
+# =========================================================
+
+def redireccion_local_segura(destino):
+
+    if not destino:
+        return None
+
+    # Rechazar direcciones externas y rutas con formato inválido.
+    if "\\" in destino or destino.startswith("//"):
+        return None
+
+    partes = urlsplit(destino)
+
+    if partes.scheme or partes.netloc:
+        return None
+
+    if not destino.startswith("/"):
+        return None
+
+    return destino
+
+
+# =========================================================
+# CREAR SESIÓN
+# =========================================================
+
+def crear_sesion_usuario(usuario):
+
+    session.clear()
+
+    session["usuario_id"] = usuario.id
+    session["usuario_nombre"] = usuario.nombre
+    session["usuario_username"] = usuario.username
+    session["usuario_email"] = usuario.email
+    session["rol"] = usuario.rol
+
+    # Vincular la sesión con la ejecución actual de Flask.
+    session["server_session_id"] = (
+        current_app.config["SERVER_SESSION_ID"]
+    )
 
 
 # =========================================================
@@ -23,6 +71,19 @@ auth = Blueprint("auth", __name__)
 def login():
 
     siguiente = request.args.get("next", "")
+
+    # Evitar redirecciones externas.
+    siguiente = redireccion_local_segura(siguiente) or ""
+
+    # Si ya existe una sesión válida, enviar al usuario
+    # a su sección correspondiente.
+    if request.method == "GET" and "usuario_id" in session:
+
+        if session.get("rol") == "administrador":
+            return redirect(url_for("admin.dashboard"))
+
+        if session.get("rol") == "cliente":
+            return redirect(url_for("cliente.inicio"))
 
     if request.method == "POST":
 
@@ -35,55 +96,89 @@ def login():
 
         password = request.form.get("password", "")
 
-        siguiente = request.form.get("next") or siguiente or ""
+        siguiente_formulario = request.form.get("next", "")
 
-        # Validar usuario/correo
+        siguiente = (
+            redireccion_local_segura(siguiente_formulario)
+            or siguiente
+            or ""
+        )
+
+        # -------------------------------------------------
+        # VALIDAR USUARIO O CORREO
+        # -------------------------------------------------
+
         if not identificador:
-            flash("Debes ingresar tu usuario o correo.", "error")
+
+            flash(
+                "Debes ingresar tu usuario o correo.",
+                "error"
+            )
+
             return render_template(
                 "login.html",
                 next=siguiente
             )
 
-        # Validar contraseña
+        # -------------------------------------------------
+        # VALIDAR CONTRASEÑA
+        # -------------------------------------------------
+
         if not password:
-            flash("Debes ingresar tu contraseña.", "error")
+
+            flash(
+                "Debes ingresar tu contraseña.",
+                "error"
+            )
+
             return render_template(
                 "login.html",
                 next=siguiente
             )
 
-        # Buscar usuario por username o correo
+        # -------------------------------------------------
+        # BUSCAR USUARIO
+        # -------------------------------------------------
+
         usuario = Usuario.query.filter(
-            (Usuario.username == identificador) |
+            (Usuario.username == identificador)
+            |
             (Usuario.email == identificador.lower())
         ).first()
 
-        # Verificar contraseña
+        # -------------------------------------------------
+        # VERIFICAR CONTRASEÑA
+        # -------------------------------------------------
+
         if usuario and usuario.verificar_password(password):
 
-            session.clear()
+            crear_sesion_usuario(usuario)
 
-            session["usuario_id"] = usuario.id
-            session["usuario_nombre"] = usuario.nombre
-            session["usuario_username"] = usuario.username
-            session["usuario_email"] = usuario.email
-            session["rol"] = usuario.rol
+            # ---------------------------------------------
+            # ADMINISTRADOR: SIEMPRE IR AL DASHBOARD
+            # ---------------------------------------------
 
-            # Administrador
             if usuario.rol == "administrador":
+
                 return redirect(
                     url_for("admin.dashboard")
                 )
 
-            # Si venía desde otra página
+            # ---------------------------------------------
+            # CLIENTE: RESPETAR DESTINO LOCAL SOLICITADO
+            # ---------------------------------------------
+
             if siguiente:
+
                 return redirect(siguiente)
 
-            # Cliente
             return redirect(
                 url_for("cliente.inicio")
             )
+
+        # -------------------------------------------------
+        # CREDENCIALES INCORRECTAS
+        # -------------------------------------------------
 
         flash(
             "Usuario/correo o contraseña incorrectos.",
@@ -95,8 +190,10 @@ def login():
             next=siguiente
         )
 
-    # IMPORTANTE:
-    # Esto soluciona el error del GET /auth/login
+    # -----------------------------------------------------
+    # MOSTRAR FORMULARIO DE LOGIN
+    # -----------------------------------------------------
+
     return render_template(
         "login.html",
         next=siguiente
@@ -112,11 +209,22 @@ def registro():
 
     siguiente = request.args.get("next", "")
 
+    siguiente = redireccion_local_segura(siguiente) or ""
+
+    # Si ya inició sesión, no necesita registrarse otra vez.
+    if request.method == "GET" and "usuario_id" in session:
+
+        if session.get("rol") == "administrador":
+            return redirect(url_for("admin.dashboard"))
+
+        if session.get("rol") == "cliente":
+            return redirect(url_for("cliente.inicio"))
+
     if request.method == "POST":
 
-        # ==========================================
+        # ================================================
         # DATOS DEL FORMULARIO
-        # ==========================================
+        # ================================================
 
         nombre = request.form.get(
             "nombre",
@@ -159,16 +267,17 @@ def registro():
             ""
         )
 
+        siguiente_formulario = request.form.get("next", "")
+
         siguiente = (
-            request.form.get("next")
+            redireccion_local_segura(siguiente_formulario)
             or siguiente
             or ""
         )
 
-
-        # ==========================================
+        # ================================================
         # VALIDACIONES
-        # ==========================================
+        # ================================================
 
         if not nombre:
 
@@ -182,7 +291,6 @@ def registro():
                 next=siguiente
             )
 
-
         if not email:
 
             flash(
@@ -194,7 +302,6 @@ def registro():
                 "registro.html",
                 next=siguiente
             )
-
 
         if not password:
 
@@ -208,7 +315,6 @@ def registro():
                 next=siguiente
             )
 
-
         if password != confirmar_password:
 
             flash(
@@ -220,7 +326,6 @@ def registro():
                 "registro.html",
                 next=siguiente
             )
-
 
         if len(password) < 6:
 
@@ -234,10 +339,9 @@ def registro():
                 next=siguiente
             )
 
-
-        # ==========================================
+        # ================================================
         # GENERAR USUARIO AUTOMÁTICAMENTE
-        # ==========================================
+        # ================================================
 
         if not username:
 
@@ -251,23 +355,19 @@ def registro():
                 username=username
             ).first():
 
-                username = (
-                    f"{base_username}{contador}"
-                )
+                username = f"{base_username}{contador}"
 
                 contador += 1
 
-
-        # ==========================================
+        # ================================================
         # VERIFICAR USUARIO EXISTENTE
-        # ==========================================
+        # ================================================
 
         usuario_existente = Usuario.query.filter(
             (Usuario.username == username)
             |
             (Usuario.email == email)
         ).first()
-
 
         if usuario_existente:
 
@@ -290,10 +390,9 @@ def registro():
                 next=siguiente
             )
 
-
-        # ==========================================
-        # CREAR USUARIO
-        # ==========================================
+        # ================================================
+        # CREAR USUARIO CLIENTE
+        # ================================================
 
         usuario = Usuario(
             nombre=nombre,
@@ -302,25 +401,17 @@ def registro():
             rol="cliente"
         )
 
-        usuario.establecer_password(
-            password
-        )
+        usuario.establecer_password(password)
 
-
-        # ==========================================
-        # GUARDAR USUARIO
-        # ==========================================
+        # ================================================
+        # GUARDAR USUARIO Y CLIENTE
+        # ================================================
 
         try:
 
             db.session.add(usuario)
 
             db.session.flush()
-
-
-            # ======================================
-            # CREAR CLIENTE
-            # ======================================
 
             cliente = Cliente(
                 nombre=nombre,
@@ -333,7 +424,6 @@ def registro():
             db.session.add(cliente)
 
             db.session.commit()
-
 
         except Exception as error:
 
@@ -356,27 +446,15 @@ def registro():
                 next=siguiente
             )
 
+        # ================================================
+        # INICIAR SESIÓN DEL CLIENTE
+        # ================================================
 
-        # ==========================================
-        # CREAR SESIÓN
-        # ==========================================
+        crear_sesion_usuario(usuario)
 
-        session.clear()
-
-        session["usuario_id"] = usuario.id
-
-        session["usuario_nombre"] = usuario.nombre
-
-        session["usuario_username"] = usuario.username
-
-        session["usuario_email"] = usuario.email
-
-        session["rol"] = usuario.rol
-
-
-        # ==========================================
+        # ================================================
         # REDIRECCIÓN
-        # ==========================================
+        # ================================================
 
         if siguiente:
 
@@ -385,11 +463,6 @@ def registro():
         return redirect(
             url_for("cliente.inicio")
         )
-
-    # =====================================================
-    # IMPORTANTE:
-    # CUANDO ENTRAMOS DIRECTAMENTE A /auth/registro
-    # =====================================================
 
     return render_template(
         "registro.html",
@@ -401,11 +474,16 @@ def registro():
 # CERRAR SESIÓN
 # =========================================================
 
-@auth.route("/logout")
+@auth.route("/logout", methods=["GET", "POST"])
 def logout():
 
     session.clear()
 
+    flash(
+        "Has cerrado sesión correctamente.",
+        "success"
+    )
+
     return redirect(
-        url_for("principal.inicio")
+        url_for("auth.login")
     )
