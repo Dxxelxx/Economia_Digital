@@ -21,7 +21,7 @@ admin = Blueprint("admin", __name__)
 
 
 # =========================================================
-# ESTADOS PERMITIDOS PARA LOS PEDIDOS
+# ESTADOS PERMITIDOS
 # =========================================================
 
 ESTADOS_PEDIDO = [
@@ -36,12 +36,46 @@ ESTADOS_PEDIDO = [
 
 
 # =========================================================
+# FLUJO NORMAL DE LOS PEDIDOS
+# =========================================================
+
+FLUJO_PEDIDO = {
+    "Pendiente": [
+        "Aceptado",
+        "Cancelado"
+    ],
+
+    "Aceptado": [
+        "En producción",
+        "Cancelado"
+    ],
+
+    "En producción": [
+        "Listo para enviar",
+        "Cancelado"
+    ],
+
+    "Listo para enviar": [
+        "Enviado",
+        "Cancelado"
+    ],
+
+    "Enviado": [
+        "Entregado"
+    ],
+
+    "Entregado": [],
+
+    "Cancelado": []
+}
+
+
+# =========================================================
 # VERIFICAR ACCESO DEL ADMINISTRADOR
 # =========================================================
 
 def administrador_requerido():
 
-    # Si no ha iniciado sesión, enviarlo al login.
     if "usuario_id" not in session:
 
         return redirect(
@@ -51,8 +85,6 @@ def administrador_requerido():
             )
         )
 
-    # Si inició sesión, pero no es administrador,
-    # impedir el acceso al panel.
     if session.get("rol") != "administrador":
 
         flash(
@@ -96,7 +128,10 @@ def dashboard():
     ).count()
 
     ventas_registradas = db.session.query(
-        func.coalesce(func.sum(Pedido.total), 0)
+        func.coalesce(
+            func.sum(Pedido.total),
+            0
+        )
     ).filter(
         Pedido.estado != "Cancelado"
     ).scalar()
@@ -127,14 +162,40 @@ def pedidos():
     if acceso:
         return acceso
 
-    estado_filtro = request.args.get("estado", "").strip()
+    estado_filtro = request.args.get(
+        "estado",
+        ""
+    ).strip()
+
+    busqueda = request.args.get(
+        "buscar",
+        ""
+    ).strip()
 
     consulta = Pedido.query
 
+    # Filtrar por estado.
     if estado_filtro in ESTADOS_PEDIDO:
-        consulta = consulta.filter_by(
-            estado=estado_filtro
+
+        consulta = consulta.filter(
+            Pedido.estado == estado_filtro
         )
+
+    # Buscar por número de pedido.
+    if busqueda:
+
+        if busqueda.isdigit():
+
+            consulta = consulta.filter(
+                Pedido.id == int(busqueda)
+            )
+
+        else:
+
+            flash(
+                "Para buscar un pedido, introduce su número.",
+                "info"
+            )
 
     pedidos_registrados = consulta.order_by(
         Pedido.fecha_pedido.desc()
@@ -144,7 +205,9 @@ def pedidos():
         "admin/pedidos.html",
         pedidos=pedidos_registrados,
         estados_pedido=ESTADOS_PEDIDO,
-        estado_filtro=estado_filtro
+        estado_filtro=estado_filtro,
+        busqueda=busqueda,
+        flujo_pedido=FLUJO_PEDIDO
     )
 
 
@@ -163,14 +226,32 @@ def actualizar_estado_pedido(pedido_id):
     if acceso:
         return acceso
 
-    pedido = Pedido.query.get_or_404(pedido_id)
+    pedido = db.session.get(
+        Pedido,
+        pedido_id
+    )
+
+    if pedido is None:
+
+        flash(
+            "El pedido solicitado no existe.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin.pedidos")
+        )
 
     nuevo_estado = request.form.get(
         "estado",
         ""
     ).strip()
 
+    estado_anterior = pedido.estado
+
+    # Validar el estado solicitado.
     if nuevo_estado not in ESTADOS_PEDIDO:
+
         flash(
             "El estado seleccionado no es válido.",
             "error"
@@ -180,10 +261,9 @@ def actualizar_estado_pedido(pedido_id):
             url_for("admin.pedidos")
         )
 
-    estado_anterior = pedido.estado
-
-    # No realizar cambios innecesarios.
+    # Evitar repetir el mismo estado.
     if estado_anterior == nuevo_estado:
+
         flash(
             "El pedido ya tiene ese estado.",
             "info"
@@ -193,20 +273,35 @@ def actualizar_estado_pedido(pedido_id):
             url_for("admin.pedidos")
         )
 
+    # Comprobar que la transición esté permitida.
+    estados_siguientes = FLUJO_PEDIDO.get(
+        estado_anterior,
+        []
+    )
+
+    if nuevo_estado not in estados_siguientes:
+
+        flash(
+            f"No se puede cambiar un pedido de "
+            f"'{estado_anterior}' a '{nuevo_estado}'.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin.pedidos")
+        )
+
     try:
 
+        # Actualizar estado.
         pedido.estado = nuevo_estado
 
-        # Si se confirma o inicia la fabricación,
-        # calculamos una fecha estimada de entrega
-        # solamente cuando todavía no existe.
+        # Establecer fecha estimada cuando se acepta.
         if (
-            nuevo_estado in [
-                "Aceptado",
-                "En producción"
-            ]
+            nuevo_estado == "Aceptado"
             and pedido.fecha_entrega is None
         ):
+
             pedido.fecha_entrega = (
                 datetime.utcnow() + timedelta(days=5)
             ).date()
@@ -224,7 +319,7 @@ def actualizar_estado_pedido(pedido_id):
         db.session.rollback()
 
         print(
-            "ERROR AL ACTUALIZAR EL ESTADO DEL PEDIDO:",
+            "ERROR AL ACTUALIZAR PEDIDO:",
             error
         )
 

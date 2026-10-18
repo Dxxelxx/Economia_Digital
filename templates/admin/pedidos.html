@@ -1,18 +1,532 @@
 {% extends "base.html" %}
 
 {% block titulo %}
-Pedidos
+Administrar pedidos
 {% endblock %}
 
 {% block contenido %}
 
-<section class="admin-container">
+<style>
+    .pedidos-container {
+        max-width: 1400px;
+        margin: 35px auto;
+        padding: 0 22px 40px;
+        color: #f5ead8;
+    }
 
-    <h2>Pedidos</h2>
+    .pedidos-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
 
-    <p>
-        Aquí aparecerán los pedidos realizados
-        por los clientes.
+    .pedidos-header h2 {
+        color: #e4b86a;
+        font-size: 30px;
+        margin: 0 0 8px;
+    }
+
+    .pedidos-header p {
+        color: #c9bba7;
+        margin: 0;
+    }
+
+    .pedidos-resumen {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin-bottom: 25px;
+    }
+
+    .resumen-card {
+        background: #30231b;
+        border: 1px solid #57402d;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .resumen-card span {
+        display: block;
+        color: #c9bba7;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .resumen-card strong {
+        color: #e4b86a;
+        font-size: 27px;
+    }
+
+    .pedidos-filtros {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: end;
+        background: #30231b;
+        border: 1px solid #57402d;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+
+    .filtro-grupo {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        flex: 1;
+        min-width: 190px;
+    }
+
+    .filtro-grupo label {
+        color: #e4b86a;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .filtro-grupo input,
+    .filtro-grupo select {
+        width: 100%;
+        box-sizing: border-box;
+        background: #211812;
+        border: 1px solid #6b5038;
+        border-radius: 7px;
+        color: #f5ead8;
+        padding: 11px 12px;
+        font-size: 14px;
+    }
+
+    .filtro-grupo input:focus,
+    .filtro-grupo select:focus {
+        outline: 2px solid #c99a4a;
+        border-color: #e4b86a;
+    }
+
+    .btn {
+        display: inline-block;
+        border: none;
+        border-radius: 7px;
+        padding: 11px 16px;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-filtrar {
+        background: #c99a4a;
+        color: #24180f;
+    }
+
+    .btn-filtrar:hover {
+        background: #e4b86a;
+    }
+
+    .btn-limpiar {
+        background: #493529;
+        color: #f5ead8;
+        border: 1px solid #72553b;
+    }
+
+    .btn-limpiar:hover {
+        background: #60452f;
+    }
+
+    .tabla-contenedor {
+        overflow-x: auto;
+        background: #30231b;
+        border: 1px solid #57402d;
+        border-radius: 12px;
+    }
+
+    .tabla-pedidos {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1050px;
+    }
+
+    .tabla-pedidos thead {
+        background: #493529;
+    }
+
+    .tabla-pedidos th {
+        padding: 15px 13px;
+        color: #e4b86a;
+        text-align: left;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .tabla-pedidos td {
+        padding: 15px 13px;
+        border-top: 1px solid #57402d;
+        color: #f5ead8;
+        vertical-align: middle;
+        font-size: 14px;
+    }
+
+    .tabla-pedidos tbody tr:hover {
+        background: #3a2a20;
+    }
+
+    .pedido-numero {
+        color: #e4b86a;
+        font-weight: 800;
+    }
+
+    .pedido-cliente {
+        font-weight: 600;
+    }
+
+    .pedido-fecha {
+        color: #c9bba7;
+        white-space: nowrap;
+    }
+
+    .pedido-total {
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .estado-etiqueta {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .estado-pendiente {
+        background: #6b4d20;
+        color: #ffe0a3;
+    }
+
+    .estado-aceptado {
+        background: #244c65;
+        color: #b9e3ff;
+    }
+
+    .estado-produccion {
+        background: #514078;
+        color: #e0d0ff;
+    }
+
+    .estado-listo {
+        background: #17665c;
+        color: #b5fff0;
+    }
+
+    .estado-enviado {
+        background: #285b36;
+        color: #c7ffd1;
+    }
+
+    .estado-entregado {
+        background: #35612b;
+        color: #d6ffc8;
+    }
+
+    .estado-cancelado {
+        background: #762f2f;
+        color: #ffd0d0;
+    }
+
+    .form-estado {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 170px;
+    }
+
+    .form-estado select {
+        width: 100%;
+        background: #211812;
+        color: #f5ead8;
+        border: 1px solid #6b5038;
+        border-radius: 6px;
+        padding: 9px;
+        font-size: 13px;
+    }
+
+    .btn-guardar {
+        background: #c99a4a;
+        color: #24180f;
+        padding: 9px 12px;
+    }
+
+    .btn-guardar:hover {
+        background: #e4b86a;
+    }
+
+    .btn-guardar:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .sin-pedidos {
+        text-align: center;
+        padding: 45px 20px;
+        color: #c9bba7;
+    }
+
+    .sin-pedidos h3 {
+        color: #e4b86a;
+        margin-bottom: 10px;
+    }
+
+    .nota-pedidos {
+        color: #c9bba7;
+        font-size: 13px;
+        margin-top: 16px;
+    }
+
+    @media (max-width: 600px) {
+        .pedidos-container {
+            padding: 0 12px 25px;
+        }
+
+        .pedidos-header h2 {
+            font-size: 25px;
+        }
+
+        .pedidos-filtros {
+            padding: 14px;
+        }
+
+        .filtro-grupo {
+            min-width: 100%;
+        }
+    }
+</style>
+
+<section class="pedidos-container">
+
+    <div class="pedidos-header">
+        <div>
+            <h2>📦 Gestión de pedidos</h2>
+            <p>Consulta los pedidos y actualiza su estado de seguimiento.</p>
+        </div>
+    </div>
+
+    {# Resumen de pedidos incluidos en la consulta actual #}
+    <div class="pedidos-resumen">
+
+        <div class="resumen-card">
+            <span>Pedidos encontrados</span>
+            <strong>{{ pedidos|length }}</strong>
+        </div>
+
+        <div class="resumen-card">
+            <span>Pendientes</span>
+            <strong>
+                {{ pedidos|selectattr("estado", "equalto", "Pendiente")|list|length }}
+            </strong>
+        </div>
+
+        <div class="resumen-card">
+            <span>En producción</span>
+            <strong>
+                {{ pedidos|selectattr("estado", "equalto", "En producción")|list|length }}
+            </strong>
+        </div>
+
+        <div class="resumen-card">
+            <span>Enviados</span>
+            <strong>
+                {{ pedidos|selectattr("estado", "equalto", "Enviado")|list|length }}
+            </strong>
+        </div>
+
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <form class="pedidos-filtros" method="GET"
+          action="{{ url_for('admin.pedidos') }}">
+
+        <div class="filtro-grupo">
+            <label for="buscar">Buscar por número de pedido</label>
+            <input
+                type="number"
+                id="buscar"
+                name="buscar"
+                min="1"
+                placeholder="Ejemplo: 15"
+                value="{{ busqueda or '' }}"
+            >
+        </div>
+
+        <div class="filtro-grupo">
+            <label for="estado">Filtrar por estado</label>
+            <select id="estado" name="estado">
+                <option value="">Todos los estados</option>
+
+                {% for estado in estados_pedido %}
+                    <option value="{{ estado }}"
+                        {% if estado_filtro == estado %}selected{% endif %}>
+                        {{ estado }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button class="btn btn-filtrar" type="submit">
+            🔎 Buscar
+        </button>
+
+        <a class="btn btn-limpiar" href="{{ url_for('admin.pedidos') }}">
+            Limpiar filtros
+        </a>
+
+    </form>
+
+    <!-- Tabla de pedidos -->
+    <div class="tabla-contenedor">
+
+        {% if pedidos %}
+
+            <table class="tabla-pedidos">
+
+                <thead>
+                    <tr>
+                        <th>Pedido</th>
+                        <th>Cliente</th>
+                        <th>Fecha del pedido</th>
+                        <th>Cantidad</th>
+                        <th>Total</th>
+                        <th>Estado actual</th>
+                        <th>Entrega estimada</th>
+                        <th>Actualizar estado</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for pedido in pedidos %}
+
+                        <tr>
+                            <td>
+                                <span class="pedido-numero">
+                                    #{{ "%05d"|format(pedido.id) }}
+                                </span>
+                            </td>
+
+                            <td class="pedido-cliente">
+                                {% if pedido.cliente %}
+                                    {{ pedido.cliente.nombre }}
+                                {% else %}
+                                    Cliente #{{ pedido.cliente_id }}
+                                {% endif %}
+                            </td>
+
+                            <td class="pedido-fecha">
+                                {% if pedido.fecha_pedido %}
+                                    {{ pedido.fecha_pedido.strftime("%d/%m/%Y %H:%M") }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+
+                            <td>{{ pedido.cantidad }}</td>
+
+                            <td class="pedido-total">
+                                ${{ "{:,.2f}".format(pedido.total|float) }}
+                            </td>
+
+                            <td>
+                                {% set estado = pedido.estado %}
+
+                                {% if estado == "Pendiente" %}
+                                    {% set clase_estado = "estado-pendiente" %}
+                                {% elif estado == "Aceptado" %}
+                                    {% set clase_estado = "estado-aceptado" %}
+                                {% elif estado == "En producción" %}
+                                    {% set clase_estado = "estado-produccion" %}
+                                {% elif estado == "Listo para enviar" %}
+                                    {% set clase_estado = "estado-listo" %}
+                                {% elif estado == "Enviado" %}
+                                    {% set clase_estado = "estado-enviado" %}
+                                {% elif estado == "Entregado" %}
+                                    {% set clase_estado = "estado-entregado" %}
+                                {% elif estado == "Cancelado" %}
+                                    {% set clase_estado = "estado-cancelado" %}
+                                {% else %}
+                                    {% set clase_estado = "estado-pendiente" %}
+                                {% endif %}
+
+                                <span class="estado-etiqueta {{ clase_estado }}">
+                                    {{ pedido.estado }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {% if pedido.fecha_entrega %}
+                                    {{ pedido.fecha_entrega.strftime("%d/%m/%Y") }}
+                                {% else %}
+                                    Por definir
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% set permitidos = flujo_pedido.get(pedido.estado, []) %}
+
+                                {% if permitidos %}
+
+                                    <form
+                                        class="form-estado"
+                                        method="POST"
+                                        action="{{ url_for('admin.actualizar_estado_pedido', pedido_id=pedido.id) }}"
+                                        onsubmit="return confirm('¿Confirmas que deseas actualizar el estado del pedido #{{ pedido.id }}?');"
+                                    >
+
+                                        <select name="estado" required>
+                                            <option value="">Seleccionar estado</option>
+
+                                            {% for nuevo_estado in permitidos %}
+                                                <option value="{{ nuevo_estado }}">
+                                                    {{ nuevo_estado }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+
+                                        <button class="btn btn-guardar" type="submit">
+                                            Guardar cambio
+                                        </button>
+
+                                    </form>
+
+                                {% else %}
+                                    <span class="pedido-fecha">
+                                        Sin cambios disponibles
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        {% else %}
+
+            <div class="sin-pedidos">
+                <h3>No se encontraron pedidos</h3>
+                <p>No hay pedidos que coincidan con los filtros seleccionados.</p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+    <p class="nota-pedidos">
+        Los cambios de estado se guardan en la base de datos y se reflejan
+        en el seguimiento del pedido del cliente.
     </p>
 
 </section>

@@ -6,14 +6,668 @@ Inventario
 
 {% block contenido %}
 
-<section class="admin-container">
+<style>
+    .inv-container {
+        max-width: 1400px;
+        margin: 35px auto;
+        padding: 0 22px 40px;
+        color: #f5ead8;
+    }
 
-    <h2>Inventario</h2>
+    .inv-header {
+        margin-bottom: 25px;
+    }
 
-    <p>
-        Desde aquí se gestionarán los materiales
-        utilizados por Taller El Obrero.
-    </p>
+    .inv-header h2 {
+        color: #e4b86a;
+        font-size: 30px;
+        margin-bottom: 8px;
+    }
+
+    .inv-header p {
+        color: #c9bba7;
+        margin: 0;
+    }
+
+    .inv-resumen {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin-bottom: 25px;
+    }
+
+    .inv-card {
+        background: #30231b;
+        border: 1px solid #57402d;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .inv-card span {
+        display: block;
+        color: #c9bba7;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .inv-card strong {
+        color: #e4b86a;
+        font-size: 28px;
+    }
+
+    .inv-panel {
+        background: #30231b;
+        border: 1px solid #57402d;
+        border-radius: 12px;
+        padding: 22px;
+        margin-bottom: 25px;
+    }
+
+    .inv-panel h3 {
+        color: #e4b86a;
+        margin-top: 0;
+        margin-bottom: 18px;
+    }
+
+    .inv-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 15px;
+    }
+
+    .inv-campo {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .inv-campo.completo {
+        grid-column: 1 / -1;
+    }
+
+    .inv-campo label {
+        color: #e4b86a;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .inv-campo input,
+    .inv-campo select,
+    .inv-campo textarea {
+        width: 100%;
+        box-sizing: border-box;
+        background: #211812;
+        border: 1px solid #6b5038;
+        border-radius: 7px;
+        color: #f5ead8;
+        padding: 11px 12px;
+        font-size: 14px;
+    }
+
+    .inv-campo textarea {
+        min-height: 80px;
+        resize: vertical;
+    }
+
+    .inv-campo input:focus,
+    .inv-campo select:focus,
+    .inv-campo textarea:focus {
+        outline: 2px solid #c99a4a;
+    }
+
+    .inv-boton {
+        display: inline-block;
+        border: none;
+        border-radius: 7px;
+        padding: 10px 14px;
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .inv-boton-principal {
+        background: #c99a4a;
+        color: #24180f;
+    }
+
+    .inv-boton-principal:hover {
+        background: #e4b86a;
+    }
+
+    .inv-boton-secundario {
+        background: #493529;
+        color: #f5ead8;
+        border: 1px solid #72553b;
+    }
+
+    .inv-boton-eliminar {
+        background: #762f2f;
+        color: #ffdada;
+    }
+
+    .inv-busqueda {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .inv-busqueda input {
+        flex: 1;
+        min-width: 220px;
+        background: #211812;
+        color: #f5ead8;
+        border: 1px solid #6b5038;
+        border-radius: 7px;
+        padding: 11px 12px;
+    }
+
+    .inv-tabla-contenedor {
+        overflow-x: auto;
+        background: #30231b;
+        border: 1px solid #57402d;
+        border-radius: 12px;
+    }
+
+    .inv-tabla {
+        width: 100%;
+        min-width: 1100px;
+        border-collapse: collapse;
+    }
+
+    .inv-tabla thead {
+        background: #493529;
+    }
+
+    .inv-tabla th {
+        padding: 15px 12px;
+        text-align: left;
+        color: #e4b86a;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .inv-tabla td {
+        padding: 14px 12px;
+        border-top: 1px solid #57402d;
+        vertical-align: top;
+        font-size: 13px;
+    }
+
+    .inv-tabla tbody tr:hover {
+        background: #3a2a20;
+    }
+
+    .inv-material {
+        color: #f5ead8;
+        font-weight: 700;
+    }
+
+    .inv-descripcion {
+        color: #c9bba7;
+        max-width: 230px;
+        white-space: normal;
+    }
+
+    .inv-cantidad {
+        color: #e4b86a;
+        font-weight: 800;
+        font-size: 16px;
+    }
+
+    .inv-estado {
+        display: inline-block;
+        padding: 6px 9px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    .inv-normal {
+        background: #285b36;
+        color: #c7ffd1;
+    }
+
+    .inv-bajo {
+        background: #6b4d20;
+        color: #ffe0a3;
+    }
+
+    .inv-agotado {
+        background: #762f2f;
+        color: #ffd0d0;
+    }
+
+    .inv-accion {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 180px;
+    }
+
+    .inv-accion form {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .inv-accion input {
+        width: 100%;
+        box-sizing: border-box;
+        background: #211812;
+        color: #f5ead8;
+        border: 1px solid #6b5038;
+        border-radius: 6px;
+        padding: 8px;
+    }
+
+    .inv-vacio {
+        text-align: center;
+        padding: 40px 20px;
+        color: #c9bba7;
+    }
+
+    .inv-nota {
+        margin-top: 15px;
+        color: #c9bba7;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 650px) {
+        .inv-container {
+            padding: 0 12px 25px;
+        }
+
+        .inv-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .inv-campo.completo {
+            grid-column: auto;
+        }
+
+        .inv-header h2 {
+            font-size: 25px;
+        }
+
+        .inv-panel {
+            padding: 15px;
+        }
+    }
+</style>
+
+<section class="inv-container">
+
+    <header class="inv-header">
+        <h2>📦 Control de inventario</h2>
+        <p>Administra las materias primas y controla las existencias del taller.</p>
+    </header>
+
+    <!-- RESUMEN -->
+
+    <div class="inv-resumen">
+
+        <div class="inv-card">
+            <span>Materiales registrados</span>
+            <strong>{{ total_materiales }}</strong>
+        </div>
+
+        <div class="inv-card">
+            <span>Existencias bajas</span>
+            <strong>{{ materiales_bajos }}</strong>
+        </div>
+
+        <div class="inv-card">
+            <span>Materiales agotados</span>
+            <strong>{{ materiales_agotados }}</strong>
+        </div>
+
+    </div>
+
+    <!-- FORMULARIO PARA AGREGAR MATERIAL -->
+
+    <div class="inv-panel">
+
+        <h3>＋ Registrar material</h3>
+
+        <form
+            method="POST"
+            action="{{ url_for('inventario.agregar_material') }}"
+        >
+
+            <div class="inv-form-grid">
+
+                <div class="inv-campo">
+                    <label for="material">Nombre del material *</label>
+
+                    <input
+                        type="text"
+                        id="material"
+                        name="material"
+                        maxlength="100"
+                        placeholder="Ej. Cuero café"
+                        required
+                    >
+                </div>
+
+                <div class="inv-campo">
+                    <label for="unidad">Unidad de medida *</label>
+
+                    <select id="unidad" name="unidad" required>
+                        <option value="unidad">Unidad</option>
+                        <option value="metro">Metro</option>
+                        <option value="cm">Centímetro</option>
+                        <option value="kg">Kilogramo</option>
+                        <option value="g">Gramo</option>
+                        <option value="litro">Litro</option>
+                        <option value="par">Par</option>
+                        <option value="rollo">Rollo</option>
+                        <option value="paquete">Paquete</option>
+                    </select>
+                </div>
+
+                <div class="inv-campo">
+                    <label for="cantidad">Cantidad inicial *</label>
+
+                    <input
+                        type="number"
+                        id="cantidad"
+                        name="cantidad"
+                        min="0"
+                        max="99999999.99"
+                        step="0.01"
+                        value="0"
+                        required
+                    >
+                </div>
+
+                <div class="inv-campo">
+                    <label for="minimo">Cantidad mínima de alerta *</label>
+
+                    <input
+                        type="number"
+                        id="minimo"
+                        name="minimo"
+                        min="0"
+                        max="99999999.99"
+                        step="0.01"
+                        value="0"
+                        required
+                    >
+                </div>
+
+                <div class="inv-campo completo">
+                    <label for="descripcion">Descripción</label>
+
+                    <textarea
+                        id="descripcion"
+                        name="descripcion"
+                        maxlength="10000"
+                        placeholder="Características, color, proveedor u observaciones..."
+                    ></textarea>
+                </div>
+
+            </div>
+
+            <br>
+
+            <button
+                type="submit"
+                class="inv-boton inv-boton-principal"
+            >
+                Guardar material
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- BÚSQUEDA -->
+
+    <div class="inv-panel">
+
+        <h3>Materiales disponibles</h3>
+
+        <form
+            method="GET"
+            action="{{ url_for('inventario.mostrar_inventario') }}"
+            class="inv-busqueda"
+        >
+
+            <input
+                type="search"
+                name="buscar"
+                placeholder="Buscar por nombre o descripción..."
+                value="{{ busqueda or '' }}"
+            >
+
+            <button
+                type="submit"
+                class="inv-boton inv-boton-principal"
+            >
+                Buscar
+            </button>
+
+            <a
+                href="{{ url_for('inventario.mostrar_inventario') }}"
+                class="inv-boton inv-boton-secundario"
+            >
+                Limpiar
+            </a>
+
+        </form>
+
+        <div class="inv-tabla-contenedor">
+
+            {% if materiales %}
+
+                <table class="inv-tabla">
+
+                    <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th>Descripción</th>
+                            <th>Existencias</th>
+                            <th>Mínimo</th>
+                            <th>Estado</th>
+                            <th>Última actualización</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for material in materiales %}
+
+                            <tr>
+
+                                <td>
+                                    <span class="inv-material">
+                                        {{ material.material }}
+                                    </span>
+                                </td>
+
+                                <td class="inv-descripcion">
+                                    {{ material.descripcion or "Sin descripción" }}
+                                </td>
+
+                                <td>
+                                    <span class="inv-cantidad">
+                                        {{ material.cantidad }}
+                                    </span>
+
+                                    <br>
+
+                                    <small>{{ material.unidad }}</small>
+                                </td>
+
+                                <td>
+                                    {{ material.minimo }} {{ material.unidad }}
+                                </td>
+
+                                <td>
+
+                                    {% if material.cantidad <= 0 %}
+
+                                        <span class="inv-estado inv-agotado">
+                                            Agotado
+                                        </span>
+
+                                    {% elif material.cantidad <= material.minimo %}
+
+                                        <span class="inv-estado inv-bajo">
+                                            Existencias bajas
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="inv-estado inv-normal">
+                                            Disponible
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+                                    {% if material.fecha_actualizacion %}
+                                        {{ material.fecha_actualizacion.strftime("%d/%m/%Y %H:%M") }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+
+                                <td>
+
+                                    <div class="inv-accion">
+
+                                        <!-- AÑADIR EXISTENCIAS -->
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for('inventario.entrada_material', material_id=material.id) }}"
+                                        >
+
+                                            <label>
+                                                <small>Añadir existencias</small>
+                                            </label>
+
+                                            <input
+                                                type="number"
+                                                name="cantidad"
+                                                min="0.01"
+                                                max="99999999.99"
+                                                step="0.01"
+                                                placeholder="Cantidad"
+                                                required
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="inv-boton inv-boton-principal"
+                                            >
+                                                ＋ Añadir
+                                            </button>
+
+                                        </form>
+
+                                        <hr style="width:100%; border:0; border-top:1px solid #57402d;">
+
+                                        <!-- AJUSTAR EXISTENCIAS -->
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for('inventario.actualizar_material', material_id=material.id) }}"
+                                        >
+
+                                            <label>
+                                                <small>Corregir existencias</small>
+                                            </label>
+
+                                            <input
+                                                type="number"
+                                                name="cantidad"
+                                                min="0"
+                                                max="99999999.99"
+                                                step="0.01"
+                                                value="{{ material.cantidad }}"
+                                                required
+                                            >
+
+                                            <label>
+                                                <small>Actualizar mínimo</small>
+                                            </label>
+
+                                            <input
+                                                type="number"
+                                                name="minimo"
+                                                min="0"
+                                                max="99999999.99"
+                                                step="0.01"
+                                                value="{{ material.minimo }}"
+                                                required
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="inv-boton inv-boton-secundario"
+                                            >
+                                                Guardar cantidades
+                                            </button>
+
+                                        </form>
+
+                                        <!-- ELIMINAR -->
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for('inventario.eliminar_material', material_id=material.id) }}"
+                                            onsubmit="return confirm('¿Seguro que deseas eliminar este material del inventario?');"
+                                        >
+
+                                            <button
+                                                type="submit"
+                                                class="inv-boton inv-boton-eliminar"
+                                            >
+                                                Eliminar material
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            {% else %}
+
+                <div class="inv-vacio">
+                    <h3>No hay materiales registrados</h3>
+                    <p>Registra un material usando el formulario superior.</p>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+        <p class="inv-nota">
+            Las existencias bajas se determinan comparando la cantidad disponible
+            con el mínimo establecido. Los cambios realizados aquí se guardan
+            en la base de datos.
+        </p>
+
+    </div>
 
 </section>
 

@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Detalle de factura | Taller El Obrero</title>
+
+    <style>
+        :root {
+            --cafe-oscuro: #2b1d16;
+            --cafe: #4a3025;
+            --cafe-medio: #654735;
+            --dorado: #c8a45d;
+            --dorado-claro: #e7d2a0;
+            --crema: #f7f1e7;
+            --blanco: #ffffff;
+            --texto: #34251e;
+            --texto-secundario: #806e61;
+            --borde: #e8ded0;
+            --verde: #287a50;
+            --rojo: #a83c35;
+            --azul: #315f88;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--crema);
+            color: var(--texto);
+            min-height: 100vh;
+        }
+
+        /* Barra superior */
+
+        .topbar {
+            background: var(--cafe-oscuro);
+            color: var(--blanco);
+            padding: 18px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+            border-bottom: 3px solid var(--dorado);
+        }
+
+        .brand h1 {
+            font-size: 23px;
+            letter-spacing: 1px;
+            color: var(--dorado-claro);
+        }
+
+        .brand p {
+            color: #e5d8c9;
+            font-size: 12px;
+            margin-top: 4px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .topbar a {
+            color: var(--blanco);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .topbar a:hover {
+            color: var(--dorado-claro);
+        }
+
+        /* Contenido principal */
+
+        .container {
+            width: 92%;
+            max-width: 1250px;
+            margin: 35px auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .page-header h2 {
+            font-size: 29px;
+            color: var(--cafe-oscuro);
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            color: var(--texto-secundario);
+            font-size: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Botones */
+
+        .btn {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 7px;
+            padding: 11px 17px;
+            border-radius: 7px;
+            border: none;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--cafe);
+            color: var(--blanco);
+        }
+
+        .btn-primary:hover {
+            background: var(--cafe-medio);
+        }
+
+        .btn-gold {
+            background: var(--dorado);
+            color: var(--cafe-oscuro);
+        }
+
+        .btn-gold:hover {
+            background: var(--dorado-claro);
+        }
+
+        .btn-light {
+            background: var(--blanco);
+            color: var(--cafe);
+            border: 1px solid var(--borde);
+        }
+
+        .btn-light:hover {
+            background: #f5eadb;
+        }
+
+        /* Tarjeta principal */
+
+        .invoice-card {
+            background: var(--blanco);
+            border-radius: 13px;
+            overflow: hidden;
+            box-shadow: 0 5px 25px rgba(43, 29, 22, 0.08);
+            border: 1px solid var(--borde);
+            margin-bottom: 25px;
+        }
+
+        .invoice-banner {
+            background: linear-gradient(
+                120deg,
+                var(--cafe-oscuro),
+                var(--cafe)
+            );
+            color: var(--blanco);
+            padding: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .invoice-banner h2 {
+            font-size: 25px;
+            color: var(--dorado-claro);
+            margin-bottom: 8px;
+        }
+
+        .invoice-banner p {
+            color: #eadfd4;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .invoice-number {
+            font-size: 19px;
+            font-weight: bold;
+            color: var(--dorado-claro);
+            overflow-wrap: anywhere;
+        }
+
+        /* Estados */
+
+        .badge {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .badge-pendiente {
+            background: #fff0cf;
+            color: #805b0d;
+        }
+
+        .badge-aceptada,
+        .badge-aceptado {
+            background: #d9f3e3;
+            color: #216641;
+        }
+
+        .badge-rechazada,
+        .badge-rechazado,
+        .badge-error {
+            background: #fde2df;
+            color: #9d3029;
+        }
+
+        .badge-anulada,
+        .badge-cancelada,
+        .badge-cancelado {
+            background: #ece7e3;
+            color: #66574d;
+        }
+
+        .badge-default {
+            background: #e7edf5;
+            color: #315f88;
+        }
+
+        /* Secciones */
+
+        .section {
+            padding: 27px;
+            border-bottom: 1px solid var(--borde);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--cafe);
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 22px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--dorado-claro);
+        }
+
+        .section-title .icon {
+            font-size: 20px;
+        }
+
+        /* Datos */
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .info-item {
+            min-width: 0;
+        }
+
+        .info-label {
+            display: block;
+            color: var(--texto-secundario);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            margin-bottom: 7px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: var(--texto);
+            font-weight: 500;
+            overflow-wrap: anywhere;
+            line-height: 1.6;
+        }
+
+        .muted {
+            color: #9b8c80;
+            font-style: italic;
+        }
+
+        /* Configuración del producto */
+
+        .configuration-box {
+            background: #fcf9f4;
+            border: 1px solid var(--borde);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .configuration-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .configuration-item {
+            padding: 14px;
+            background: var(--blanco);
+            border: 1px solid #eee5d9;
+            border-radius: 8px;
+        }
+
+        .configuration-item .info-label {
+            margin-bottom: 8px;
+        }
+
+        .configuration-item .info-value {
+            font-weight: 600;
+        }
+
+        /* Tabla */
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        thead {
+            background: #f6efe5;
+        }
+
+        th {
+            padding: 14px;
+            text-align: left;
+            color: var(--cafe);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            border-bottom: 2px solid var(--dorado-claro);
+        }
+
+        td {
+            padding: 16px 14px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--borde);
+            vertical-align: top;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        /* Resumen de valores */
+
+        .totals-wrapper {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .totals-box {
+            width: 100%;
+            max-width: 390px;
+            background: #fcf9f4;
+            border: 1px solid var(--borde);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 11px 0;
+            font-size: 14px;
+            border-bottom: 1px solid var(--borde);
+        }
+
+        .total-row:last-child {
+            border-bottom: none;
+        }
+
+        .total-row span:first-child {
+            color: var(--texto-secundario);
+        }
+
+        .total-row strong {
+            white-space: nowrap;
+        }
+
+        .grand-total {
+            margin-top: 8px;
+            padding-top: 18px;
+            color: var(--cafe-oscuro);
+            font-size: 19px;
+            font-weight: 800;
+            border-top: 2px solid var(--dorado);
+        }
+
+        .grand-total span:first-child {
+            color: var(--cafe-oscuro);
+            font-weight: 800;
+        }
+
+        /* Facturación electrónica */
+
+        .electronic-box {
+            background: #fcf9f4;
+            border: 1px solid var(--borde);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .cufe {
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            background: var(--blanco);
+            border: 1px dashed #d9c9b3;
+            padding: 12px;
+            border-radius: 6px;
+            line-height: 1.7;
+        }
+
+        .files-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        /* Mensajes */
+
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash {
+            padding: 13px 16px;
+            margin-bottom: 10px;
+            border-radius: 7px;
+            font-size: 13px;
+        }
+
+        .flash.success {
+            background: #d9f3e3;
+            color: #216641;
+        }
+
+        .flash.error,
+        .flash.danger {
+            background: #fde2df;
+            color: #9d3029;
+        }
+
+        .flash.warning {
+            background: #fff0cf;
+            color: #805b0d;
+        }
+
+        .flash.info {
+            background: #e7edf5;
+            color: #315f88;
+        }
+
+        /* Pie */
+
+        .footer {
+            text-align: center;
+            padding: 25px 15px;
+            color: var(--texto-secundario);
+            font-size: 12px;
+        }
+
+        .footer strong {
+            color: var(--cafe);
+        }
+
+        /* Diseño adaptable */
+
+        @media (max-width: 850px) {
+            .info-grid,
+            .configuration-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 550px) {
+            .container {
+                width: 94%;
+                margin: 20px auto;
+            }
+
+            .page-header h2 {
+                font-size: 24px;
+            }
+
+            .invoice-banner,
+            .section {
+                padding: 20px;
+            }
+
+            .info-grid,
+            .configuration-grid {
+                grid-template-columns: 1fr;
+                gap: 17px;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .header-actions .btn {
+                flex: 1;
+            }
+
+            .totals-box {
+                max-width: 100%;
+            }
+        }
+
+        /* Impresión */
+
+        @media print {
+            body {
+                background: #ffffff;
+            }
+
+            .topbar,
+            .header-actions,
+            .footer,
+            .no-print,
+            .flash-messages {
+                display: none !important;
+            }
+
+            .container {
+                width: 100%;
+                max-width: none;
+                margin: 0;
+            }
+
+            .invoice-card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+
+            .invoice-banner {
+                background: #f4eee5 !important;
+                color: #222 !important;
+                border-bottom: 2px solid #c8a45d;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .invoice-banner h2,
+            .invoice-banner p,
+            .invoice-number {
+                color: #34251e !important;
+            }
+
+            .section {
+                break-inside: avoid;
+            }
+
+            .btn {
+                display: none !important;
+            }
+
+            a {
+                text-decoration: none;
+                color: inherit;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Barra superior -->
+    <header class="topbar">
+        <div class="brand">
+            <h1>TALLER EL OBRERO</h1>
+            <p>Fabricación y personalización</p>
+        </div>
+
+        <a href="{{ url_for('facturacion.mostrar_facturacion') }}">
+            ← Volver a facturación
+        </a>
+    </header>
+
+    <main class="container">
+
+        <!-- Encabezado -->
+        <div class="page-header">
+            <div>
+                <h2>Detalle de factura</h2>
+                <p>Consulta la información del cliente, el pedido y la facturación.</p>
+            </div>
+
+            <div class="header-actions">
+                <a
+                    href="{{ url_for('facturacion.mostrar_facturacion') }}"
+                    class="btn btn-light"
+                >
+                    ← Volver
+                </a>
+
+                <button
+                    type="button"
+                    class="btn btn-gold"
+                    onclick="window.print()"
+                >
+                    🖨 Imprimir factura
+                </button>
+            </div>
+        </div>
+
+        <!-- Mensajes de Flask -->
+        <div class="flash-messages">
+            {% with mensajes = get_flashed_messages(with_categories=true) %}
+                {% for categoria, mensaje in mensajes %}
+                    <div class="flash {{ categoria }}">
+                        {{ mensaje }}
+                    </div>
+                {% endfor %}
+            {% endwith %}
+        </div>
+
+        <!-- Tarjeta de factura -->
+        <article class="invoice-card">
+
+            <!-- Cabecera de la factura -->
+            <div class="invoice-banner">
+                <div>
+                    <h2>Factura de venta</h2>
+
+                    <p>
+                        <strong>Número:</strong>
+                        <span class="invoice-number">
+                            {{ factura.numero or ('Factura #' ~ factura.id) }}
+                        </span>
+                    </p>
+
+                    <p>
+                        <strong>Fecha:</strong>
+                        {% if factura.fecha %}
+                            {{ factura.fecha.strftime('%d/%m/%Y %H:%M') }}
+                        {% else %}
+                            No registrada
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div>
+                    {% set estado = (factura.estado_dian or 'PENDIENTE')|upper %}
+
+                    {% if estado == 'ACEPTADA' %}
+                        <span class="badge badge-aceptada">
+                            {{ estado }}
+                        </span>
+                    {% elif estado in ['RECHAZADA', 'RECHAZADO', 'ERROR'] %}
+                        <span class="badge badge-rechazada">
+                            {{ estado }}
+                        </span>
+                    {% elif estado in ['ANULADA', 'CANCELADA', 'CANCELADO'] %}
+                        <span class="badge badge-anulada">
+                            {{ estado }}
+                        </span>
+                    {% elif estado == 'PENDIENTE' %}
+                        <span class="badge badge-pendiente">
+                            {{ estado }}
+                        </span>
+                    {% else %}
+                        <span class="badge badge-default">
+                            {{ estado }}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Información de la factura -->
+            <section class="section">
+                <h3 class="section-title">
+                    <span class="icon">🧾</span>
+                    Información de facturación
+                </h3>
+
+                <div class="info-grid">
+
+                    <div class="info-item">
+                        <span class="info-label">Número de factura</span>
+                        <div class="info-value">
+                            {{ factura.numero or 'No registrado' }}
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Prefijo</span>
+                        <div class="info-value">
+                            {{ factura.prefijo or 'No registrado' }}
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">ID interno de factura</span>
+                        <div class="info-value">
+                            #{{ factura.id }}
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Estado de facturación electrónica</span>
+                        <div class="info-value">
+                            {{ factura.estado_dian or 'PENDIENTE' }}
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Fecha de emisión registrada</span>
+                        <div class="info-value">
+                            {% if factura.fecha %}
+                                {{ factura.fecha.strftime('%d/%m/%Y %H:%M') }}
+                            {% else %}
+                                No registrada
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Pedido asociado</span>
+                        <div class="info-value">
+                            {% if factura.pedido %}
+                                #{{ factura.pedido.id }}
+                            {% else %}
+                                No disponible
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Información del cliente -->
+            <section class="section">
+                <h3 class="section-title">
+                    <span class="icon">👤</span>
+                    Información del cliente
+                </h3>
+
+                {% if factura.pedido and factura.pedido.cliente %}
+
+                    {% set cliente = factura.pedido.cliente %}
+
+                    <div class="info-grid">
+
+                        <div class="info-item">
+                            <span class="info-label">Nombre completo</span>
+                            <div class="info-value">
+                                {{ cliente.nombre or 'No registrado' }}
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Documento de identidad</span>
+                            <div class="info-value">
+                                {{ cliente.documento or 'No registrado' }}
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Correo electrónico</span>
+                            <div class="info-value">
+                                {% if cliente.email %}
+                                    <a href="mailto:{{ cliente.email }}">
+                                        {{ cliente.email }}
+                                    </a>
+                                {% else %}
+                                    No registrado
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Teléfono</span>
+                            <div class="info-value">
+                                {% if cliente.telefono %}
+                                    <a href="tel:{{ cliente.telefono }}">
+                                        {{ cliente.telefono }}
+                                    </a>
+                                {% else %}
+                                    No registrado
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Dirección</span>
+                            <div class="info-value">
+                                {{ cliente.direccion or 'No registrada' }}
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Cliente registrado desde</span>
+                            <div class="info-value">
+                                {% if cliente.fecha_creacion %}
+                                    {{ cliente.fecha_creacion.strftime('%d/%m/%Y') }}
+                                {% else %}
+                                    No registrada
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <p class="muted">
+                        No se encontró información del cliente asociado a esta factura.
+                    </p>
+
+                {% endif %}
+            </section>
+
+            <!-- Información del pedido -->
+            <section class="section">
+                <h3 class="section-title">
+                    <span class="icon">📦</span>
+                    Información del pedido
+                </h3>
+
+                {% if factura.pedido %}
+
+                    {% set pedido = factura.pedido %}
+
+                    <div class="info-grid">
+
+                        <div class="info-item">
+                            <span class="info-label">Número de pedido</span>
+                            <div class="info-value">
+                                #{{ pedido.id }}
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Estado del pedido</span>
+                            <div class="info-value">
+                                {{ pedido.estado or 'No registrado' }}
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Cantidad</span>
+                            <div class="info-value">
+                                {{ pedido.cantidad or 0 }}
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Fecha del pedido</span>
+                            <div class="info-value">
+                                {% if pedido.fecha_pedido %}
+                                    {{ pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M') }}
+                                {% else %}
+                                    No registrada
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Fecha de entrega</span>
+                            <div class="info-value">
+                                {% if pedido.fecha_entrega %}
+                                    {{ pedido.fecha_entrega.strftime('%d/%m/%Y') }}
+                                {% else %}
+                                    No definida
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">ID de configuración</span>
+                            <div class="info-value">
+                                {% if pedido.configuracion %}
+                                    #{{ pedido.configuracion.id }}
+                                {% else %}
+                                    No disponible
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <p class="muted">
+                        No se encontró el pedido asociado a esta factura.
+                    </p>
+
+                {% endif %}
+            </section>
+
+            <!-- Configuración personalizada -->
+            <section class="section">
+                <h3 class="section-title">
+                    <span class="icon">🛠️</span>
+                    Configuración personalizada del producto
+                </h3>
+
+                {% if factura.pedido and factura.pedido.configuracion %}
+
+                    {% set configuracion = factura.pedido.configuracion %}
+
+                    <div class="configuration-box">
+
+                        <div class="configuration-grid">
+
+                            <div class="configuration-item">
+                                <span class="info-label">Producto</span>
+                                <div class="info-value">
+                                    {% if configuracion.producto %}
+                                        {{ configuracion.producto.nombre }}
+                                    {% else %}
+                                        Producto #{{ configuracion.producto_id }}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="configuration-item">
+                                <span class="info-label">Color</span>
+                                <div class="info-value">
+                                    {{ configuracion.color or 'No especificado' }}
+                                </div>
+                            </div>
+
+                            <div class="configuration-item">
+                                <span class="info-label">Material</span>
+                                <div class="info-value">
+                                    {{ configuracion.material or 'No especificado' }}
+                                </div>
+                            </div>
+
+                            <div class="configuration-item">
+                                <span class="info-label">Suela</span>
+                                <div class="info-value">
+                                    {{ configuracion.suela or 'No especificada' }}
+                                </div>
+                            </div>
+
+                            <div class="configuration-item">
+                                <span class="info-label">Herrajes</span>
+                                <div class="info-value">
+                                    {{ configuracion.herrajes or 'No especificados' }}
+                                </div>
+                            </div>
+
+                            <div class="configuration-item">
+                                <span class="info-label">Iniciales personalizadas</span>
+                                <div class="info-value">
+                                    {{ configuracion.iniciales or 'Sin iniciales' }}
+                                </div>
+                            </div>
+
+                            <div class="configuration-item">
+                                <span class="info-label">Precio de configuración</span>
+                                <div class="info-value">
+                                    ${{ "{:,.2f}".format(configuracion.precio or 0) }}
+                                </div>
+                            </div>
+
+                            <div class="configuration-item">
+                                <span class="info-label">Días estimados de entrega</span>
+                                <div class="info-value">
+                                    {{ configuracion.dias_entrega or 5 }} días
+                                </div>
+                            </div>
+
+                            <div class="configuration-item">
+                                <span class="info-label">Fecha de configuración</span>
+                                <div class="info-value">
+                                    {% if configuracion.fecha_creacion %}
+                                        {{ configuracion.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}
+                                    {% else %}
+                                        No registrada
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <p class="muted">
+                        No se encontró una configuración de producto asociada al pedido.
+                    </p>
+
+                {% endif %}
+            </section>
+
+            <!-- Detalle económico -->
+            <section class="section">
+                <h3 class="section-title">
+                    <span class="icon">💰</span>
+                    Resumen económico
+                </h3>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th>Descripción</th>
+                                <th class="text-right">Cantidad</th>
+                                <th class="text-right">Valor</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                                <td>Producto personalizado</td>
+
+                                <td>
+                                    {% if factura.pedido and factura.pedido.configuracion %}
+                                        {% set cfg = factura.pedido.configuracion %}
+
+                                        {% if cfg.producto %}
+                                            {{ cfg.producto.nombre }}
+                                        {% else %}
+                                            Producto #{{ cfg.producto_id }}
+                                        {% endif %}
+
+                                        {% if cfg.color %}
+                                            · Color: {{ cfg.color }}
+                                        {% endif %}
+
+                                        {% if cfg.material %}
+                                            · Material: {{ cfg.material }}
+                                        {% endif %}
+
+                                    {% else %}
+                                        Pedido #{{ factura.pedido_id }}
+                                    {% endif %}
+                                </td>
+
+                                <td class="text-right">
+                                    {% if factura.pedido %}
+                                        {{ factura.pedido.cantidad }}
+                                    {% else %}
+                                        1
+                                    {% endif %}
+                                </td>
+
+                                <td class="text-right">
+                                    ${{ "{:,.2f}".format(factura.subtotal or 0) }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <br>
+
+                <div class="totals-wrapper">
+                    <div class="totals-box">
+
+                        <div class="total-row">
+                            <span>Subtotal</span>
+                            <strong>
+                                ${{ "{:,.2f}".format(factura.subtotal or 0) }}
+                            </strong>
+                        </div>
+
+                        <div class="total-row">
+                            <span>IVA</span>
+                            <strong>
+                                ${{ "{:,.2f}".format(factura.iva or 0) }}
+                            </strong>
+                        </div>
+
+                        <div class="total-row grand-total">
+                            <span>TOTAL</span>
+                            <span>
+                                ${{ "{:,.2f}".format(factura.total or 0) }}
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- Información electrónica -->
+            <section class="section">
+                <h3 class="section-title">
+                    <span class="icon">🔐</span>
+                    Información de facturación electrónica
+                </h3>
+
+                <div class="electronic-box">
+
+                    <div class="info-grid">
+
+                        <div class="info-item">
+                            <span class="info-label">Estado DIAN registrado</span>
+                            <div class="info-value">
+                                {{ factura.estado_dian or 'PENDIENTE' }}
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">CUFE</span>
+                            <div class="info-value">
+                                {% if factura.cufe %}
+                                    Disponible
+                                {% else %}
+                                    No generado
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Archivo PDF</span>
+                            <div class="info-value">
+                                {% if factura.pdf %}
+                                    Disponible
+                                {% else %}
+                                    No registrado
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <br>
+
+                    <span class="info-label">Código Único de Factura Electrónica (CUFE)</span>
+
+                    {% if factura.cufe %}
+                        <div class="cufe">{{ factura.cufe }}</div>
+                    {% else %}
+                        <p class="muted">
+                            Todavía no hay un CUFE registrado para esta factura.
+                        </p>
+                    {% endif %}
+
+                    <!-- Archivos asociados -->
+                    <div class="files-list no-print">
+
+                        {% if factura.pdf %}
+                            <a
+                                class="btn btn-primary"
+                                href="{{ url_for('static', filename=factura.pdf) }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                📄 Ver PDF
+                            </a>
+                        {% endif %}
+
+                        {% if factura.xml %}
+                            <a
+                                class="btn btn-light"
+                                href="{{ url_for('static', filename=factura.xml) }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                📑 Ver XML
+                            </a>
+                        {% endif %}
+
+                        {% if factura.qr %}
+                            <a
+                                class="btn btn-light"
+                                href="{{ factura.qr }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                ▦ Ver código QR
+                            </a>
+                        {% endif %}
+
+                        {% if not factura.pdf and not factura.xml and not factura.qr %}
+                            <p class="muted">
+                                No hay archivos electrónicos asociados a esta factura.
+                            </p>
+                        {% endif %}
+
+                    </div>
+
+                    {% if factura.xml %}
+                        <br>
+                        <p class="muted">
+                            El registro XML está disponible en la ubicación configurada
+                            para esta factura.
+                        </p>
+                    {% endif %}
+
+                </div>
+            </section>
+
+        </article>
+
+        <footer class="footer">
+            <strong>Taller El Obrero</strong><br>
+            Sistema de gestión de pedidos y facturación.
+        </footer>
+
+    </main>
+
+</body>
+</html>

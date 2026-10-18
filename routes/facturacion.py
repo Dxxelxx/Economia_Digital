@@ -4,9 +4,13 @@ from flask import (
     redirect,
     url_for,
     session,
-    flash
+    flash,
+    request
 )
 
+from sqlalchemy import or_
+
+from database.connection import db
 from models.factura import Factura
 from models.pedido import Pedido
 from models.cliente import Cliente
@@ -14,8 +18,7 @@ from models.cliente import Cliente
 
 facturacion = Blueprint(
     "facturacion",
-    __name__,
-    url_prefix="/facturacion"
+    __name__
 )
 
 
@@ -25,9 +28,14 @@ facturacion = Blueprint(
 
 def administrador_requerido():
     if "usuario_id" not in session:
-        return redirect(url_for("auth.login"))
+        return redirect(
+            url_for(
+                "auth.login",
+                next=url_for("facturacion.mostrar_facturacion")
+            )
+        )
 
-    if session.get("rol") != "admin":
+    if session.get("rol") != "administrador":
         flash(
             "No tienes permisos para acceder a la facturación.",
             "error"
@@ -43,17 +51,40 @@ def administrador_requerido():
 
 @facturacion.route("/")
 def mostrar_facturacion():
-
     acceso = administrador_requerido()
 
     if acceso:
         return acceso
 
-    facturas = Factura.query.order_by(
+    busqueda = request.args.get("buscar", "").strip()
+    estado_filtro = request.args.get("estado", "").strip()
+
+    consulta = (
+        db.session.query(Factura)
+        .join(Pedido, Factura.pedido_id == Pedido.id)
+    )
+
+    if busqueda:
+        filtros = [
+            Factura.numero.ilike(f"%{busqueda}%"),
+            Pedido.id.cast(db.String).ilike(f"%{busqueda}%")
+        ]
+
+        if busqueda.isdigit():
+            filtros.append(Factura.id == int(busqueda))
+
+        consulta = consulta.filter(or_(*filtros))
+
+    if estado_filtro:
+        consulta = consulta.filter(
+            Factura.estado_dian == estado_filtro
+        )
+
+    facturas = consulta.order_by(
         Factura.fecha.desc()
     ).all()
 
-    total_facturas = len(facturas)
+    total_facturas = Factura.query.count()
 
     facturas_pendientes = Factura.query.filter_by(
         estado_dian="PENDIENTE"
@@ -64,11 +95,13 @@ def mostrar_facturacion():
     ).count()
 
     return render_template(
-        "facturacion.html",
+        "admin/facturacion.html",
         facturas=facturas,
         total_facturas=total_facturas,
         facturas_pendientes=facturas_pendientes,
-        facturas_aceptadas=facturas_aceptadas
+        facturas_aceptadas=facturas_aceptadas,
+        busqueda=busqueda,
+        estado_filtro=estado_filtro
     )
 
 
@@ -78,7 +111,6 @@ def mostrar_facturacion():
 
 @facturacion.route("/<int:factura_id>")
 def detalle_factura(factura_id):
-
     acceso = administrador_requerido()
 
     if acceso:
@@ -87,7 +119,7 @@ def detalle_factura(factura_id):
     factura = Factura.query.get_or_404(factura_id)
 
     return render_template(
-        "detalle_factura.html",
+        "admin/detalle_factura.html",
         factura=factura
     )
 
@@ -98,21 +130,23 @@ def detalle_factura(factura_id):
 
 @facturacion.route("/pedidos-pendientes")
 def pedidos_pendientes():
-
     acceso = administrador_requerido()
 
     if acceso:
         return acceso
 
-    pedidos = Pedido.query.filter(
-        ~Pedido.id.in_(
-            db.session.query(Factura.pedido_id)
+    pedidos = (
+        Pedido.query
+        .outerjoin(
+            Factura,
+            Factura.pedido_id == Pedido.id
         )
-    ).order_by(
-        Pedido.fecha_pedido.desc()
-    ).all()
+        .filter(Factura.id.is_(None))
+        .order_by(Pedido.fecha_pedido.desc())
+        .all()
+    )
 
     return render_template(
-        "pedidos_pendientes_facturacion.html",
+        "admin/pedidos_pendientes_facturacion.html",
         pedidos=pedidos
     )

@@ -1,20 +1,471 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{% block titulo %}
-Facturación
-{% endblock %}
+    <title>Facturación | Taller El Obrero</title>
 
-{% block contenido %}
+    <style>
+        :root {
+            --fondo: #17120f;
+            --panel: #241b16;
+            --panel-claro: #30231b;
+            --dorado: #d7a65a;
+            --dorado-claro: #f0cb83;
+            --texto: #f7efe3;
+            --secundario: #c0b09e;
+            --borde: #493629;
+            --verde: #76c99a;
+            --azul: #82b9e8;
+            --rojo: #e68b80;
+            --amarillo: #edc16e;
+        }
 
-<section class="admin-container">
+        * {
+            box-sizing: border-box;
+        }
 
-    <h2>Facturación</h2>
+        body {
+            margin: 0;
+            padding: 30px;
+            background: var(--fondo);
+            color: var(--texto);
+            font-family: Arial, Helvetica, sans-serif;
+        }
 
-    <p>
-        Aquí se gestionarán las facturas
-        generadas para los pedidos.
-    </p>
+        .contenedor {
+            max-width: 1450px;
+            margin: auto;
+        }
 
-</section>
+        .encabezado {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
 
-{% endblock %}
+        h1 {
+            margin: 0 0 8px;
+            color: var(--dorado-claro);
+            font-size: 30px;
+        }
+
+        .encabezado p {
+            margin: 0;
+            color: var(--secundario);
+        }
+
+        .boton {
+            display: inline-block;
+            padding: 11px 15px;
+            border: 1px solid var(--borde);
+            border-radius: 8px;
+            background: var(--panel-claro);
+            color: var(--texto);
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .boton:hover {
+            border-color: var(--dorado);
+        }
+
+        .boton-principal {
+            background: var(--dorado);
+            color: #24180d;
+            border-color: var(--dorado);
+            font-weight: bold;
+        }
+
+        .estadisticas {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .tarjeta,
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--borde);
+            border-radius: 14px;
+        }
+
+        .tarjeta {
+            padding: 22px;
+        }
+
+        .tarjeta span {
+            display: block;
+            color: var(--secundario);
+            font-size: 13px;
+        }
+
+        .tarjeta strong {
+            display: block;
+            margin-top: 12px;
+            color: var(--dorado-claro);
+            font-size: 29px;
+        }
+
+        .panel {
+            padding: 22px;
+            margin-bottom: 22px;
+        }
+
+        .panel h2 {
+            margin-top: 0;
+            font-size: 19px;
+        }
+
+        .filtros {
+            display: grid;
+            grid-template-columns: minmax(180px, 1fr) minmax(180px, 240px) auto;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .campo {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        label {
+            color: var(--secundario);
+            font-size: 13px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            min-width: 0;
+            padding: 11px 12px;
+            border: 1px solid var(--borde);
+            border-radius: 8px;
+            background: #19130f;
+            color: var(--texto);
+        }
+
+        .tabla-contenedor {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 850px;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 14px 12px;
+            color: var(--dorado-claro);
+            text-align: left;
+            font-size: 12px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--borde);
+        }
+
+        td {
+            padding: 16px 12px;
+            border-bottom: 1px solid var(--borde);
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: rgba(215, 166, 90, .04);
+        }
+
+        .numero-factura {
+            color: var(--dorado-claro);
+            font-weight: bold;
+        }
+
+        .secundario {
+            display: block;
+            margin-top: 5px;
+            color: var(--secundario);
+            font-size: 12px;
+        }
+
+        .estado {
+            display: inline-block;
+            padding: 6px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .estado-pendiente {
+            background: rgba(237, 193, 110, .13);
+            color: var(--amarillo);
+        }
+
+        .estado-aceptada {
+            background: rgba(118, 201, 154, .13);
+            color: var(--verde);
+        }
+
+        .estado-rechazada,
+        .estado-anulada {
+            background: rgba(230, 139, 128, .13);
+            color: var(--rojo);
+        }
+
+        .estado-otro {
+            background: rgba(130, 185, 232, .13);
+            color: var(--azul);
+        }
+
+        .acciones {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .mensaje {
+            padding: 13px 16px;
+            margin-bottom: 18px;
+            border-radius: 9px;
+            border: 1px solid var(--borde);
+        }
+
+        .mensaje.success {
+            color: var(--verde);
+        }
+
+        .mensaje.error {
+            color: var(--rojo);
+        }
+
+        .vacio {
+            padding: 35px 15px;
+            text-align: center;
+            color: var(--secundario);
+        }
+
+        @media (max-width: 800px) {
+            body {
+                padding: 16px;
+            }
+
+            .estadisticas {
+                grid-template-columns: 1fr;
+            }
+
+            .filtros {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="contenedor">
+
+    <header class="encabezado">
+        <div>
+            <h1>🧾 Facturación</h1>
+            <p>Consulta las facturas y los documentos asociados a los pedidos.</p>
+        </div>
+
+        <a class="boton"
+           href="{{ url_for('admin.dashboard') }}">
+            ← Volver al panel
+        </a>
+    </header>
+
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% if mensajes %}
+            {% for categoria, mensaje in mensajes %}
+                <div class="mensaje {{ categoria }}">
+                    {{ mensaje }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <section class="estadisticas">
+        <div class="tarjeta">
+            <span>Total de facturas</span>
+            <strong>{{ total_facturas }}</strong>
+        </div>
+
+        <div class="tarjeta">
+            <span>Facturas pendientes</span>
+            <strong>{{ facturas_pendientes }}</strong>
+        </div>
+
+        <div class="tarjeta">
+            <span>Facturas aceptadas</span>
+            <strong>{{ facturas_aceptadas }}</strong>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Consultar facturas</h2>
+
+        <form
+            method="GET"
+            action="{{ url_for('facturacion.mostrar_facturacion') }}"
+            class="filtros"
+        >
+            <div class="campo">
+                <label for="buscar">Número de factura o pedido</label>
+
+                <input
+                    type="text"
+                    id="buscar"
+                    name="buscar"
+                    value="{{ busqueda }}"
+                    placeholder="Ej. FAC-0001 o 15"
+                >
+            </div>
+
+            <div class="campo">
+                <label for="estado">Estado DIAN</label>
+
+                <select id="estado" name="estado">
+                    <option value="">Todos los estados</option>
+
+                    {% for estado in ['PENDIENTE', 'ACEPTADA', 'RECHAZADA', 'ANULADA'] %}
+                        <option
+                            value="{{ estado }}"
+                            {% if estado_filtro == estado %}selected{% endif %}
+                        >
+                            {{ estado }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="display:flex;gap:8px;">
+                <button type="submit" class="boton boton-principal">
+                    Buscar
+                </button>
+
+                <a class="boton"
+                   href="{{ url_for('facturacion.mostrar_facturacion') }}">
+                    Limpiar
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <section class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:18px;">
+            <h2 style="margin:0;">Facturas registradas</h2>
+
+            <a class="boton"
+               href="{{ url_for('facturacion.pedidos_pendientes') }}">
+                Ver pedidos sin factura
+            </a>
+        </div>
+
+        {% if facturas %}
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Factura</th>
+                        <th>Pedido</th>
+                        <th>Fecha</th>
+                        <th>Subtotal</th>
+                        <th>IVA</th>
+                        <th>Total</th>
+                        <th>Estado DIAN</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for factura in facturas %}
+                        <tr>
+                            <td>
+                                <span class="numero-factura">
+                                    {{ factura.numero }}
+                                </span>
+
+                                {% if factura.prefijo %}
+                                    <span class="secundario">
+                                        Prefijo: {{ factura.prefijo }}
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                #{{ factura.pedido_id }}
+                            </td>
+
+                            <td>
+                                {% if factura.fecha %}
+                                    {{ factura.fecha.strftime('%d/%m/%Y') }}
+
+                                    <span class="secundario">
+                                        {{ factura.fecha.strftime('%H:%M') }}
+                                    </span>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                ${{ "{:,.2f}".format(factura.subtotal) }}
+                            </td>
+
+                            <td>
+                                ${{ "{:,.2f}".format(factura.iva) }}
+                            </td>
+
+                            <td>
+                                <strong>
+                                    ${{ "{:,.2f}".format(factura.total) }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {% set estado = (factura.estado_dian or 'PENDIENTE')|upper %}
+                                {% set clase = {
+                                    'PENDIENTE': 'estado-pendiente',
+                                    'ACEPTADA': 'estado-aceptada',
+                                    'RECHAZADA': 'estado-rechazada',
+                                    'ANULADA': 'estado-anulada'
+                                } %}
+
+                                <span class="estado {{ clase.get(estado, 'estado-otro') }}">
+                                    {{ estado }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="acciones">
+                                    <a
+                                        class="boton boton-principal"
+                                        href="{{ url_for('facturacion.detalle_factura', factura_id=factura.id) }}"
+                                    >
+                                        Ver detalle
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="vacio">
+                No se encontraron facturas para los filtros seleccionados.
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+</body>
+</html>
