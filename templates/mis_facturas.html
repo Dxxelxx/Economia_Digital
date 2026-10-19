@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 
-
 {% block titulo %}
 Mis facturas | Taller El Obrero
 {% endblock %}
@@ -8,101 +7,863 @@ Mis facturas | Taller El Obrero
 
 {% block contenido %}
 
-<section class="pedidos-container">
+<style>
+    /* ==========================================
+       PANEL DE FACTURACIÓN DEL CLIENTE
+    ========================================== */
+
+    .facturas-page {
+        --cafe: #241b17;
+        --cafe-claro: #382820;
+        --dorado: #c49a55;
+        --dorado-claro: #e4c991;
+        --crema: #f8f4ed;
+        --blanco: #ffffff;
+        --texto: #352a24;
+        --texto-suave: #82766c;
+        --borde: #e9e0d4;
+
+        width: min(1180px, 92%);
+        margin: 0 auto;
+        padding: 42px 0 65px;
+        color: var(--texto);
+    }
+
+    .facturas-page * {
+        box-sizing: border-box;
+    }
+
+    /* ==========================================
+       ENCABEZADO
+    ========================================== */
+
+    .facturas-hero {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 25px;
+
+        padding: 38px;
+        margin-bottom: 28px;
+
+        color: white;
+        background:
+            radial-gradient(
+                circle at 90% 10%,
+                rgba(196, 154, 85, 0.24),
+                transparent 35%
+            ),
+            linear-gradient(
+                125deg,
+                #241b17,
+                #382820
+            );
+
+        border-radius: 22px;
+        box-shadow: 0 12px 35px rgba(36, 27, 23, 0.12);
+    }
+
+    .facturas-hero-texto {
+        position: relative;
+        z-index: 1;
+    }
+
+    .facturas-etiqueta {
+        display: inline-block;
+        margin-bottom: 12px;
+        color: var(--dorado-claro);
+
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .facturas-hero h1 {
+        margin: 0 0 12px;
+        color: #ffffff;
+        font-size: clamp(28px, 4vw, 38px);
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .facturas-hero p {
+        max-width: 580px;
+        margin: 0;
+        color: #e4d9cd;
+        font-size: 15px;
+        line-height: 1.8;
+    }
+
+    .facturas-hero-icono {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        width: 100px;
+        height: 100px;
+
+        color: var(--dorado-claro);
+        font-size: 43px;
+
+        border: 1px solid rgba(228, 201, 145, 0.4);
+        border-radius: 25px;
+
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    /* ==========================================
+       INDICADORES
+    ========================================== */
+
+    .facturas-resumen {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 30px;
+    }
+
+    .factura-indicador {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        min-width: 0;
+        padding: 23px;
+
+        background: #ffffff;
+        border: 1px solid var(--borde);
+        border-radius: 17px;
+
+        box-shadow: 0 5px 20px rgba(36, 27, 23, 0.035);
+    }
+
+    .indicador-icono {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        width: 49px;
+        height: 49px;
+
+        color: var(--cafe);
+        background: #f4ead8;
+        border-radius: 15px;
+
+        font-size: 22px;
+    }
+
+    .indicador-label {
+        margin: 0 0 7px;
+        color: var(--texto-suave);
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .indicador-valor {
+        margin: 0;
+        color: var(--cafe);
+        font-size: 25px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+    }
+
+    .indicador-valor.monto {
+        font-size: clamp(17px, 2vw, 24px);
+    }
+
+    /* ==========================================
+       ENCABEZADO DEL LISTADO
+    ========================================== */
+
+    .facturas-listado-cabecera {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+
+        margin: 35px 0 18px;
+    }
+
+    .facturas-listado-cabecera h2 {
+        margin: 0 0 6px;
+        color: var(--cafe);
+        font-size: 22px;
+        font-weight: 800;
+    }
+
+    .facturas-listado-cabecera p {
+        margin: 0;
+        color: var(--texto-suave);
+        font-size: 13px;
+    }
+
+    .facturas-contador {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        min-width: 40px;
+        height: 40px;
+        padding: 0 12px;
+
+        color: var(--cafe);
+        background: #f0e5d3;
+        border-radius: 12px;
+
+        font-weight: 800;
+    }
+
+    /* ==========================================
+       TABLA PARA ESCRITORIO
+    ========================================== */
+
+    .facturas-tabla-contenedor {
+        overflow-x: auto;
+        background: white;
+        border: 1px solid var(--borde);
+        border-radius: 18px;
+        box-shadow: 0 5px 22px rgba(36, 27, 23, 0.035);
+    }
+
+    .facturas-tabla {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .facturas-tabla thead {
+        background: #f7f2e9;
+    }
+
+    .facturas-tabla th {
+        padding: 17px 20px;
+
+        color: #75675b;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.7px;
+        text-transform: uppercase;
+
+        white-space: nowrap;
+        border-bottom: 1px solid var(--borde);
+    }
+
+    .facturas-tabla td {
+        padding: 20px;
+        color: var(--texto);
+        font-size: 13px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f0ebe4;
+    }
+
+    .facturas-tabla tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .facturas-tabla tbody tr {
+        transition: background 0.2s ease;
+    }
+
+    .facturas-tabla tbody tr:hover {
+        background: #fdfbf7;
+    }
+
+    .factura-numero {
+        display: block;
+        margin-bottom: 5px;
+
+        color: var(--cafe);
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .factura-referencia {
+        color: var(--texto-suave);
+        font-size: 11px;
+    }
+
+    .factura-total {
+        color: var(--cafe);
+        font-size: 15px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    /* ==========================================
+       ESTADOS
+    ========================================== */
+
+    .factura-estado {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+
+        padding: 8px 11px;
+
+        border-radius: 30px;
+        font-size: 11px;
+        font-weight: 800;
+
+        white-space: nowrap;
+    }
+
+    .factura-estado::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .estado-pendiente {
+        color: #8b631e;
+        background: #fff1cf;
+    }
+
+    .estado-aceptada {
+        color: #28754a;
+        background: #e2f5e9;
+    }
+
+    .estado-rechazada {
+        color: #a43c35;
+        background: #fde8e6;
+    }
+
+    .estado-otro {
+        color: #65584e;
+        background: #eee8df;
+    }
+
+    /* ==========================================
+       BOTONES
+    ========================================== */
+
+    .factura-acciones {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .factura-boton {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+
+        padding: 10px 13px;
+
+        color: #ffffff;
+        background: var(--cafe);
+        border: 1px solid var(--cafe);
+        border-radius: 10px;
+
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+
+        white-space: nowrap;
+        transition: 0.2s ease;
+    }
+
+    .factura-boton:hover {
+        color: #ffffff;
+        background: #49352a;
+        transform: translateY(-1px);
+    }
+
+    .factura-boton-secundario {
+        color: var(--cafe);
+        background: white;
+        border-color: var(--borde);
+    }
+
+    .factura-boton-secundario:hover {
+        color: var(--cafe);
+        background: #f7f2e9;
+    }
+
+    /* ==========================================
+       ESTADO VACÍO
+    ========================================== */
+
+    .facturas-vacio {
+        padding: 55px 25px;
+
+        text-align: center;
+        background: #ffffff;
+
+        border: 1px solid var(--borde);
+        border-radius: 20px;
+
+        box-shadow: 0 8px 28px rgba(36, 27, 23, 0.035);
+    }
+
+    .facturas-vacio-icono {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 85px;
+        height: 85px;
+
+        margin: 0 auto 23px;
+
+        color: var(--cafe);
+        background: #f4ead8;
+        border-radius: 25px;
+
+        font-size: 37px;
+    }
+
+    .facturas-vacio h3 {
+        margin: 0 0 12px;
+        color: var(--cafe);
+        font-size: 23px;
+        font-weight: 800;
+    }
+
+    .facturas-vacio p {
+        max-width: 510px;
+        margin: 0 auto 25px;
+
+        color: var(--texto-suave);
+        font-size: 14px;
+        line-height: 1.8;
+    }
+
+    .facturas-vacio-nota {
+        display: block;
+        margin-top: 20px;
+
+        color: #96887a;
+        font-size: 11px;
+        line-height: 1.7;
+    }
+
+    .facturas-nota-tributaria {
+        margin-top: 22px;
+        padding: 15px 18px;
+
+        color: #76664e;
+        background: #f7f0e4;
+        border: 1px solid #ebddc7;
+        border-radius: 12px;
+
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    /* ==========================================
+       ADAPTACIÓN A MÓVILES
+    ========================================== */
+
+    @media (max-width: 850px) {
+
+        .facturas-resumen {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .factura-indicador {
+            padding: 18px;
+        }
+
+        .facturas-hero {
+            padding: 28px;
+        }
+
+        .facturas-hero-icono {
+            width: 75px;
+            height: 75px;
+            font-size: 32px;
+        }
+
+    }
+
+    @media (max-width: 600px) {
+
+        .facturas-page {
+            width: 94%;
+            padding-top: 25px;
+        }
+
+        .facturas-hero {
+            padding: 24px 21px;
+            border-radius: 17px;
+        }
+
+        .facturas-hero-icono {
+            display: none;
+        }
+
+        .facturas-listado-cabecera {
+            align-items: flex-start;
+        }
+
+        .facturas-tabla {
+            min-width: 750px;
+        }
+
+        .facturas-vacio {
+            padding: 40px 20px;
+        }
+
+    }
+</style>
 
 
-    <div class="cliente-header">
+<section class="facturas-page">
 
-        <p class="cliente-etiqueta">
-            TALLER EL OBRERO · DOCUMENTOS
-        </p>
+    <!-- ======================================
+         ENCABEZADO
+    ======================================= -->
 
-        <h1>
-            Mis facturas
-        </h1>
+    <header class="facturas-hero">
 
-        <p>
-            Consulta tus facturas y recibos
-            electrónicos de compra.
-        </p>
+        <div class="facturas-hero-texto">
+
+            <span class="facturas-etiqueta">
+                TALLER EL OBRERO · FACTURACIÓN
+            </span>
+
+            <h1>
+                Mis facturas
+            </h1>
+
+            <p>
+                Consulta tus documentos de compra,
+                revisa los valores de tus pedidos y
+                accede a tus facturas disponibles
+                desde un solo lugar.
+            </p>
+
+        </div>
+
+        <div class="facturas-hero-icono">
+            🧾
+        </div>
+
+    </header>
+
+
+    <!-- ======================================
+         INDICADORES
+    ======================================= -->
+
+    {% set total_documentos = facturas|length %}
+
+    {% set total_facturado = namespace(valor=0) %}
+
+    {% for factura in facturas %}
+        {% set total_facturado.valor =
+            total_facturado.valor + (factura.total|float)
+        %}
+    {% endfor %}
+
+
+    <section class="facturas-resumen">
+
+        <article class="factura-indicador">
+
+            <div class="indicador-icono">
+                🧾
+            </div>
+
+            <div>
+
+                <p class="indicador-label">
+                    Facturas registradas
+                </p>
+
+                <p class="indicador-valor">
+                    {{ total_documentos }}
+                </p>
+
+            </div>
+
+        </article>
+
+
+        <article class="factura-indicador">
+
+            <div class="indicador-icono">
+                💰
+            </div>
+
+            <div>
+
+                <p class="indicador-label">
+                    Total facturado
+                </p>
+
+                <p class="indicador-valor monto">
+
+                    ${{ "{:,.0f}".format(
+                        total_facturado.valor
+                    ).replace(",", ".") }}
+
+                    <span style="font-size: 11px;">
+                        COP
+                    </span>
+
+                </p>
+
+            </div>
+
+        </article>
+
+
+        <article class="factura-indicador">
+
+            <div class="indicador-icono">
+                📄
+            </div>
+
+            <div>
+
+                <p class="indicador-label">
+                    Documentos disponibles
+                </p>
+
+                <p class="indicador-valor">
+                    {{ facturas|length }}
+                </p>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- ======================================
+         LISTADO DE FACTURAS
+    ======================================= -->
+
+    <div class="facturas-listado-cabecera">
+
+        <div>
+
+            <h2>
+                Historial de facturación
+            </h2>
+
+            <p>
+                Consulta los documentos asociados a tus compras.
+            </p>
+
+        </div>
+
+        <span class="facturas-contador">
+            {{ facturas|length }}
+        </span>
 
     </div>
 
 
     {% if facturas %}
 
-        {% for factura in facturas %}
+        <div class="facturas-tabla-contenedor">
 
-            <div class="pedido-card">
+            <table class="facturas-tabla">
 
-                <div>
+                <thead>
 
-                    <h3>
-                        Factura {{ factura.numero }}
-                    </h3>
+                    <tr>
+                        <th>Documento</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Total</th>
+                        <th>Acciones</th>
+                    </tr>
 
-                    <p>
-                        Fecha:
-                        {{ factura.fecha.strftime('%d/%m/%Y') }}
-                    </p>
+                </thead>
 
-                    <p>
-                        Estado:
-                        <span class="estado">
-                            {{ factura.estado_dian }}
-                        </span>
-                    </p>
+                <tbody>
 
-                </div>
+                    {% for factura in facturas %}
+
+                        <tr>
+
+                            <td>
+
+                                <span class="factura-numero">
+                                    {{ factura.numero }}
+                                </span>
+
+                                <span class="factura-referencia">
+                                    Pedido #{{ factura.pedido_id }}
+                                </span>
+
+                            </td>
 
 
-                <div>
+                            <td>
 
-                    <p class="pedido-total">
+                                {% if factura.fecha %}
 
-                        Total:
+                                    {{ factura.fecha.strftime('%d/%m/%Y') }}
 
-                        ${{ "{:,.0f}".format(
-                            factura.total|float
-                        ).replace(",", ".") }}
+                                {% else %}
 
-                    </p>
+                                    Fecha pendiente
 
-                </div>
+                                {% endif %}
 
-            </div>
+                            </td>
 
-        {% endfor %}
+
+                            <td>
+
+                                {% set estado =
+                                    (factura.estado_dian or 'PENDIENTE')|upper
+                                %}
+
+
+                                {% if estado in ['ACEPTADA', 'APROBADA'] %}
+
+                                    <span class="factura-estado estado-aceptada">
+                                        {{ factura.estado_dian }}
+                                    </span>
+
+                                {% elif estado in ['RECHAZADA', 'ANULADA'] %}
+
+                                    <span class="factura-estado estado-rechazada">
+                                        {{ factura.estado_dian }}
+                                    </span>
+
+                                {% elif estado == 'PENDIENTE' %}
+
+                                    <span class="factura-estado estado-pendiente">
+                                        {{ factura.estado_dian }}
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="factura-estado estado-otro">
+                                        {{ factura.estado_dian }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="factura-total">
+
+                                    ${{ "{:,.0f}".format(
+                                        factura.total|float
+                                    ).replace(",", ".") }}
+
+                                </span>
+
+                                <div class="factura-referencia">
+                                    Pesos colombianos
+                                </div>
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="factura-acciones">
+
+                                    {% if factura.pdf %}
+
+                                        <a
+                                            href="{{ url_for(
+                                                'facturacion.descargar_pdf_cliente',
+                                                factura_id=factura.id
+                                            ) }}"
+                                            class="factura-boton"
+                                        >
+                                            ↓ Descargar
+                                        </a>
+
+                                    {% else %}
+
+                                        <span
+                                            class="factura-boton factura-boton-secundario"
+                                            title="El PDF todavía no está disponible"
+                                        >
+                                            PDF pendiente
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
 
     {% else %}
 
-        <div class="cliente-card">
+        <!-- ==================================
+             ESTADO SIN FACTURAS
+        =================================== -->
 
-            <div class="cliente-accion-icono">
+        <section class="facturas-vacio">
+
+            <div class="facturas-vacio-icono">
                 🧾
             </div>
 
             <h3>
-                Todavía no tienes facturas
+                Tus facturas aparecerán aquí
             </h3>
 
             <p>
-                Cuando realices una compra y se genere
-                tu factura electrónica, aparecerá aquí.
+                En este espacio podrás consultar el número de factura,
+                la fecha de emisión, los importes de tus compras
+                y descargar los documentos que estén disponibles.
             </p>
-
 
             <a
                 href="{{ url_for('principal.inicio') }}#catalogo"
-                class="boton"
+                class="factura-boton"
             >
-                Ver catálogo
+                Explorar productos
+                <span>→</span>
             </a>
 
-        </div>
+            <span class="facturas-vacio-nota">
+                ¿Ya realizaste una compra? La factura aparecerá
+                cuando el sistema genere el documento correspondiente.
+            </span>
+
+        </section>
 
     {% endif %}
 
+
+    <div class="facturas-nota-tributaria">
+
+        <strong>Información importante:</strong>
+
+        El estado que aparece en esta página corresponde al registro
+        de facturación de la aplicación. La validación tributaria
+        electrónica ante la DIAN debe confirmarse mediante la
+        integración correspondiente.
+
+    </div>
 
 </section>
 
