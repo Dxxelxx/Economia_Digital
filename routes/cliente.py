@@ -3,12 +3,16 @@ from flask import (
     render_template,
     session,
     redirect,
-    url_for
+    url_for,
+    flash
 )
+
+from database.connection import db
 
 from models.pedido import Pedido
 from models.producto import Producto
 from models.cliente import Cliente
+from models.factura import Factura
 
 
 cliente = Blueprint(
@@ -34,11 +38,34 @@ def cliente_requerido():
 
     if session.get("rol") != "cliente":
 
+        flash(
+            "No tienes permisos para acceder a esta sección.",
+            "error"
+        )
+
         return redirect(
             url_for("principal.inicio")
         )
 
     return None
+
+
+# ==========================================================
+# BUSCAR CLIENTE ASOCIADO A LA SESIÓN
+# ==========================================================
+
+def obtener_cliente_actual():
+
+    email = (
+        session.get("usuario_email") or ""
+    ).strip().lower()
+
+    if not email:
+        return None
+
+    return Cliente.query.filter(
+        db.func.lower(Cliente.email) == email
+    ).first()
 
 
 # ==========================================================
@@ -65,32 +92,9 @@ def inicio():
 @cliente.route("/producto/<int:producto_id>")
 def producto(producto_id):
 
-    producto = Producto.query.get(producto_id)
-
-    if producto is None:
-
-        return """
-        <div style="
-            font-family: Arial;
-            text-align: center;
-            padding: 80px;
-        ">
-
-            <h1>
-                Producto no encontrado
-            </h1>
-
-            <p>
-                El producto solicitado no existe
-                en la base de datos.
-            </p>
-
-            <a href="/">
-                Volver al catálogo
-            </a>
-
-        </div>
-        """
+    producto = Producto.query.get_or_404(
+        producto_id
+    )
 
     return render_template(
         "producto.html",
@@ -110,24 +114,7 @@ def mis_pedidos():
     if acceso:
         return acceso
 
-
-    # ==========================================
-    # BUSCAR CLIENTE POR CORREO
-    # ==========================================
-
-    email = session.get(
-        "usuario_email"
-    )
-
-
-    cliente_actual = Cliente.query.filter_by(
-        email=email
-    ).first()
-
-
-    # ==========================================
-    # SI TODAVÍA NO EXISTE
-    # ==========================================
+    cliente_actual = obtener_cliente_actual()
 
     if cliente_actual is None:
 
@@ -140,7 +127,6 @@ def mis_pedidos():
         ).order_by(
             Pedido.fecha_pedido.desc()
         ).all()
-
 
     return render_template(
         "mis_pedidos.html",
@@ -160,16 +146,9 @@ def detalle_pedido(pedido_id):
     if acceso:
         return acceso
 
-    email = (
-        session.get("usuario_email") or ""
-    ).strip().lower()
-
-    cliente_actual = Cliente.query.filter_by(
-        email=email
-    ).first()
+    cliente_actual = obtener_cliente_actual()
 
     if cliente_actual is None:
-        from flask import flash
 
         flash(
             "No se encontró tu registro de cliente.",
@@ -177,7 +156,7 @@ def detalle_pedido(pedido_id):
         )
 
         return redirect(
-            url_for("cliente.mis_pedidos")
+            url_for("cliente.mis-pedidos")
         )
 
     pedido = Pedido.query.filter_by(
@@ -189,6 +168,7 @@ def detalle_pedido(pedido_id):
         "detalle_pedido.html",
         pedido=pedido
     )
+
 
 # ==========================================================
 # MIS FACTURAS
@@ -202,7 +182,33 @@ def mis_facturas():
     if acceso:
         return acceso
 
+    cliente_actual = obtener_cliente_actual()
+
+    # No mostrar facturas si no existe un cliente asociado.
+    if cliente_actual is None:
+
+        facturas = []
+
+    else:
+
+        # Solo consultar las facturas de los pedidos
+        # que pertenecen al cliente autenticado.
+        facturas = (
+            Factura.query
+            .join(
+                Pedido,
+                Factura.pedido_id == Pedido.id
+            )
+            .filter(
+                Pedido.cliente_id == cliente_actual.id
+            )
+            .order_by(
+                Factura.fecha.desc()
+            )
+            .all()
+        )
+
     return render_template(
         "mis_facturas.html",
-        facturas=[]
+        facturas=facturas
     )

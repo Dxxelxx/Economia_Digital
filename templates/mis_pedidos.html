@@ -1,155 +1,373 @@
 {% extends "base.html" %}
 
 {% block titulo %}
-Gestión de pedidos | Taller El Obrero
+Mis pedidos | Taller El Obrero
 {% endblock %}
 
 {% block contenido %}
 
-<section class="admin-pedidos">
+<style>
+    .mis-pedidos {
+        max-width: 1200px;
+        width: 92%;
+        margin: 40px auto;
+        color: #38271e;
+    }
 
-    <div class="admin-pedidos-hero">
+    .pedidos-hero {
+        background: linear-gradient(135deg, #2b1d16, #604331);
+        color: #fff;
+        padding: 35px;
+        border-radius: 15px;
+        border-bottom: 4px solid #c8a45d;
+        margin-bottom: 30px;
+    }
 
-        <div>
-            <span class="admin-pedidos-etiqueta">
-                TALLER EL OBRERO · ADMINISTRACIÓN
-            </span>
+    .pedidos-hero .etiqueta {
+        color: #e7d2a0;
+        font-size: 12px;
+        font-weight: bold;
+        letter-spacing: 2px;
+    }
 
-            <h1>Gestión de <span>pedidos</span></h1>
+    .pedidos-hero h1 {
+        font-size: 32px;
+        margin: 12px 0;
+    }
+
+    .pedidos-hero h1 span {
+        color: #e7c982;
+    }
+
+    .pedidos-hero p {
+        color: #e9ded4;
+        line-height: 1.7;
+    }
+
+    .pedidos-resumen {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 30px;
+    }
+
+    .resumen-tarjeta {
+        background: #fff;
+        border: 1px solid #e7daca;
+        border-radius: 12px;
+        padding: 22px;
+        box-shadow: 0 4px 14px rgba(43, 29, 22, 0.04);
+    }
+
+    .resumen-tarjeta span {
+        display: block;
+        color: #806e61;
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+
+    .resumen-tarjeta strong {
+        display: block;
+        color: #4a3025;
+        font-size: 29px;
+    }
+
+    .pedidos-panel {
+        background: #fff;
+        border: 1px solid #e7daca;
+        border-radius: 14px;
+        padding: 28px;
+        box-shadow: 0 5px 20px rgba(43, 29, 22, 0.05);
+    }
+
+    .panel-encabezado {
+        margin-bottom: 25px;
+    }
+
+    .panel-encabezado h2 {
+        font-size: 23px;
+        color: #4a3025;
+        margin-bottom: 8px;
+    }
+
+    .panel-encabezado p {
+        font-size: 14px;
+        color: #806e61;
+    }
+
+    .tabla-contenedor {
+        overflow-x: auto;
+    }
+
+    .tabla-pedidos {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 750px;
+    }
+
+    .tabla-pedidos th {
+        background: #f5eee4;
+        color: #4a3025;
+        padding: 15px 12px;
+        text-align: left;
+        font-size: 12px;
+        text-transform: uppercase;
+        border-bottom: 2px solid #c8a45d;
+    }
+
+    .tabla-pedidos td {
+        padding: 17px 12px;
+        border-bottom: 1px solid #eee4d8;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .tabla-pedidos tbody tr:hover {
+        background: #fcf9f4;
+    }
+
+    .numero-pedido {
+        font-weight: bold;
+        color: #604331;
+    }
+
+    .producto-nombre {
+        font-weight: 600;
+        color: #38271e;
+    }
+
+    .producto-detalle {
+        display: block;
+        font-size: 12px;
+        color: #806e61;
+        margin-top: 5px;
+    }
+
+    .estado {
+        display: inline-block;
+        padding: 7px 11px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .estado-pendiente {
+        background: #fff0cf;
+        color: #805b0d;
+    }
+
+    .estado-aceptado {
+        background: #e0e8ff;
+        color: #31518a;
+    }
+
+    .estado-produccion {
+        background: #dcecff;
+        color: #245e91;
+    }
+
+    .estado-pausa {
+        background: #fce8cf;
+        color: #8a5719;
+    }
+
+    .estado-listo {
+        background: #d9f3e3;
+        color: #216641;
+    }
+
+    .estado-enviado {
+        background: #e9e0ff;
+        color: #6341a0;
+    }
+
+    .estado-entregado {
+        background: #d9f3e3;
+        color: #216641;
+    }
+
+    .estado-cancelado {
+        background: #fde2df;
+        color: #9d3029;
+    }
+
+    .estado-default {
+        background: #ece7e3;
+        color: #66574d;
+    }
+
+    .btn-detalle {
+        display: inline-block;
+        padding: 9px 13px;
+        background: #4a3025;
+        color: #fff !important;
+        border-radius: 7px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: bold;
+        white-space: nowrap;
+        transition: 0.2s;
+    }
+
+    .btn-detalle:hover {
+        background: #76563f;
+    }
+
+    .pedidos-vacios {
+        text-align: center;
+        padding: 55px 20px;
+    }
+
+    .pedidos-vacios .icono {
+        font-size: 48px;
+        display: block;
+        margin-bottom: 18px;
+    }
+
+    .pedidos-vacios h3 {
+        color: #4a3025;
+        font-size: 22px;
+        margin-bottom: 10px;
+    }
+
+    .pedidos-vacios p {
+        color: #806e61;
+        line-height: 1.7;
+        margin-bottom: 22px;
+    }
+
+    .btn-catalogo {
+        display: inline-block;
+        background: #c8a45d;
+        color: #2b1d16 !important;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 7px;
+        font-weight: bold;
+    }
+
+    .btn-catalogo:hover {
+        background: #e7d2a0;
+    }
+
+    .volver {
+        display: inline-block;
+        margin-top: 24px;
+        color: #604331;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .volver:hover {
+        color: #a47c36;
+    }
+
+    @media (max-width: 700px) {
+        .pedidos-resumen {
+            grid-template-columns: 1fr;
+        }
+
+        .pedidos-hero {
+            padding: 25px;
+        }
+
+        .pedidos-hero h1 {
+            font-size: 26px;
+        }
+
+        .pedidos-panel {
+            padding: 18px;
+        }
+    }
+</style>
+
+<section class="mis-pedidos">
+
+    <div class="pedidos-hero">
+
+        <span class="etiqueta">
+            TALLER EL OBRERO · MI CUENTA
+        </span>
+
+        <h1>
+            Mis <span>pedidos</span>
+        </h1>
+
+        <p>
+            Consulta tus compras, revisa el estado de fabricación
+            y sigue el progreso de tus productos personalizados.
+        </p>
+
+    </div>
+
+    {% set ns = namespace(
+        pendientes=0,
+        produccion=0,
+        finalizados=0
+    ) %}
+
+    {% for pedido in pedidos %}
+
+        {% if pedido.estado == 'Pendiente' %}
+            {% set ns.pendientes = ns.pendientes + 1 %}
+        {% endif %}
+
+        {% if pedido.estado in ['Aceptado', 'En producción', 'En pausa'] %}
+            {% set ns.produccion = ns.produccion + 1 %}
+        {% endif %}
+
+        {% if pedido.estado in ['Listo para enviar', 'Enviado', 'Entregado'] %}
+            {% set ns.finalizados = ns.finalizados + 1 %}
+        {% endif %}
+
+    {% endfor %}
+
+    <div class="pedidos-resumen">
+
+        <article class="resumen-tarjeta">
+            <span>Total de pedidos</span>
+            <strong>{{ pedidos|length }}</strong>
+        </article>
+
+        <article class="resumen-tarjeta">
+            <span>Pendientes de confirmación</span>
+            <strong>{{ ns.pendientes }}</strong>
+        </article>
+
+        <article class="resumen-tarjeta">
+            <span>En fabricación o finalizados</span>
+            <strong>{{ ns.produccion + ns.finalizados }}</strong>
+        </article>
+
+    </div>
+
+    <div class="pedidos-panel">
+
+        <div class="panel-encabezado">
+            <h2>Historial de compras</h2>
 
             <p>
-                Administra las compras, confirma los pedidos
-                y acompaña cada producto hasta su entrega.
+                Aquí puedes consultar los estados actualizados de tus pedidos.
             </p>
         </div>
 
-        <div class="admin-pedidos-sello">
-            <span>TRADICIÓN</span>
-            <strong>EL OBRERO</strong>
-            <span>HECHO A MANO</span>
-        </div>
-
-    </div>
-
-
-    <div class="admin-pedidos-resumen">
-
-        <article class="admin-pedidos-tarjeta">
-            <span>Total de pedidos</span>
-            <strong>{{ pedidos|length }}</strong>
-            <small>Pedidos del filtro actual</small>
-        </article>
-
-        <article class="admin-pedidos-tarjeta">
-            <span>Pendientes</span>
-            <strong>
-                {{ pedidos|selectattr("estado", "equalto", "Pendiente")|list|length }}
-            </strong>
-            <small>Esperando confirmación</small>
-        </article>
-
-        <article class="admin-pedidos-tarjeta">
-            <span>En producción</span>
-            <strong>
-                {{ pedidos|selectattr("estado", "equalto", "En producción")|list|length }}
-            </strong>
-            <small>En proceso de fabricación</small>
-        </article>
-
-        <article class="admin-pedidos-tarjeta">
-            <span>Enviados</span>
-            <strong>
-                {{ pedidos|selectattr("estado", "equalto", "Enviado")|list|length }}
-            </strong>
-            <small>Pedidos despachados</small>
-        </article>
-
-    </div>
-
-
-    <div class="admin-pedidos-panel">
-
-        <div class="admin-pedidos-panel-encabezado">
-
-            <div>
-                <span class="admin-pedidos-etiqueta">
-                    CONTROL COMERCIAL
-                </span>
-
-                <h2>Pedidos registrados</h2>
-
-                <p>
-                    Consulta cada compra y actualiza su estado.
-                </p>
-            </div>
-
-            <a
-                href="{{ url_for('admin.dashboard') }}"
-                class="admin-pedidos-volver"
-            >
-                ← Volver al panel
-            </a>
-
-        </div>
-
-
-        <form
-            method="GET"
-            action="{{ url_for('admin.pedidos') }}"
-            class="admin-pedidos-filtros"
-        >
-
-            <label for="estado">
-                Filtrar por estado
-            </label>
-
-            <select name="estado" id="estado">
-
-                <option value="">
-                    Todos los estados
-                </option>
-
-                {% for estado in estados_pedido %}
-
-                    <option
-                        value="{{ estado }}"
-                        {% if estado_filtro == estado %}
-                            selected
-                        {% endif %}
-                    >
-                        {{ estado }}
-                    </option>
-
-                {% endfor %}
-
-            </select>
-
-            <button type="submit">
-                Aplicar filtro
-            </button>
-
-            <a href="{{ url_for('admin.pedidos') }}">
-                Limpiar
-            </a>
-
-        </form>
-
-
         {% if pedidos %}
 
-            <div class="admin-pedidos-tabla-contenedor">
+            <div class="tabla-contenedor">
 
-                <table class="admin-pedidos-tabla">
+                <table class="tabla-pedidos">
 
                     <thead>
                         <tr>
                             <th>Pedido</th>
-                            <th>Cliente</th>
+                            <th>Producto</th>
                             <th>Fecha</th>
-                            <th>Unidades</th>
+                            <th>Cantidad</th>
                             <th>Total</th>
-                            <th>Estado actual</th>
-                            <th>Actualizar estado</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
 
@@ -157,31 +375,55 @@ Gestión de pedidos | Taller El Obrero
 
                         {% for pedido in pedidos %}
 
+                            {% set estado = pedido.estado or 'Pendiente' %}
+
                             <tr>
 
                                 <td>
-                                    <strong class="admin-pedido-numero">
+                                    <span class="numero-pedido">
                                         #{{ "%05d"|format(pedido.id) }}
-                                    </strong>
+                                    </span>
                                 </td>
 
                                 <td>
-                                    <div class="admin-pedido-cliente">
 
-                                        <strong>
-                                            {{ pedido.cliente.nombre if pedido.cliente else "Cliente no disponible" }}
-                                        </strong>
+                                    {% if pedido.configuracion %}
 
-                                        <small>
-                                            {{ pedido.cliente.email if pedido.cliente else "" }}
-                                        </small>
+                                        <span class="producto-nombre">
 
-                                    </div>
+                                            {% if pedido.configuracion.producto %}
+                                                {{ pedido.configuracion.producto.nombre }}
+                                            {% else %}
+                                                Producto personalizado
+                                            {% endif %}
+
+                                        </span>
+
+                                        <span class="producto-detalle">
+
+                                            {% if pedido.configuracion.color %}
+                                                Color: {{ pedido.configuracion.color }}
+                                            {% endif %}
+
+                                            {% if pedido.configuracion.material %}
+                                                · Material: {{ pedido.configuracion.material }}
+                                            {% endif %}
+
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="producto-nombre">
+                                            Producto del pedido
+                                        </span>
+
+                                    {% endif %}
+
                                 </td>
 
                                 <td>
                                     {% if pedido.fecha_pedido %}
-                                        {{ pedido.fecha_pedido.strftime("%d/%m/%Y") }}
+                                        {{ pedido.fecha_pedido.strftime('%d/%m/%Y') }}
                                     {% else %}
                                         Sin fecha
                                     {% endif %}
@@ -198,61 +440,70 @@ Gestión de pedidos | Taller El Obrero
                                 </td>
 
                                 <td>
-                                    <span class="admin-pedido-estado
-                                        {% if pedido.estado == 'Entregado' %}
-                                            admin-estado-entregado
-                                        {% elif pedido.estado == 'Enviado' %}
-                                            admin-estado-enviado
-                                        {% elif pedido.estado == 'En producción' %}
-                                            admin-estado-produccion
-                                        {% elif pedido.estado == 'Cancelado' %}
-                                            admin-estado-cancelado
-                                        {% else %}
-                                            admin-estado-pendiente
-                                        {% endif %}
-                                    ">
-                                        {{ pedido.estado }}
-                                    </span>
+
+                                    {% if estado == 'Pendiente' %}
+
+                                        <span class="estado estado-pendiente">
+                                            Pendiente
+                                        </span>
+
+                                    {% elif estado == 'Aceptado' %}
+
+                                        <span class="estado estado-aceptado">
+                                            Aceptado
+                                        </span>
+
+                                    {% elif estado == 'En producción' %}
+
+                                        <span class="estado estado-produccion">
+                                            En producción
+                                        </span>
+
+                                    {% elif estado == 'En pausa' %}
+
+                                        <span class="estado estado-pausa">
+                                            En pausa
+                                        </span>
+
+                                    {% elif estado == 'Listo para enviar' %}
+
+                                        <span class="estado estado-listo">
+                                            Listo para enviar
+                                        </span>
+
+                                    {% elif estado == 'Enviado' %}
+
+                                        <span class="estado estado-enviado">
+                                            Enviado
+                                        </span>
+
+                                    {% elif estado == 'Entregado' %}
+
+                                        <span class="estado estado-entregado">
+                                            Entregado
+                                        </span>
+
+                                    {% elif estado == 'Cancelado' %}
+
+                                        <span class="estado estado-cancelado">
+                                            Cancelado
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="estado estado-default">
+                                            {{ estado }}
+                                        </span>
+
+                                    {% endif %}
+
                                 </td>
 
                                 <td>
 
-                                    <form
-                                        method="POST"
-                                        action="{{ url_for('admin.actualizar_estado_pedido', pedido_id=pedido.id) }}"
-                                        class="admin-pedido-formulario-estado"
-                                    >
-
-                                        <select
-                                            name="estado"
-                                            aria-label="Nuevo estado del pedido {{ pedido.id }}"
-                                            required
-                                        >
-
-                                            {% for estado in estados_pedido %}
-
-                                                <option
-                                                    value="{{ estado }}"
-                                                    {% if pedido.estado == estado %}
-                                                        selected
-                                                    {% endif %}
-                                                >
-                                                    {{ estado }}
-                                                </option>
-
-                                            {% endfor %}
-
-                                        </select>
-
-                                        <button type="submit">
-                                            Guardar
-                                        </button>
-
-                                    </form>
-
                                     <a
-                                        class="admin-pedido-ver-detalle"
-                                        href="{{ url_for('admin.pedido_detalle', pedido_id=pedido.id) }}"
+                                        href="{{ url_for('cliente.detalle_pedido', pedido_id=pedido.id) }}"
+                                        class="btn-detalle"
                                     >
                                         Ver detalle
                                     </a>
@@ -271,20 +522,29 @@ Gestión de pedidos | Taller El Obrero
 
         {% else %}
 
-            <div class="admin-pedidos-vacio">
+            <div class="pedidos-vacios">
 
-                <span>📦</span>
+                <span class="icono">📦</span>
 
-                <h3>No hay pedidos para mostrar</h3>
+                <h3>Aún no tienes pedidos</h3>
 
                 <p>
-                    Cuando los clientes realicen compras,
-                    aparecerán aquí para su gestión.
+                    Cuando realices una compra, podrás consultar aquí
+                    el estado y el progreso de tu pedido.
                 </p>
+
+                <a href="{{ url_for('principal.inicio') }}"
+                   class="btn-catalogo">
+                    Explorar productos
+                </a>
 
             </div>
 
         {% endif %}
+
+        <a href="{{ url_for('cliente.inicio') }}" class="volver">
+            ← Volver a mi cuenta
+        </a>
 
     </div>
 
