@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Pagar pedido | Taller El Obrero
+{% endblock %}
+
+{% block contenido %}
+
+<style>
+    .pago-pagina {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 2.5rem 1.25rem 4rem;
+    }
+
+    .pago-encabezado h1 {
+        font-size: 2rem;
+        color: #7A4B24;
+        margin: 0 0 .4rem;
+    }
+
+    .pago-encabezado p {
+        color: #6b5b4b;
+        margin: 0 0 1.75rem;
+    }
+
+    .pago-rejilla {
+        display: grid;
+        grid-template-columns: 1.1fr .9fr;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 760px) {
+        .pago-rejilla {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .pago-tarjeta {
+        background: #fff;
+        border: 1px solid #D8C3A5;
+        border-radius: 14px;
+        padding: 1.5rem;
+    }
+
+    .pago-tarjeta h2 {
+        margin: 0 0 1rem;
+        font-size: 1.15rem;
+        color: #7A4B24;
+    }
+
+    .pago-fila {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: .55rem 0;
+        border-bottom: 1px dashed #E6D9C4;
+        font-size: .95rem;
+    }
+
+    .pago-fila:last-child {
+        border-bottom: none;
+    }
+
+    .pago-fila span {
+        color: #6b5b4b;
+    }
+
+    .pago-fila strong {
+        text-align: right;
+        word-break: break-all;
+    }
+
+    .pago-total {
+        margin-top: .75rem;
+        padding: 1rem;
+        background: #F7F0E6;
+        border-radius: 10px;
+    }
+
+    .pago-total .pago-fila {
+        border: none;
+        padding: .25rem 0;
+    }
+
+    .pago-total .grande {
+        font-size: 1.35rem;
+        color: #7A4B24;
+    }
+
+    .pago-boton {
+        display: block;
+        width: 100%;
+        margin-top: 1.1rem;
+        padding: .95rem 1rem;
+        border: none;
+        border-radius: 10px;
+        background: #7A4B24;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .pago-boton:hover:not(:disabled) {
+        background: #613b1c;
+    }
+
+    .pago-boton:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+    }
+
+    .pago-boton[hidden] {
+        display: none;
+    }
+
+    .pago-billetera {
+        margin-top: .75rem;
+        font-size: .9rem;
+        color: #6b5b4b;
+        min-height: 1.2rem;
+    }
+
+    .pago-estado {
+        margin-top: 1rem;
+        padding: .85rem 1rem;
+        border-radius: 10px;
+        font-size: .93rem;
+    }
+
+    .pago-estado[hidden] {
+        display: none;
+    }
+
+    .pago-estado-info {
+        background: #F7F0E6;
+        color: #5b3d1f;
+    }
+
+    .pago-estado-ok {
+        background: #e4f4e6;
+        color: #1f5d2b;
+    }
+
+    .pago-estado-error {
+        background: #fbe7e4;
+        color: #8a2a1c;
+    }
+
+    .pago-aviso {
+        margin-top: 1.25rem;
+        font-size: .85rem;
+        color: #6b5b4b;
+        line-height: 1.5;
+    }
+
+    .pago-mensajes p {
+        margin: 0 0 1rem;
+        padding: .85rem 1rem;
+        border-radius: 10px;
+        background: #fbe7e4;
+        color: #8a2a1c;
+    }
+
+    .pago-volver {
+        display: inline-block;
+        margin-top: 1.5rem;
+        color: #7A4B24;
+        text-decoration: none;
+        font-weight: 600;
+    }
+</style>
+
+<section class="pago-pagina">
+
+    <div class="pago-encabezado">
+        <h1>Paga tu pedido #{{ pedido.id }}</h1>
+        <p>
+            Tu pedido ya está registrado. Para continuar,
+            págalo con criptomoneda desde MetaMask.
+        </p>
+    </div>
+
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% if mensajes %}
+            <div class="pago-mensajes">
+                {% for categoria, mensaje in mensajes %}
+                    <p>{{ mensaje }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="pago-rejilla">
+
+        <!-- RESUMEN DEL PEDIDO -->
+        <div class="pago-tarjeta">
+
+            <h2>Resumen del pedido</h2>
+
+            <div class="pago-fila">
+                <span>Pedido</span>
+                <strong>#{{ pedido.id }}</strong>
+            </div>
+
+            <div class="pago-fila">
+                <span>Cantidad</span>
+                <strong>{{ pedido.cantidad }}</strong>
+            </div>
+
+            <div class="pago-fila">
+                <span>Subtotal</span>
+                <strong>${{ "{:,.0f}".format(pedido.subtotal|float).replace(",", ".") }}</strong>
+            </div>
+
+            <div class="pago-fila">
+                <span>IVA (19 %)</span>
+                <strong>${{ "{:,.0f}".format(pedido.iva|float).replace(",", ".") }}</strong>
+            </div>
+
+            <div class="pago-total">
+                <div class="pago-fila">
+                    <span>Total en pesos</span>
+                    <strong class="grande">${{ "{:,.0f}".format(pedido.total|float).replace(",", ".") }}</strong>
+                </div>
+
+                <div class="pago-fila">
+                    <span>Total a pagar en ETH</span>
+                    <strong class="grande">{{ monto_eth }} ETH</strong>
+                </div>
+            </div>
+
+            <p class="pago-aviso">
+                Tasa usada: 1 ETH = ${{ "{:,.0f}".format(tasa|float).replace(",", ".") }} COP.
+                El valor exacto se calcula en el servidor.
+            </p>
+        </div>
+
+        <!-- PAGO CON METAMASK -->
+        <div class="pago-tarjeta">
+
+            <h2>Pagar con MetaMask</h2>
+
+            <div class="pago-fila">
+                <span>Red</span>
+                <strong>
+                    {% if chain_id == 11155111 %}
+                        Sepolia (red de pruebas)
+                    {% else %}
+                        Red {{ chain_id }}
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div class="pago-fila">
+                <span>Billetera del taller</span>
+                <strong>{{ wallet_destino }}</strong>
+            </div>
+
+            <div
+                id="pago-cripto"
+                data-destino="{{ wallet_destino }}"
+                data-monto-wei="{{ monto_wei }}"
+                data-chain-id-hex="{{ chain_id_hex }}"
+                data-url-registrar="{{ url_for('pagos.registrar', pedido_id=pedido.id) }}"
+                data-url-verificar="{{ url_for('pagos.verificar', pedido_id=pedido.id) }}"
+                data-requeridas="{{ confirmaciones_requeridas }}"
+                data-tx-pendiente="{{ tx_pendiente }}"
+            >
+                <button
+                    type="button"
+                    id="btn-conectar"
+                    class="pago-boton"
+                >
+                    Conectar MetaMask
+                </button>
+
+                <button
+                    type="button"
+                    id="btn-pagar"
+                    class="pago-boton"
+                    hidden
+                >
+                    Pagar {{ monto_eth }} ETH
+                </button>
+
+                <div id="pago-billetera" class="pago-billetera"></div>
+
+                <div id="pago-estado" class="pago-estado" hidden></div>
+            </div>
+
+            {% if chain_id == 11155111 %}
+            <p class="pago-aviso">
+                Esta es una red de pruebas: se paga con ETH de prueba
+                (sin valor real). Necesitas tenerlo en tu billetera de
+                MetaMask en la red Sepolia.
+            </p>
+            {% endif %}
+
+            <p class="pago-aviso">
+                Cuando la red confirme tu pago, verás tu factura
+                aquí mismo y podrás descargarla en PDF.
+            </p>
+        </div>
+
+    </div>
+
+    <a
+        class="pago-volver"
+        href="{{ url_for('cliente.detalle_pedido', pedido_id=pedido.id) }}"
+    >
+        ← Pagar más tarde
+    </a>
+
+</section>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pago_cripto.js') }}"></script>
+{% endblock %}

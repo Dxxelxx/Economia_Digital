@@ -51,6 +51,7 @@ def create_app():
     from models.inventario import Inventario
     from models.produccion import Produccion
     from models.factura import Factura
+    from models.pago import Pago
 
     # =====================================================
     # RUTAS
@@ -67,6 +68,7 @@ def create_app():
     from routes.produccion import produccion
     from routes.facturacion import facturacion
     from routes.dashboard import dashboard
+    from routes.pagos import pagos
 
     # =====================================================
     # REGISTRAR BLUEPRINTS
@@ -117,6 +119,11 @@ def create_app():
     app.register_blueprint(
         dashboard,
         url_prefix="/dashboard"
+    )
+
+    app.register_blueprint(
+        pagos,
+        url_prefix="/pagos"
     )
 
     # =====================================================

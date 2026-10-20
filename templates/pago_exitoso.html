@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Pago confirmado | Taller El Obrero
+{% endblock %}
+
+{% block contenido %}
+
+<style>
+    .exito-pagina {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 2.5rem 1.25rem 4rem;
+    }
+
+    .exito-cabecera {
+        text-align: center;
+        margin-bottom: 1.75rem;
+    }
+
+    .exito-icono {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        background: #e4f4e6;
+        color: #1f5d2b;
+        font-size: 2rem;
+        line-height: 64px;
+        font-weight: 700;
+    }
+
+    .exito-cabecera h1 {
+        margin: 0 0 .4rem;
+        color: #7A4B24;
+        font-size: 1.9rem;
+    }
+
+    .exito-cabecera p {
+        margin: 0;
+        color: #6b5b4b;
+    }
+
+    .exito-tarjeta {
+        background: #fff;
+        border: 1px solid #D8C3A5;
+        border-radius: 14px;
+        padding: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .exito-tarjeta h2 {
+        margin: 0 0 1rem;
+        font-size: 1.15rem;
+        color: #7A4B24;
+    }
+
+    .exito-fila {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: .55rem 0;
+        border-bottom: 1px dashed #E6D9C4;
+        font-size: .95rem;
+    }
+
+    .exito-fila:last-child {
+        border-bottom: none;
+    }
+
+    .exito-fila span {
+        color: #6b5b4b;
+    }
+
+    .exito-fila strong {
+        text-align: right;
+        word-break: break-all;
+    }
+
+    .exito-sello {
+        display: inline-block;
+        padding: .2rem .7rem;
+        border-radius: 999px;
+        background: #e4f4e6;
+        color: #1f5d2b;
+        font-size: .8rem;
+        font-weight: 700;
+    }
+
+    .exito-acciones {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .75rem;
+        margin-top: 1.5rem;
+    }
+
+    .exito-boton {
+        flex: 1 1 220px;
+        text-align: center;
+        padding: .9rem 1rem;
+        border-radius: 10px;
+        font-weight: 700;
+        text-decoration: none;
+        background: #7A4B24;
+        color: #fff;
+    }
+
+    .exito-boton.secundario {
+        background: #F7F0E6;
+        color: #7A4B24;
+        border: 1px solid #D8C3A5;
+    }
+</style>
+
+<section class="exito-pagina">
+
+    <div class="exito-cabecera">
+        <div class="exito-icono">✓</div>
+        <h1>¡Pago confirmado!</h1>
+        <p>
+            Recibimos tu pago del pedido #{{ pedido.id }}.
+            Gracias por apoyar el trabajo artesanal.
+        </p>
+    </div>
+
+    <div class="exito-tarjeta">
+
+        <h2>Tu factura</h2>
+
+        {% if factura %}
+        <div class="exito-fila">
+            <span>Número de factura</span>
+            <strong>{{ factura.numero }}</strong>
+        </div>
+
+        <div class="exito-fila">
+            <span>Subtotal</span>
+            <strong>${{ "{:,.0f}".format(factura.subtotal|float).replace(",", ".") }}</strong>
+        </div>
+
+        <div class="exito-fila">
+            <span>IVA</span>
+            <strong>${{ "{:,.0f}".format(factura.iva|float).replace(",", ".") }}</strong>
+        </div>
+
+        <div class="exito-fila">
+            <span>Total</span>
+            <strong>${{ "{:,.0f}".format(factura.total|float).replace(",", ".") }}</strong>
+        </div>
+        {% endif %}
+
+        <div class="exito-fila">
+            <span>Estado del pago</span>
+            <strong><span class="exito-sello">PAGADA</span></strong>
+        </div>
+    </div>
+
+    <div class="exito-tarjeta">
+
+        <h2>Detalle del pago</h2>
+
+        <div class="exito-fila">
+            <span>Método</span>
+            <strong>{{ pago.metodo }}</strong>
+        </div>
+
+        <div class="exito-fila">
+            <span>Monto pagado</span>
+            <strong>{{ pago.monto_eth }} ETH</strong>
+        </div>
+
+        <div class="exito-fila">
+            <span>Red</span>
+            <strong>
+                {% if pago.chain_id == 11155111 %}
+                    Sepolia (red de pruebas)
+                {% else %}
+                    Red {{ pago.chain_id }}
+                {% endif %}
+            </strong>
+        </div>
+
+        <div class="exito-fila">
+            <span>Confirmaciones</span>
+            <strong>{{ pago.confirmaciones }}</strong>
+        </div>
+
+        <div class="exito-fila">
+            <span>Hash de la transacción</span>
+            <strong>{{ pago.tx_hash }}</strong>
+        </div>
+
+        {% if pago.fecha_confirmacion %}
+        <div class="exito-fila">
+            <span>Fecha de confirmación</span>
+            <strong>{{ pago.fecha_confirmacion.strftime("%d/%m/%Y %H:%M") }} UTC</strong>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="exito-acciones">
+
+        {% if factura %}
+        <a
+            class="exito-boton"
+            href="{{ url_for('cliente.descargar_mi_factura_pdf', factura_id=factura.id) }}"
+        >
+            Descargar factura en PDF
+        </a>
+        {% endif %}
+
+        <a
+            class="exito-boton secundario"
+            href="{{ url_for('cliente.detalle_pedido', pedido_id=pedido.id) }}"
+        >
+            Ver mi pedido
+        </a>
+
+        <a
+            class="exito-boton secundario"
+            href="{{ url_for('cliente.mis_facturas') }}"
+        >
+            Mis facturas
+        </a>
+    </div>
+
+</section>
+
+{% endblock %}
