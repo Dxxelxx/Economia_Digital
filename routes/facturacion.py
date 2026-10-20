@@ -14,6 +14,8 @@ from database.connection import db
 from models.factura import Factura
 from models.pedido import Pedido
 from models.cliente import Cliente
+from flask import send_file
+from utils.generar_factura_pdf import generar_factura_pdf
 
 
 facturacion = Blueprint(
@@ -149,4 +151,22 @@ def pedidos_pendientes():
     return render_template(
         "admin/pedidos_pendientes_facturacion.html",
         pedidos=pedidos
+    )
+
+@facturacion.route("/<int:factura_id>/pdf")
+def descargar_factura_pdf(factura_id):
+    acceso = administrador_requerido()
+
+    if acceso:
+        return acceso
+
+    factura = Factura.query.get_or_404(factura_id)
+
+    archivo = generar_factura_pdf(factura)
+
+    return send_file(
+        archivo,
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name=f"factura_{factura.numero}.pdf"
     )

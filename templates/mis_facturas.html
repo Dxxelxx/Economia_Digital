@@ -4,7 +4,6 @@
 Mis facturas | Taller El Obrero
 {% endblock %}
 
-
 {% block contenido %}
 
 <style>
@@ -219,7 +218,7 @@ Mis facturas | Taller El Obrero
     }
 
     /* ==========================================
-       TABLA PARA ESCRITORIO
+       TABLA
     ========================================== */
 
     .facturas-tabla-contenedor {
@@ -295,7 +294,7 @@ Mis facturas | Taller El Obrero
     }
 
     /* ==========================================
-       ESTADOS
+       ESTADOS DE FACTURA
     ========================================== */
 
     .factura-estado {
@@ -369,6 +368,7 @@ Mis facturas | Taller El Obrero
 
         white-space: nowrap;
         transition: 0.2s ease;
+        cursor: pointer;
     }
 
     .factura-boton:hover {
@@ -389,7 +389,7 @@ Mis facturas | Taller El Obrero
     }
 
     /* ==========================================
-       ESTADO VACÍO
+       ESTADO SIN FACTURAS
     ========================================== */
 
     .facturas-vacio {
@@ -445,6 +445,10 @@ Mis facturas | Taller El Obrero
         font-size: 11px;
         line-height: 1.7;
     }
+
+    /* ==========================================
+       AVISO TRIBUTARIO
+    ========================================== */
 
     .facturas-nota-tributaria {
         margin-top: 22px;
@@ -532,14 +536,12 @@ Mis facturas | Taller El Obrero
                 TALLER EL OBRERO · FACTURACIÓN
             </span>
 
-            <h1>
-                Mis facturas
-            </h1>
+            <h1>Mis facturas</h1>
 
             <p>
                 Consulta tus documentos de compra,
                 revisa los valores de tus pedidos y
-                accede a tus facturas disponibles
+                descarga tus facturas en formato PDF
                 desde un solo lugar.
             </p>
 
@@ -571,12 +573,9 @@ Mis facturas | Taller El Obrero
 
         <article class="factura-indicador">
 
-            <div class="indicador-icono">
-                🧾
-            </div>
+            <div class="indicador-icono">🧾</div>
 
             <div>
-
                 <p class="indicador-label">
                     Facturas registradas
                 </p>
@@ -584,7 +583,6 @@ Mis facturas | Taller El Obrero
                 <p class="indicador-valor">
                     {{ total_documentos }}
                 </p>
-
             </div>
 
         </article>
@@ -592,18 +590,14 @@ Mis facturas | Taller El Obrero
 
         <article class="factura-indicador">
 
-            <div class="indicador-icono">
-                💰
-            </div>
+            <div class="indicador-icono">💰</div>
 
             <div>
-
                 <p class="indicador-label">
                     Total facturado
                 </p>
 
                 <p class="indicador-valor monto">
-
                     ${{ "{:,.0f}".format(
                         total_facturado.valor
                     ).replace(",", ".") }}
@@ -611,9 +605,7 @@ Mis facturas | Taller El Obrero
                     <span style="font-size: 11px;">
                         COP
                     </span>
-
                 </p>
-
             </div>
 
         </article>
@@ -621,12 +613,9 @@ Mis facturas | Taller El Obrero
 
         <article class="factura-indicador">
 
-            <div class="indicador-icono">
-                📄
-            </div>
+            <div class="indicador-icono">📄</div>
 
             <div>
-
                 <p class="indicador-label">
                     Documentos disponibles
                 </p>
@@ -634,7 +623,6 @@ Mis facturas | Taller El Obrero
                 <p class="indicador-valor">
                     {{ facturas|length }}
                 </p>
-
             </div>
 
         </article>
@@ -649,15 +637,11 @@ Mis facturas | Taller El Obrero
     <div class="facturas-listado-cabecera">
 
         <div>
-
-            <h2>
-                Historial de facturación
-            </h2>
+            <h2>Historial de facturación</h2>
 
             <p>
                 Consulta los documentos asociados a tus compras.
             </p>
-
         </div>
 
         <span class="facturas-contador">
@@ -674,7 +658,6 @@ Mis facturas | Taller El Obrero
             <table class="facturas-tabla">
 
                 <thead>
-
                     <tr>
                         <th>Documento</th>
                         <th>Fecha</th>
@@ -682,7 +665,6 @@ Mis facturas | Taller El Obrero
                         <th>Total</th>
                         <th>Acciones</th>
                     </tr>
-
                 </thead>
 
                 <tbody>
@@ -691,6 +673,7 @@ Mis facturas | Taller El Obrero
 
                         <tr>
 
+                            <!-- Número de factura y pedido -->
                             <td>
 
                                 <span class="factura-numero">
@@ -704,27 +687,24 @@ Mis facturas | Taller El Obrero
                             </td>
 
 
+                            <!-- Fecha -->
                             <td>
 
                                 {% if factura.fecha %}
-
                                     {{ factura.fecha.strftime('%d/%m/%Y') }}
-
                                 {% else %}
-
                                     Fecha pendiente
-
                                 {% endif %}
 
                             </td>
 
 
+                            <!-- Estado -->
                             <td>
 
                                 {% set estado =
                                     (factura.estado_dian or 'PENDIENTE')|upper
                                 %}
-
 
                                 {% if estado in ['ACEPTADA', 'APROBADA'] %}
 
@@ -741,13 +721,13 @@ Mis facturas | Taller El Obrero
                                 {% elif estado == 'PENDIENTE' %}
 
                                     <span class="factura-estado estado-pendiente">
-                                        {{ factura.estado_dian }}
+                                        {{ factura.estado_dian or 'PENDIENTE' }}
                                     </span>
 
                                 {% else %}
 
                                     <span class="factura-estado estado-otro">
-                                        {{ factura.estado_dian }}
+                                        {{ factura.estado_dian or 'SIN ESTADO' }}
                                     </span>
 
                                 {% endif %}
@@ -755,14 +735,13 @@ Mis facturas | Taller El Obrero
                             </td>
 
 
+                            <!-- Total -->
                             <td>
 
                                 <span class="factura-total">
-
                                     ${{ "{:,.0f}".format(
                                         factura.total|float
                                     ).replace(",", ".") }}
-
                                 </span>
 
                                 <div class="factura-referencia">
@@ -772,32 +751,22 @@ Mis facturas | Taller El Obrero
                             </td>
 
 
+                            <!-- Descarga PDF -->
                             <td>
 
                                 <div class="factura-acciones">
 
-                                    {% if factura.pdf %}
-
-                                        <a
-                                            href="{{ url_for(
-                                                'facturacion.descargar_pdf_cliente',
-                                                factura_id=factura.id
-                                            ) }}"
-                                            class="factura-boton"
-                                        >
-                                            ↓ Descargar
-                                        </a>
-
-                                    {% else %}
-
-                                        <span
-                                            class="factura-boton factura-boton-secundario"
-                                            title="El PDF todavía no está disponible"
-                                        >
-                                            PDF pendiente
-                                        </span>
-
-                                    {% endif %}
+                                    <a
+                                        href="{{ url_for(
+                                            'cliente.descargar_mi_factura_pdf',
+                                            factura_id=factura.id
+                                        ) }}"
+                                        class="factura-boton"
+                                        title="Descargar factura en PDF"
+                                        aria-label="Descargar factura {{ factura.numero }} en PDF"
+                                    >
+                                        ↓ Descargar PDF
+                                    </a>
 
                                 </div>
 
@@ -833,7 +802,7 @@ Mis facturas | Taller El Obrero
             <p>
                 En este espacio podrás consultar el número de factura,
                 la fecha de emisión, los importes de tus compras
-                y descargar los documentos que estén disponibles.
+                y descargar los documentos correspondientes.
             </p>
 
             <a
@@ -853,6 +822,10 @@ Mis facturas | Taller El Obrero
 
     {% endif %}
 
+
+    <!-- ======================================
+         AVISO TRIBUTARIO
+    ======================================= -->
 
     <div class="facturas-nota-tributaria">
 
