@@ -12,45 +12,78 @@ from flask import (
 )
 
 from database.connection import db
+
 from models.producto import Producto
 from models.configuracion import Configuracion
 from models.pedido import Pedido
 from models.cliente import Cliente
+from models.factura import Factura
 
 
 pedidos = Blueprint("pedidos", __name__)
 
 
+# ==========================================================
+# OBTENER CLIENTE ACTUAL
+# ==========================================================
+
 def obtener_cliente_actual():
     """
-    Busca al cliente asociado con la sesión iniciada.
+    Busca el registro de cliente asociado al correo
+    electrónico almacenado en la sesión.
     """
 
-    email = session.get("usuario_email")
+    email = (
+        session.get("usuario_email") or ""
+    ).strip().lower()
 
     if not email:
         return None
 
-    return Cliente.query.filter_by(
-        email=email.lower()
+    return Cliente.query.filter(
+        db.func.lower(Cliente.email) == email
     ).first()
 
+
+# ==========================================================
+# LISTADO DE PEDIDOS
+# ==========================================================
 
 @pedidos.route("/")
 def mostrar_pedidos():
 
     if "usuario_id" not in session:
-        return redirect(url_for("auth.login"))
+        return redirect(
+            url_for("auth.login")
+        )
 
-    return redirect(url_for("cliente.mis_pedidos"))
+    if session.get("rol") != "cliente":
+        flash(
+            "No tienes permisos para acceder a los pedidos de clientes.",
+            "error"
+        )
+        return redirect(
+            url_for("principal.inicio")
+        )
+
+    return redirect(
+        url_for("cliente.mis_pedidos")
+    )
 
 
-@pedidos.route("/comprar/<int:producto_id>", methods=["GET", "POST"])
+# ==========================================================
+# COMPRAR PRODUCTO
+# ==========================================================
+
+@pedidos.route(
+    "/comprar/<int:producto_id>",
+    methods=["GET", "POST"]
+)
 def comprar(producto_id):
 
-    # --------------------------------------------------
-    # 1. Verificar sesión
-    # --------------------------------------------------
+    # ------------------------------------------------------
+    # 1. VERIFICAR SESIÓN
+    # ------------------------------------------------------
 
     if "usuario_id" not in session:
         return redirect(
@@ -68,11 +101,14 @@ def comprar(producto_id):
             "Solo los clientes pueden realizar compras.",
             "error"
         )
-        return redirect(url_for("principal.inicio"))
 
-    # --------------------------------------------------
-    # 2. Buscar producto
-    # --------------------------------------------------
+        return redirect(
+            url_for("principal.inicio")
+        )
+
+    # ------------------------------------------------------
+    # 2. BUSCAR PRODUCTO
+    # ------------------------------------------------------
 
     producto = Producto.query.get_or_404(producto_id)
 
@@ -81,37 +117,45 @@ def comprar(producto_id):
             "Este producto no está disponible actualmente.",
             "error"
         )
-        return redirect(url_for("principal.inicio"))
 
+        return redirect(
+            url_for("principal.inicio")
+        )
+
+    # Mostrar formulario de compra.
     if request.method == "GET":
         return render_template(
             "confirmar_compra.html",
             producto=producto
         )
 
-    # --------------------------------------------------
-    # 3. Validar cantidad
-    # --------------------------------------------------
+    # ------------------------------------------------------
+    # 3. VALIDAR CANTIDAD
+    # ------------------------------------------------------
 
     try:
-        cantidad = int(request.form.get("cantidad", "1"))
+        cantidad = int(
+            request.form.get("cantidad", "1")
+        )
 
         if cantidad < 1 or cantidad > 100:
             raise ValueError
 
     except (ValueError, TypeError):
+
         flash(
             "Selecciona una cantidad válida entre 1 y 100.",
             "error"
         )
+
         return render_template(
             "confirmar_compra.html",
             producto=producto
         )
 
-    # --------------------------------------------------
-    # 4. Obtener datos del cliente
-    # --------------------------------------------------
+    # ------------------------------------------------------
+    # 4. OBTENER DATOS DEL CLIENTE
+    # ------------------------------------------------------
 
     email = (
         session.get("usuario_email") or ""
@@ -127,7 +171,10 @@ def comprar(producto_id):
             "Inicia sesión nuevamente.",
             "error"
         )
-        return redirect(url_for("auth.login"))
+
+        return redirect(
+            url_for("auth.login")
+        )
 
     cliente_actual = obtener_cliente_actual()
 
@@ -143,9 +190,9 @@ def comprar(producto_id):
         request.form.get("direccion") or ""
     ).strip()
 
-    # --------------------------------------------------
-    # 5. Crear o actualizar el registro del cliente
-    # --------------------------------------------------
+    # ------------------------------------------------------
+    # 5. CREAR O ACTUALIZAR CLIENTE
+    # ------------------------------------------------------
 
     if cliente_actual is None:
 
@@ -154,6 +201,7 @@ def comprar(producto_id):
                 "Debes ingresar tu documento para registrar la compra.",
                 "error"
             )
+
             return render_template(
                 "confirmar_compra.html",
                 producto=producto
@@ -169,6 +217,7 @@ def comprar(producto_id):
                 "a otro registro de cliente. Verifica tus datos.",
                 "error"
             )
+
             return render_template(
                 "confirmar_compra.html",
                 producto=producto
@@ -192,26 +241,29 @@ def comprar(producto_id):
         if direccion:
             cliente_actual.direccion = direccion
 
-        # El documento no se cambia automáticamente.
-        # Si ya existe un cliente, se conserva su registro.
+        # Se conserva el documento que ya existe.
 
-    # --------------------------------------------------
-    # 6. Calcular los valores
-    # --------------------------------------------------
+    # ------------------------------------------------------
+    # 6. CALCULAR SUBTOTAL, IVA Y TOTAL
+    # ------------------------------------------------------
 
     try:
-        precio_unitario = Decimal(str(producto.precio_base))
+        precio_unitario = Decimal(
+            str(producto.precio_base)
+        )
 
         if precio_unitario <= 0:
             raise ValueError
 
     except (InvalidOperation, ValueError, TypeError):
+
+        db.session.rollback()
+
         flash(
             "El precio de este producto no es válido. "
             "Contacta al administrador.",
             "error"
         )
-        db.session.rollback()
 
         return redirect(
             url_for(
@@ -220,22 +272,30 @@ def comprar(producto_id):
             )
         )
 
-    subtotal = (precio_unitario * cantidad).quantize(
+    subtotal = (
+        precio_unitario * cantidad
+    ).quantize(
         Decimal("0.01")
     )
 
-    iva = (subtotal * Decimal("0.19")).quantize(
+    iva = (
+        subtotal * Decimal("0.19")
+    ).quantize(
         Decimal("0.01")
     )
 
-    total = subtotal + iva
+    total = (
+        subtotal + iva
+    ).quantize(
+        Decimal("0.01")
+    )
 
-    # --------------------------------------------------
-    # 7. Crear configuración básica del producto
-    # --------------------------------------------------
-    # Pedido exige configuracion_id. Para una compra del
-    # catálogo se registra una configuración estándar.
-    # No se obliga al cliente a utilizar el configurador.
+    # ------------------------------------------------------
+    # 7. CREAR CONFIGURACIÓN ESTÁNDAR
+    # ------------------------------------------------------
+    # El modelo Pedido exige configuracion_id.
+    # Por eso se crea una configuración básica para
+    # las compras realizadas desde el catálogo.
 
     configuracion = Configuracion(
         producto_id=producto.id,
@@ -248,21 +308,25 @@ def comprar(producto_id):
         dias_entrega=5
     )
 
+    # ------------------------------------------------------
+    # 8. CREAR PEDIDO Y FACTURA EN UNA TRANSACCIÓN
+    # ------------------------------------------------------
+
     try:
+
+        # Guardar el cliente si es nuevo y obtener su ID.
+        db.session.flush()
+
+        # Crear la configuración.
         db.session.add(configuracion)
         db.session.flush()
 
-        # Obtener el ID del cliente creado o existente.
-        db.session.flush()
-
-        # --------------------------------------------------
-        # 8. Crear el pedido
-        # --------------------------------------------------
-
+        # Calcular fecha de entrega.
         fecha_entrega = (
             datetime.utcnow() + timedelta(days=5)
         ).date()
 
+        # Crear el pedido.
         nuevo_pedido = Pedido(
             cliente_id=cliente_actual.id,
             configuracion_id=configuracion.id,
@@ -275,11 +339,49 @@ def comprar(producto_id):
         )
 
         db.session.add(nuevo_pedido)
+
+        # Obtener el ID del pedido sin confirmar
+        # todavía la transacción.
+        db.session.flush()
+
+        # --------------------------------------------------
+        # 9. GENERAR NÚMERO Y CREAR FACTURA
+        # --------------------------------------------------
+
+        numero_factura = (
+            f"FE-{nuevo_pedido.id:06d}"
+        )
+
+        nueva_factura = Factura(
+            pedido_id=nuevo_pedido.id,
+            numero=numero_factura,
+            prefijo="FE",
+            fecha=datetime.utcnow(),
+            subtotal=subtotal,
+            iva=iva,
+            total=total,
+            estado_dian="PENDIENTE"
+        )
+
+        db.session.add(nueva_factura)
+
+        # --------------------------------------------------
+        # 10. GUARDAR TODA LA OPERACIÓN
+        # --------------------------------------------------
+        # Si algo falla antes de este commit, el except
+        # ejecutará rollback y evitará guardar una compra
+        # incompleta.
+
         db.session.commit()
+
+        # --------------------------------------------------
+        # 11. CONFIRMAR COMPRA
+        # --------------------------------------------------
 
         flash(
             f"¡Compra registrada! Tu pedido es el "
-            f"#{nuevo_pedido.id}.",
+            f"#{nuevo_pedido.id} y tu factura es "
+            f"{numero_factura}.",
             "success"
         )
 
@@ -291,13 +393,17 @@ def comprar(producto_id):
         )
 
     except Exception as error:
+
         db.session.rollback()
 
-        print("ERROR AL REGISTRAR LA COMPRA:", error)
+        print(
+            "ERROR AL REGISTRAR PEDIDO Y FACTURA:",
+            error
+        )
 
         flash(
-            "No se pudo registrar la compra. "
-            "Verifica tus datos e inténtalo nuevamente.",
+            "No se pudo registrar la compra y generar "
+            "su factura. Verifica los datos e inténtalo nuevamente.",
             "error"
         )
 

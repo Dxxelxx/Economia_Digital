@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Detalle de factura | Taller El Obrero</title>
+    <title>Detalle del pedido | Taller El Obrero</title>
 
     <style>
         :root {
@@ -15,7 +15,6 @@
             --texto: #f7efe3;
             --secundario: #c0b09e;
             --borde: #493629;
-            --verde: #76c99a;
         }
 
         * {
@@ -43,13 +42,12 @@
             background: var(--panel);
         }
 
-        h1,
-        h2 {
+        h1, h2 {
             color: var(--dorado-claro);
         }
 
         h1 {
-            margin-top: 0;
+            margin-top: 25px;
             font-size: 28px;
         }
 
@@ -59,16 +57,17 @@
 
         .subtitulo {
             color: var(--secundario);
+            line-height: 1.6;
         }
 
         .rejilla {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 18px;
+            gap: 15px;
         }
 
         .dato {
-            padding: 14px;
+            padding: 15px;
             border: 1px solid var(--borde);
             border-radius: 9px;
             overflow-wrap: anywhere;
@@ -87,7 +86,7 @@
 
         .total {
             color: var(--dorado-claro);
-            font-size: 25px !important;
+            font-size: 23px !important;
         }
 
         .boton {
@@ -98,33 +97,11 @@
             background: #30231b;
             color: var(--texto);
             text-decoration: none;
-            cursor: pointer;
         }
 
         .boton:hover {
             border-color: var(--dorado);
-        }
-
-        .archivos {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .bloque {
-            margin-top: 15px;
-            padding: 15px;
-            background: #19130f;
-            border: 1px solid var(--borde);
-            border-radius: 9px;
-        }
-
-        .bloque pre {
-            white-space: pre-wrap;
-            overflow-wrap: anywhere;
-            max-height: 300px;
-            overflow: auto;
-            color: var(--secundario);
+            color: var(--dorado-claro);
         }
 
         @media (max-width: 600px) {
@@ -140,47 +117,59 @@
 </head>
 
 <body>
+
 <div class="contenedor">
 
     <section class="panel">
-        <a class="boton"
-           href="{{ url_for('facturacion.mostrar_facturacion') }}">
-            ← Volver a facturación
+
+        <a
+            class="boton"
+            href="{{ url_for('admin.pedidos') }}"
+        >
+            ← Volver a pedidos
         </a>
 
-        <h1 style="margin-top:24px;">
-            Factura {{ factura.numero }}
-        </h1>
+        <h1>Pedido #{{ pedido.id }}</h1>
 
         <p class="subtitulo">
-            Detalle de la factura registrada en Taller El Obrero.
+            Información del pedido registrado en Taller El Obrero.
         </p>
+
     </section>
 
+
     <section class="panel">
+
         <h2>Información general</h2>
 
         <div class="rejilla">
+
             <div class="dato">
-                <span>Número de factura</span>
-                <strong>{{ factura.numero }}</strong>
+                <span>Número de pedido</span>
+                <strong>#{{ pedido.id }}</strong>
             </div>
 
             <div class="dato">
-                <span>Prefijo</span>
-                <strong>{{ factura.prefijo or 'No especificado' }}</strong>
+                <span>Estado</span>
+                <strong>{{ pedido.estado }}</strong>
             </div>
 
             <div class="dato">
-                <span>Pedido asociado</span>
-                <strong>#{{ factura.pedido_id }}</strong>
-            </div>
-
-            <div class="dato">
-                <span>Fecha de emisión registrada</span>
+                <span>Fecha del pedido</span>
                 <strong>
-                    {% if factura.fecha %}
-                        {{ factura.fecha.strftime('%d/%m/%Y %H:%M') }}
+                    {% if pedido.fecha_pedido %}
+                        {{ pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M') }}
+                    {% else %}
+                        No registrada
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div class="dato">
+                <span>Fecha estimada de entrega</span>
+                <strong>
+                    {% if pedido.fecha_entrega %}
+                        {{ pedido.fecha_entrega.strftime('%d/%m/%Y') }}
                     {% else %}
                         No especificada
                     {% endif %}
@@ -188,85 +177,131 @@
             </div>
 
             <div class="dato">
-                <span>Estado DIAN registrado</span>
-                <strong>{{ factura.estado_dian or 'PENDIENTE' }}</strong>
+                <span>Cliente</span>
+                <strong>
+                    {{ pedido.cliente.nombre
+                       if pedido.cliente
+                       else 'No disponible' }}
+                </strong>
             </div>
 
             <div class="dato">
-                <span>CUFE</span>
-                <strong>{{ factura.cufe or 'No registrado' }}</strong>
+                <span>Correo electrónico</span>
+                <strong>
+                    {{ pedido.cliente.email
+                       if pedido.cliente and pedido.cliente.email
+                       else 'No disponible' }}
+                </strong>
             </div>
+
+            <div class="dato">
+                <span>Cantidad</span>
+                <strong>{{ pedido.cantidad }}</strong>
+            </div>
+
+            <div class="dato">
+                <span>Configuración asociada</span>
+                <strong>
+                    {% if pedido.configuracion %}
+                        {{ pedido.configuracion.color or 'Estándar' }}
+                    {% else %}
+                        No disponible
+                    {% endif %}
+                </strong>
+            </div>
+
         </div>
+
     </section>
 
+
     <section class="panel">
+
         <h2>Resumen económico</h2>
 
         <div class="rejilla">
+
             <div class="dato">
                 <span>Subtotal</span>
                 <strong>
-                    ${{ "{:,.2f}".format(factura.subtotal) }}
+                    ${{ "{:,.2f}".format(pedido.subtotal|float) }}
                 </strong>
             </div>
 
             <div class="dato">
                 <span>IVA</span>
                 <strong>
-                    ${{ "{:,.2f}".format(factura.iva) }}
+                    ${{ "{:,.2f}".format(pedido.iva|float) }}
                 </strong>
             </div>
 
             <div class="dato">
-                <span>Total de la factura</span>
+                <span>Total del pedido</span>
                 <strong class="total">
-                    ${{ "{:,.2f}".format(factura.total) }}
+                    ${{ "{:,.2f}".format(pedido.total|float) }}
                 </strong>
             </div>
+
         </div>
+
     </section>
 
+
     <section class="panel">
-        <h2>Documentos de la factura</h2>
 
-        <div class="archivos">
-            {% if factura.pdf %}
-                <a
-                    class="boton"
-                    href="{{ url_for('static', filename=factura.pdf) }}"
-                    target="_blank"
-                    rel="noopener"
-                >
-                    📄 Consultar PDF
-                </a>
-            {% endif %}
+        <h2>Facturación</h2>
 
-            {% if factura.qr %}
-                <a
-                    class="boton"
-                    href="{{ factura.qr }}"
-                    target="_blank"
-                    rel="noopener"
-                >
-                    Consultar QR
-                </a>
-            {% endif %}
-        </div>
+        {% if pedido.factura %}
 
-        {% if factura.xml %}
-            <div class="bloque">
-                <strong>XML registrado</strong>
-                <pre>{{ factura.xml }}</pre>
-            </div>
-        {% endif %}
-
-        {% if not factura.pdf and not factura.qr and not factura.xml %}
             <p class="subtitulo">
-                Esta factura todavía no tiene archivos PDF, XML o QR registrados.
+                Este pedido ya tiene una factura asociada.
             </p>
+
+            <div class="rejilla">
+
+                <div class="dato">
+                    <span>Número de factura</span>
+                    <strong>{{ pedido.factura.numero }}</strong>
+                </div>
+
+                <div class="dato">
+                    <span>Estado de facturación</span>
+                    <strong>
+                        {{ pedido.factura.estado_dian or 'PENDIENTE' }}
+                    </strong>
+                </div>
+
+            </div>
+
+            <p style="margin-top: 20px;">
+
+                <a
+                    class="boton"
+                    href="{{ url_for(
+                        'facturacion.detalle_factura',
+                        factura_id=pedido.factura.id
+                    ) }}"
+                >
+                    Consultar factura
+                </a>
+
+            </p>
+
+        {% else %}
+
+            <p class="subtitulo">
+                Este pedido todavía no tiene una factura asociada.
+            </p>
+
+            <p class="subtitulo">
+                Cuando se genere la factura, aparecerá aquí.
+            </p>
+
         {% endif %}
+
     </section>
 
 </div>
+
 </body>
 </html>

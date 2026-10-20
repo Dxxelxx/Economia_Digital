@@ -212,6 +212,35 @@ def pedidos():
 
 
 # =========================================================
+# DETALLE DE UN PEDIDO
+# =========================================================
+
+@admin.route("/pedidos/<int:pedido_id>")
+def detalle_pedido(pedido_id):
+
+    acceso = administrador_requerido()
+
+    if acceso:
+        return acceso
+
+    pedido = db.session.get(Pedido, pedido_id)
+
+    if pedido is None:
+
+        flash(
+            "El pedido solicitado no existe.",
+            "error"
+        )
+
+        return redirect(url_for("admin.pedidos"))
+
+    return render_template(
+        "admin/detalle_pedido.html",
+        pedido=pedido
+    )
+
+
+# =========================================================
 # ACTUALIZAR ESTADO DEL PEDIDO
 # =========================================================
 
@@ -335,7 +364,9 @@ def actualizar_estado_pedido(pedido_id):
 
 
 # =========================================================
-# INVENTARIO
+# INVENTARIO, PRODUCCIÓN Y FACTURACIÓN
+# Estas secciones tienen su propio módulo; aquí solo se
+# redirige para que los enlaces del panel funcionen.
 # =========================================================
 
 @admin.route("/inventario")
@@ -346,14 +377,8 @@ def inventario():
     if acceso:
         return acceso
 
-    return render_template(
-        "admin/inventario.html"
-    )
+    return redirect(url_for("inventario.mostrar_inventario"))
 
-
-# =========================================================
-# PRODUCCIÓN
-# =========================================================
 
 @admin.route("/produccion")
 def produccion():
@@ -363,14 +388,8 @@ def produccion():
     if acceso:
         return acceso
 
-    return render_template(
-        "admin/produccion.html"
-    )
+    return redirect(url_for("produccion.mostrar_produccion"))
 
-
-# =========================================================
-# FACTURACIÓN
-# =========================================================
 
 @admin.route("/facturacion")
 def facturacion():
@@ -380,6 +399,4 @@ def facturacion():
     if acceso:
         return acceso
 
-    return render_template(
-        "admin/facturacion.html"
-    )
+    return redirect(url_for("facturacion.mostrar_facturacion"))

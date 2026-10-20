@@ -126,47 +126,83 @@ def detalle_factura(factura_id):
     )
 
 
-# =====================================================
-# CONSULTAR PEDIDOS SIN FACTURA
-# =====================================================
+# ==========================================================
+# FACTURAS PENDIENTES DE PROCESAMIENTO
+# ==========================================================
 
 @facturacion.route("/pedidos-pendientes")
 def pedidos_pendientes():
+
     acceso = administrador_requerido()
 
     if acceso:
         return acceso
 
-    pedidos = (
-        Pedido.query
-        .outerjoin(
-            Factura,
-            Factura.pedido_id == Pedido.id
+    try:
+        # Buscar las facturas pendientes y recuperar
+        # los datos de su pedido y su cliente.
+        resultados = (
+            db.session.query(
+                Factura,
+                Pedido,
+                Cliente
+            )
+            .join(
+                Pedido,
+                Factura.pedido_id == Pedido.id
+            )
+            .join(
+                Cliente,
+                Pedido.cliente_id == Cliente.id
+            )
+            .filter(
+                Factura.estado_dian == "PENDIENTE"
+            )
+            .order_by(
+                Factura.fecha.desc()
+            )
+            .all()
         )
-        .filter(Factura.id.is_(None))
-        .order_by(Pedido.fecha_pedido.desc())
-        .all()
-    )
 
-    return render_template(
-        "admin/pedidos_pendientes_facturacion.html",
-        pedidos=pedidos
-    )
+        # Cada elemento contiene:
+        # (factura, pedido, cliente)
+        facturas_pendientes = [
+            {
+                "factura": factura,
+                "pedido": pedido,
+                "cliente": cliente
+            }
+            for factura, pedido, cliente in resultados
+        ]
 
-@facturacion.route("/<int:factura_id>/pdf")
-def descargar_factura_pdf(factura_id):
-    acceso = administrador_requerido()
+        total_pendiente = sum(
+            (
+                factura.total or 0
+                for factura, pedido, cliente in resultados
+            ),
+            start=0
+        )
 
-    if acceso:
-        return acceso
+        return render_template(
+            "admin/pedidos_pendientes_facturacion.html",
+            facturas_pendientes=facturas_pendientes,
+            total_pendiente=total_pendiente
+        )
 
-    factura = Factura.query.get_or_404(factura_id)
+    except Exception as error:
 
-    archivo = generar_factura_pdf(factura)
+        db.session.rollback()
 
-    return send_file(
-        archivo,
-        mimetype="application/pdf",
-        as_attachment=True,
-        download_name=f"factura_{factura.numero}.pdf"
-    )
+        print(
+            "ERROR AL CONSULTAR FACTURAS PENDIENTES:",
+            error
+        )
+
+        flash(
+            "No fue posible cargar las facturas pendientes.",
+            "error"
+        )
+
+        return redirect(
+            url_for("facturacion.mostrar_facturacion")
+        )

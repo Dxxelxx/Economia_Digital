@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Facturas pendientes | Taller El Obrero</title>
+
+    <style>
+        :root {
+            --fondo: #171310;
+            --panel: #241b15;
+            --tarjeta: #30231b;
+            --borde: #4c3929;
+            --dorado: #d6a756;
+            --crema: #f4ead8;
+            --secundario: #c2b4a1;
+            --verde: #86d5a6;
+            --rojo: #f18b7e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--fondo);
+            color: var(--crema);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.5;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .contenedor {
+            width: min(1400px, 94%);
+            margin: auto;
+            padding: 32px 0 45px;
+        }
+
+        .encabezado {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 18px;
+            padding-bottom: 24px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--borde);
+        }
+
+        .marca {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            background: var(--dorado);
+            color: #21170d;
+            font-weight: bold;
+            font-size: 22px;
+        }
+
+        h1 {
+            font-size: 25px;
+        }
+
+        .subtitulo {
+            color: var(--secundario);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .acciones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .boton {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--borde);
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .boton:hover {
+            transform: translateY(-1px);
+        }
+
+        .boton-principal {
+            background: var(--dorado);
+            color: #21170d;
+            border-color: var(--dorado);
+        }
+
+        .boton-secundario {
+            color: var(--crema);
+            background: transparent;
+        }
+
+        .introduccion {
+            margin-bottom: 25px;
+        }
+
+        .introduccion h2 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .introduccion p {
+            color: var(--secundario);
+            max-width: 800px;
+        }
+
+        .estadisticas {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .estadistica {
+            background: var(--tarjeta);
+            border: 1px solid var(--borde);
+            border-radius: 12px;
+            padding: 22px;
+        }
+
+        .estadistica span {
+            color: var(--secundario);
+            font-size: 13px;
+        }
+
+        .estadistica strong {
+            display: block;
+            margin-top: 8px;
+            font-size: 27px;
+            color: var(--dorado);
+            overflow-wrap: anywhere;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--borde);
+            border-radius: 13px;
+            overflow: hidden;
+        }
+
+        .panel-encabezado {
+            padding: 21px 23px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--borde);
+        }
+
+        .panel-encabezado p {
+            color: var(--secundario);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .tabla-contenedor {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #201812;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            color: var(--secundario);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 17px 15px;
+            border-top: 1px solid var(--borde);
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: #35271e;
+        }
+
+        .numero {
+            color: var(--dorado);
+            font-weight: bold;
+        }
+
+        .secundario {
+            display: block;
+            color: var(--secundario);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .estado {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            color: var(--dorado);
+            background: rgba(214, 167, 86, 0.12);
+            border: 1px solid rgba(214, 167, 86, 0.35);
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .importe {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .vacio {
+            padding: 55px 20px;
+            text-align: center;
+        }
+
+        .vacio h3 {
+            margin-bottom: 8px;
+            font-size: 21px;
+        }
+
+        .vacio p {
+            color: var(--secundario);
+            margin-bottom: 20px;
+        }
+
+        .mensajes {
+            margin-bottom: 20px;
+        }
+
+        .mensaje {
+            margin-bottom: 10px;
+            padding: 13px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--borde);
+            background: var(--panel);
+        }
+
+        .mensaje.success {
+            color: var(--verde);
+        }
+
+        .mensaje.error {
+            color: var(--rojo);
+        }
+
+        .pie {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            color: var(--secundario);
+            font-size: 12px;
+            margin-top: 24px;
+        }
+
+        @media (max-width: 760px) {
+            .estadisticas {
+                grid-template-columns: 1fr;
+            }
+
+            .introduccion h2 {
+                font-size: 25px;
+            }
+
+            .encabezado {
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="contenedor">
+
+    <header class="encabezado">
+
+        <div class="marca">
+            <div class="logo">TO</div>
+
+            <div>
+                <h1>Taller El Obrero</h1>
+                <p class="subtitulo">
+                    Administración · Gestión de facturación
+                </p>
+            </div>
+        </div>
+
+        <div class="acciones">
+            <a
+                href="{{ url_for('admin.dashboard') }}"
+                class="boton boton-secundario"
+            >
+                Panel principal
+            </a>
+
+            <a
+                href="{{ url_for('facturacion.mostrar_facturacion') }}"
+                class="boton boton-principal"
+            >
+                Ver todas las facturas
+            </a>
+        </div>
+
+    </header>
+
+
+    <section class="introduccion">
+        <h2>Facturas pendientes</h2>
+
+        <p>
+            Aquí aparecen las facturas que ya fueron creadas al registrar
+            una compra y que todavía tienen estado PENDIENTE. Puedes
+            consultar el pedido asociado a cada factura.
+        </p>
+    </section>
+
+
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% if mensajes %}
+            <div class="mensajes">
+                {% for categoria, mensaje in mensajes %}
+                    <div class="mensaje {{ categoria }}">
+                        {{ mensaje }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+
+    <section class="estadisticas">
+
+        <article class="estadistica">
+            <span>Facturas pendientes</span>
+            <strong>{{ facturas_pendientes|length }}</strong>
+        </article>
+
+        <article class="estadistica">
+            <span>Importe total pendiente</span>
+            <strong>
+                ${{ "{:,.2f}".format(total_pendiente|float) }}
+            </strong>
+        </article>
+
+        <article class="estadistica">
+            <span>Estado del proceso</span>
+            <strong>
+                {% if facturas_pendientes %}
+                    Pendiente
+                {% else %}
+                    Al día
+                {% endif %}
+            </strong>
+        </article>
+
+    </section>
+
+
+    <section class="panel">
+
+        <div class="panel-encabezado">
+            <div>
+                <h3>Listado de facturas</h3>
+                <p>
+                    Se muestran facturas con estado PENDIENTE.
+                </p>
+            </div>
+        </div>
+
+
+        {% if facturas_pendientes %}
+
+            <div class="tabla-contenedor">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Número de factura</th>
+                            <th>Pedido</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Total</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for item in facturas_pendientes %}
+
+                            {% set factura = item.factura %}
+                            {% set pedido = item.pedido %}
+                            {% set cliente = item.cliente %}
+
+                            <tr>
+
+                                <td>
+                                    <span class="numero">
+                                        {{ factura.numero }}
+                                    </span>
+
+                                    <span class="secundario">
+                                        ID factura: {{ factura.id }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="numero">
+                                        #{{ pedido.id }}
+                                    </span>
+
+                                    <span class="secundario">
+                                        {{ pedido.cantidad }} unidad(es)
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        {{ cliente.nombre or 'Sin nombre' }}
+                                    </strong>
+
+                                    <span class="secundario">
+                                        {{ cliente.documento or 'Sin documento' }}
+                                    </span>
+
+                                    <span class="secundario">
+                                        {{ cliente.email or 'Sin correo' }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {% if factura.fecha %}
+                                        {{ factura.fecha.strftime('%d/%m/%Y') }}
+
+                                        <span class="secundario">
+                                            {{ factura.fecha.strftime('%H:%M') }}
+                                        </span>
+                                    {% else %}
+                                        No registrada
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <span class="estado">
+                                        {{ factura.estado_dian or 'PENDIENTE' }}
+                                    </span>
+                                </td>
+
+                                <td class="importe">
+                                    ${{ "{:,.2f}".format(
+                                        factura.total|float
+                                    ) }}
+                                </td>
+
+                                <td>
+                                    <a
+                                        href="{{ url_for(
+                                            'admin.detalle_pedido',
+                                            pedido_id=pedido.id
+                                        ) }}"
+                                        class="boton boton-principal"
+                                    >
+                                        Ver pedido
+                                    </a>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="vacio">
+                <h3>No hay facturas pendientes</h3>
+
+                <p>
+                    No se encontraron facturas con estado PENDIENTE.
+                    Las nuevas compras aparecerán aquí cuando se registren
+                    sus facturas con ese estado.
+                </p>
+
+                <a
+                    href="{{ url_for('facturacion.mostrar_facturacion') }}"
+                    class="boton boton-principal"
+                >
+                    Volver a facturación
+                </a>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <footer class="pie">
+        <span>Taller El Obrero · Sistema de gestión</span>
+        <span>Administración de facturación</span>
+    </footer>
+
+</main>
+
+</body>
+</html>
