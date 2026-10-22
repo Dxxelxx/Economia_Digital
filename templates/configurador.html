@@ -61,6 +61,11 @@ Personaliza tu producto | Taller El Obrero
             >
             </div>
 
+            <p id="estado-modelo-3d" role="status" aria-live="polite"
+               style="padding: 10px 14px; margin: 0; font-size: 13px; color: #76664e;">
+                Cargando modelo 3D…
+            </p>
+
 
             <div class="visor-inferior">
 
@@ -394,13 +399,22 @@ Personaliza tu producto | Taller El Obrero
 
 {% block scripts %}
 
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+  }
+}
+</script>
+
 <script type="module">
 
-import * as THREE from
-"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+import * as THREE from "three";
 
-import { OrbitControls } from
-"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 
 /* =========================================
@@ -545,405 +559,156 @@ escena.add(luzSecundaria);
 
 
 /* =========================================
-   GRUPO DEL PRODUCTO
+   GRUPO DEL PRODUCTO Y CARGADOR GLB
 ========================================= */
 
-const producto3D =
-    new THREE.Group();
+const producto3D = new THREE.Group();
+escena.add(producto3D);
+const cargadorGLB = new GLTFLoader();
 
+const rutasModelos = {
+    zapato: "/static/models/zapato.glb",
+    bolso: "/static/models/bolso.glb",
+    sombrero: "/static/models/sombrero.glb"
+};
 
-escena.add(
-    producto3D
-);
+let colorActual = "#6b4226";
+let materialActual = "cuero";
+let herrajeActual = "dorado";
+let suelaActual = "clasica";
+let productoActual = document.getElementById("producto").value || "zapato";
+let modeloCargado = null;
+let solicitudModelo = 0;
 
-
-/* =========================================
-   VARIABLES
-========================================= */
-
-let colorActual =
-    "#6b4226";
-
-let materialActual =
-    "cuero";
-
-let herrajeActual =
-    "dorado";
-
-let suelaActual =
-    "clasica";
-
-let productoActual =
-    "zapato";
-
-
-/* =========================================
-   MATERIALES
-========================================= */
-
-function crearMaterial(
-    color
-) {
-
-    let roughness = 0.65;
-
-    if (
-        materialActual === "cuero"
-    ) {
-
-        roughness = 0.55;
-
-    }
-
-    if (
-        materialActual === "ante"
-    ) {
-
-        roughness = 0.9;
-
-    }
-
-    if (
-        materialActual === "sintetico"
-    ) {
-
-        roughness = 0.35;
-
-    }
-
-
+function crearMaterial(color) {
+    const roughness = materialActual === "ante" ? 0.9 :
+        materialActual === "sintetico" ? 0.35 : 0.55;
     return new THREE.MeshStandardMaterial({
-
-        color: color,
-
-        roughness: roughness,
-
-        metalness:
-            materialActual === "sintetico"
-            ? 0.15
-            : 0
-
+        color, roughness,
+        metalness: materialActual === "sintetico" ? 0.15 : 0
     });
-
 }
 
+function aplicarPersonalizacionModelo() {
+    if (!modeloCargado) return;
+    modeloCargado.traverse(objeto => {
+        if (!objeto.isMesh || !objeto.material) return;
+        const materiales = Array.isArray(objeto.material) ? objeto.material : [objeto.material];
+        materiales.forEach(material => {
+            if (!material || !material.color) return;
+            material.color.set(colorActual);
+            material.roughness = materialActual === "ante" ? 0.9 :
+                materialActual === "sintetico" ? 0.35 : 0.55;
+            material.metalness = materialActual === "sintetico" ? 0.15 : 0;
+            material.needsUpdate = true;
+        });
+    });
+}
 
-/* =========================================
-   CREAR ZAPATO
-========================================= */
+function ajustarModelo(modelo) {
+    const caja = new THREE.Box3().setFromObject(modelo);
+    const tamano = caja.getSize(new THREE.Vector3());
+    const centro = caja.getCenter(new THREE.Vector3());
+    modelo.position.sub(centro);
 
-function crearZapato() {
+    const mayor = Math.max(tamano.x, tamano.y, tamano.z);
+    if (mayor > 0) modelo.scale.setScalar(3.2 / mayor);
 
+    const cajaFinal = new THREE.Box3().setFromObject(modelo);
+    modelo.position.sub(cajaFinal.getCenter(new THREE.Vector3()));
+
+    modelo.traverse(objeto => {
+        if (objeto.isMesh) {
+            objeto.castShadow = true;
+            objeto.receiveShadow = true;
+        }
+    });
+}
+
+function actualizarControlesProducto() {
+    const esZapato = productoActual === "zapato";
+    const grupoSuela = document.getElementById("suela")?.closest(".config-grupo");
+    const grupoHerrajes = document.querySelector(".herraje-opcion")?.closest(".config-grupo");
+    if (grupoSuela) grupoSuela.hidden = !esZapato;
+    if (grupoHerrajes) grupoHerrajes.hidden = productoActual === "sombrero";
+}
+
+function cargarModeloProducto() {
+    const ruta = rutasModelos[productoActual];
+    const miSolicitud = ++solicitudModelo;
     producto3D.clear();
+    modeloCargado = null;
 
-
-    /* CUERPO */
-
-    const cuerpoGeometria =
-        new THREE.SphereGeometry(
-            1,
-            48,
-            24
-        );
-
-
-    const cuerpo =
-        new THREE.Mesh(
-            cuerpoGeometria,
-            crearMaterial(colorActual)
-        );
-
-
-    cuerpo.scale.set(
-        1.65,
-        0.55,
-        2.15
-    );
-
-
-    cuerpo.position.y =
-        0.65;
-
-
-    cuerpo.castShadow = true;
-
-    producto3D.add(
-        cuerpo
-    );
-
-
-    /* PARTE SUPERIOR */
-
-    const parteSuperior =
-        new THREE.BoxGeometry(
-            1.15,
-            0.35,
-            1.35
-        );
-
-
-    const superior =
-        new THREE.Mesh(
-            parteSuperior,
-            crearMaterial(colorActual)
-        );
-
-
-    superior.position.set(
-        0,
-        1.02,
-        -0.25
-    );
-
-
-    superior.rotation.x =
-        -0.15;
-
-
-    superior.castShadow = true;
-
-    producto3D.add(
-        superior
-    );
-
-
-    /* SUELA */
-
-    let grosorSuela =
-        0.22;
-
-
-    if (
-        suelaActual === "premium"
-    ) {
-
-        grosorSuela =
-            0.32;
-
+    const aviso = document.getElementById("estado-modelo-3d");
+    if (aviso) {
+        aviso.hidden = false;
+        aviso.textContent = "Cargando modelo 3D…";
     }
 
-
-    if (
-        suelaActual === "urbana"
-    ) {
-
-        grosorSuela =
-            0.40;
-
+    if (!ruta) {
+        mostrarErrorModelo("No hay una ruta configurada para este producto.");
+        return;
     }
 
-
-    const suelaGeometria =
-        new THREE.BoxGeometry(
-            3.1,
-            grosorSuela,
-            4.0
-        );
-
-
-    const suelaMaterial =
-        new THREE.MeshStandardMaterial({
-
-            color:
-                suelaActual === "urbana"
-                ? "#262626"
-                : "#eee8df",
-
-            roughness: 0.8
-
-        });
-
-
-    const suela =
-        new THREE.Mesh(
-            suelaGeometria,
-            suelaMaterial
-        );
-
-
-    suela.scale.set(
-        0.65,
-        1,
-        0.65
-    );
-
-
-    suela.position.y =
-        0.15;
-
-
-    suela.castShadow = true;
-
-    producto3D.add(
-        suela
-    );
-
-
-    /* HERREAJES */
-
-    const colorHerraje =
-        herrajeActual === "dorado"
-        ? "#c49a52"
-        : herrajeActual === "plateado"
-        ? "#bfc2c5"
-        : "#222222";
-
-
-    const herrajeMaterial =
-        new THREE.MeshStandardMaterial({
-
-            color:
-                colorHerraje,
-
-            metalness: 0.85,
-
-            roughness: 0.2
-
-        });
-
-
-    for (
-        let i = -1;
-        i <= 1;
-        i++
-    ) {
-
-        const herraje =
-            new THREE.Mesh(
-                new THREE.CylinderGeometry(
-                    0.09,
-                    0.09,
-                    0.08,
-                    24
-                ),
-                herrajeMaterial
-            );
-
-
-        herraje.rotation.x =
-            Math.PI / 2;
-
-
-        herraje.position.set(
-            i * 0.35,
-            1.16,
-            -0.55
-        );
-
-
-        producto3D.add(
-            herraje
-        );
-
-    }
-
-
-    /* INICIALES */
-
-    actualizarIniciales();
-
+    cargadorGLB.load(ruta, gltf => {
+        if (miSolicitud !== solicitudModelo) return;
+        modeloCargado = gltf.scene;
+        ajustarModelo(modeloCargado);
+        producto3D.add(modeloCargado);
+        aplicarPersonalizacionModelo();
+        actualizarIniciales();
+        if (aviso) aviso.hidden = true;
+        controles.target.set(0, 0, 0);
+        controles.update();
+    }, undefined, error => {
+        if (miSolicitud !== solicitudModelo) return;
+        console.error("No se pudo cargar el modelo 3D:", ruta, error);
+        mostrarErrorModelo(`No se pudo cargar ${ruta}. Comprueba que el archivo exista en static/models/ y que el nombre coincida.`);
+    });
 }
 
+function mostrarErrorModelo(mensaje) {
+    const aviso = document.getElementById("estado-modelo-3d");
+    if (aviso) {
+        aviso.hidden = false;
+        aviso.textContent = mensaje;
+    }
+}
+
+/* Mantiene el nombre usado por los controles existentes. */
+function crearZapato() {
+    aplicarPersonalizacionModelo();
+    actualizarIniciales();
+}
 
 /* =========================================
    INICIALES 3D
 ========================================= */
 
 function actualizarIniciales() {
+    if (!modeloCargado) return;
+    const anterior = modeloCargado.getObjectByName("iniciales");
+    if (anterior) modeloCargado.remove(anterior);
 
-    const anterior =
-        producto3D.getObjectByName(
-            "iniciales"
+    const texto = document.getElementById("iniciales").value.trim().toUpperCase();
+    if (!texto || productoActual !== "zapato") return;
+
+    // Placa visual provisional; su posición exacta se ajustará al modelo definitivo.
+    const grupo = new THREE.Group();
+    grupo.name = "iniciales";
+    const material = new THREE.MeshStandardMaterial({
+        color: "#d8c4a8", metalness: 0.1, roughness: 0.4
+    });
+    const cantidad = Math.min(texto.length, 3);
+    for (let i = 0; i < cantidad; i++) {
+        const letra = new THREE.Mesh(
+            new THREE.BoxGeometry(0.12, 0.08, 0.025), material
         );
-
-
-    if (anterior) {
-
-        producto3D.remove(
-            anterior
-        );
-
+        letra.position.set((i - (cantidad - 1) / 2) * 0.14, 0.12, 0.15);
+        grupo.add(letra);
     }
-
-
-    const texto =
-        document
-            .getElementById("iniciales")
-            .value
-            .trim()
-            .toUpperCase();
-
-
-    if (!texto) {
-
-        return;
-
-    }
-
-
-    /*
-       Para esta primera versión
-       utilizamos pequeñas placas
-       representando las iniciales.
-    */
-
-    const grupo =
-        new THREE.Group();
-
-
-    grupo.name =
-        "iniciales";
-
-
-    const material =
-        new THREE.MeshStandardMaterial({
-
-            color: "#d8c4a8",
-
-            metalness: 0.1,
-
-            roughness: 0.4
-
-        });
-
-
-    for (
-        let i = 0;
-        i < Math.min(texto.length, 3);
-        i++
-    ) {
-
-        const letra =
-            new THREE.Mesh(
-                new THREE.BoxGeometry(
-                    0.16,
-                    0.16,
-                    0.04
-                ),
-                material
-            );
-
-
-        letra.position.set(
-            (i - 1) * 0.22,
-            1.35,
-            -0.55
-        );
-
-
-        grupo.add(
-            letra
-        );
-
-    }
-
-
-    producto3D.add(
-        grupo
-    );
-
+    modeloCargado.add(grupo);
 }
-
 
 /* =========================================
    PRECIO
@@ -1268,11 +1033,9 @@ document
             productoActual =
                 this.value;
 
-
-            crearZapato();
-
+            cargarModeloProducto();
+            actualizarControlesProducto();
             calcularPrecio();
-
             actualizarResumen();
 
         }
@@ -1371,12 +1134,11 @@ function animar() {
 }
 
 
-crearZapato();
+actualizarControlesProducto();
+cargarModeloProducto();
 
 calcularPrecio();
-
 actualizarResumen();
-
 animar();
 
 </script>
