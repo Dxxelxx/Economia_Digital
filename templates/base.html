@@ -76,12 +76,27 @@
                 {% if session.get("usuario_id") %}
 
                     <!-- USUARIO LOGUEADO -->
-                    <span class="usuario-saludo">
-                        Hola,
-                        <strong>
-                            {{ session.get("usuario_nombre", "Usuario") }}
-                        </strong>
-                    </span>
+                    {% if session.get("rol") == "cliente" %}
+                        <a
+                            href="{{ url_for('cliente.inicio') }}"
+                            class="usuario-saludo"
+                            title="Ir a mi cuenta"
+                            style="color:inherit; text-decoration:none;"
+                        >
+                            Hola,
+                            <strong>
+                                {{ session.get("usuario_nombre", "Usuario") }}
+                            </strong>
+                            <span style="font-size:.8em;">&#9662; Mi cuenta</span>
+                        </a>
+                    {% else %}
+                        <span class="usuario-saludo">
+                            Hola,
+                            <strong>
+                                {{ session.get("usuario_nombre", "Usuario") }}
+                            </strong>
+                        </span>
+                    {% endif %}
 
                     <!-- OPCIONES DEL ADMINISTRADOR -->
                     {% if session.get("rol") == "administrador" %}
