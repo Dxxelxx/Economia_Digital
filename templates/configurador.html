@@ -33,7 +33,16 @@ Personaliza tu producto | Taller El Obrero
 
     <!-- CONFIGURADOR -->
 
-    <div class="configurador-contenedor">
+    <div
+        class="configurador-contenedor"
+        id="configurador-raiz"
+        data-url-diseno="{{ url_for('configurador.guardar_diseno') }}"
+        data-modelos='{{ {
+            "zapato": url_for("static", filename="models/zapato.glb"),
+            "bolso": url_for("static", filename="models/bolso.glb"),
+            "sombrero": url_for("static", filename="models/sombrero.glb")
+        }|tojson|forceescape }}'
+    >
 
 
         <!-- ============================= -->
@@ -188,6 +197,17 @@ Personaliza tu producto | Taller El Obrero
                     ></button>
 
                 </div>
+
+                <label for="color-libre" style="margin-top:10px; font-size:13px;">
+                    O elige cualquier color
+                </label>
+
+                <input
+                    type="color"
+                    id="color-libre"
+                    value="#6b4226"
+                    style="width:100%; height:42px; padding:2px; cursor:pointer;"
+                >
 
                 <small id="nombre-color">
                     Café artesanal
@@ -381,6 +401,9 @@ Personaliza tu producto | Taller El Obrero
             </button>
 
 
+            <p id="mensaje-compra" role="alert" hidden
+               style="color:#8a2a1c; font-size:14px; margin:10px 0 0;"></p>
+
             <p class="nota-configuracion">
 
                 El precio es una estimación.
@@ -408,739 +431,250 @@ Personaliza tu producto | Taller El Obrero
 }
 </script>
 
+<script id="catalogo-json" type="application/json">{{ catalogo|tojson }}</script>
+
 <script type="module">
 
-import * as THREE from "three";
+import { Visor3D } from "{{ url_for('static', filename='js/configurador/visor.js') }}";
 
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+const $ = (id) => document.getElementById(id);
+const raiz = $("configurador-raiz");
+const catalogo = JSON.parse($("catalogo-json").textContent);
+const aviso = $("estado-modelo-3d");
 
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-
-
-/* =========================================
-   ESCENA
-========================================= */
-
-const contenedor =
-    document.getElementById("contenedor-3d");
-
-
-const escena =
-    new THREE.Scene();
-
-
-escena.background =
-    new THREE.Color("#e9e1d8");
-
+const dinero = (v) => new Intl.NumberFormat("es-CO", {
+    style: "currency", currency: "COP", maximumFractionDigits: 0
+}).format(v);
 
 /* =========================================
-   CÁMARA
+   ESTADO
 ========================================= */
 
-const camara =
-    new THREE.PerspectiveCamera(
-        45,
-        contenedor.clientWidth /
-        contenedor.clientHeight,
-        0.1,
-        1000
-    );
+const estado = {
+    producto: $("producto").value || "zapato",
+    color: "#6b4226",
+    nombreColor: "Café artesanal",
+    material: "cuero",
+    suela: "clasica",
+    herrajes: "dorado",
+    iniciales: ""
+};
 
+const buscar = (lista, valor) => lista.find((o) => o.valor === valor);
 
-camara.position.set(
-    4,
-    2.5,
-    5
-);
+/* El sombrero no lleva herrajes: se envía "plateado" (sin costo). */
+const herrajesEfectivos = () =>
+    estado.producto === "sombrero" ? "plateado" : estado.herrajes;
 
+const estiloEfectivo = () =>
+    estado.producto === "zapato"
+        ? estado.suela
+        : catalogo.productos[estado.producto].estilo_defecto;
+
+/* Color secundario (cinta, asas, detalles): el principal más oscuro. */
+function oscurecer(hex, factor = 0.68) {
+    const n = parseInt(hex.slice(1), 16);
+    const c = [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+        .map((v) => Math.round(v * factor));
+    return "#" + c.map((v) => v.toString(16).padStart(2, "0")).join("");
+}
+
+/* Diseño que se envía al servidor y al visor 3D. */
+function diseno() {
+    return {
+        producto: estado.producto,
+        color: estado.color,
+        colorSecundario: oscurecer(estado.color),
+        material: estado.material,
+        estilo: estiloEfectivo(),
+        herrajes: herrajesEfectivos(),
+        iniciales: estado.iniciales
+    };
+}
 
 /* =========================================
-   RENDERER
+   VISOR 3D (con soporte para tus .glb comprimidos)
 ========================================= */
 
-const renderer =
-    new THREE.WebGLRenderer({
-        antialias: true
+let visor = null;
+
+function mostrarAviso(texto, error = false) {
+    if (!aviso) return;
+    aviso.hidden = !texto;
+    aviso.textContent = texto || "";
+    aviso.style.color = error ? "#8a2a1c" : "#76664e";
+}
+
+try {
+    visor = new Visor3D($("contenedor-3d"), {
+        modelos: JSON.parse(raiz.dataset.modelos)
     });
 
+    visor.alEstado = (t) => mostrarAviso(t);
+    visor.alError = (m) => mostrarAviso("No se pudo mostrar el modelo 3D. " + m, true);
 
-renderer.setPixelRatio(
-    Math.min(window.devicePixelRatio, 2)
-);
+} catch (error) {
+    console.error("No se pudo iniciar el visor 3D:", error);
+    mostrarAviso("Tu navegador no pudo iniciar el visor 3D (WebGL). " +
+        "Aun así puedes personalizar y comprar tu diseño.", true);
+}
 
+/* =========================================
+   PRECIO Y RESUMEN (mismas reglas que el servidor)
+========================================= */
 
-renderer.setSize(
-    contenedor.clientWidth,
-    contenedor.clientHeight
-);
+function actualizarPrecioYResumen() {
 
+    const p = catalogo.productos[estado.producto];
+    const material = buscar(catalogo.materiales, estado.material);
+    const estilo = buscar(p.estilos, estiloEfectivo());
+    const herraje = buscar(catalogo.herrajes, herrajesEfectivos());
 
-renderer.shadowMap.enabled = true;
+    let total = p.base + material.extra + estilo.extra + herraje.extra;
+    if (estado.iniciales) total += catalogo.extra_iniciales;
 
+    $("precio").textContent = dinero(total);
+    $("resumen-producto").textContent = p.nombre;
+    $("resumen-personalizacion").textContent =
+        `${estado.nombreColor} · ${material.nombre}` +
+        (estado.iniciales ? ` · ${estado.iniciales}` : "");
+}
 
-contenedor.appendChild(
-    renderer.domElement
-);
+function refrescar() {
+    actualizarPrecioYResumen();
+    visor?.actualizar(diseno());
+}
 
+function actualizarControlesProducto() {
+    const grupoSuela = $("suela").closest(".config-grupo");
+    const grupoHerrajes = document.querySelector(".herraje-opcion")
+        .closest(".config-grupo");
+
+    grupoSuela.hidden = estado.producto !== "zapato";
+    grupoHerrajes.hidden = estado.producto === "sombrero";
+}
 
 /* =========================================
    CONTROLES
 ========================================= */
 
-const controles =
-    new OrbitControls(
-        camara,
-        renderer.domElement
-    );
-
-
-controles.enableDamping = true;
-
-controles.minDistance = 3;
-
-controles.maxDistance = 8;
-
-controles.target.set(
-    0,
-    0.5,
-    0
-);
-
-
-/* =========================================
-   ILUMINACIÓN
-========================================= */
-
-const luzAmbiente =
-    new THREE.HemisphereLight(
-        "#ffffff",
-        "#5b4635",
-        2
-    );
-
-
-escena.add(luzAmbiente);
-
-
-const luzPrincipal =
-    new THREE.DirectionalLight(
-        "#ffffff",
-        3
-    );
-
-
-luzPrincipal.position.set(
-    4,
-    6,
-    5
-);
-
-
-luzPrincipal.castShadow = true;
-
-escena.add(luzPrincipal);
-
-
-const luzSecundaria =
-    new THREE.DirectionalLight(
-        "#d8b08a",
-        1.5
-    );
-
-
-luzSecundaria.position.set(
-    -4,
-    3,
-    -3
-);
-
-
-escena.add(luzSecundaria);
-
-
-/* =========================================
-   GRUPO DEL PRODUCTO Y CARGADOR GLB
-========================================= */
-
-const producto3D = new THREE.Group();
-escena.add(producto3D);
-const cargadorGLB = new GLTFLoader();
-
-const rutasModelos = {
-    zapato: "/static/models/zapato.glb",
-    bolso: "/static/models/bolso.glb",
-    sombrero: "/static/models/sombrero.glb"
-};
-
-let colorActual = "#6b4226";
-let materialActual = "cuero";
-let herrajeActual = "dorado";
-let suelaActual = "clasica";
-let productoActual = document.getElementById("producto").value || "zapato";
-let modeloCargado = null;
-let solicitudModelo = 0;
-
-function crearMaterial(color) {
-    const roughness = materialActual === "ante" ? 0.9 :
-        materialActual === "sintetico" ? 0.35 : 0.55;
-    return new THREE.MeshStandardMaterial({
-        color, roughness,
-        metalness: materialActual === "sintetico" ? 0.15 : 0
-    });
+function marcarColor(hex) {
+    document.querySelectorAll(".color-opcion").forEach((b) =>
+        b.classList.toggle("seleccionado",
+            b.dataset.color.toLowerCase() === hex.toLowerCase()));
 }
 
-function aplicarPersonalizacionModelo() {
-    if (!modeloCargado) return;
-    modeloCargado.traverse(objeto => {
-        if (!objeto.isMesh || !objeto.material) return;
-        const materiales = Array.isArray(objeto.material) ? objeto.material : [objeto.material];
-        materiales.forEach(material => {
-            if (!material || !material.color) return;
-            material.color.set(colorActual);
-            material.roughness = materialActual === "ante" ? 0.9 :
-                materialActual === "sintetico" ? 0.35 : 0.55;
-            material.metalness = materialActual === "sintetico" ? 0.15 : 0;
-            material.needsUpdate = true;
+document.querySelectorAll(".color-opcion").forEach((boton) => {
+    boton.addEventListener("click", () => {
+        estado.color = boton.dataset.color;
+        estado.nombreColor = boton.dataset.nombre;
+        $("color-libre").value = estado.color;
+        $("nombre-color").textContent = estado.nombreColor;
+        marcarColor(estado.color);
+        refrescar();
+    });
+});
+
+$("color-libre").addEventListener("input", function () {
+    estado.color = this.value;
+    estado.nombreColor = "Personalizado " + this.value;
+    $("nombre-color").textContent = estado.nombreColor;
+    marcarColor(this.value);
+    refrescar();
+});
+
+document.querySelectorAll(".material-opcion").forEach((boton) => {
+    boton.addEventListener("click", () => {
+        boton.parentElement.querySelectorAll(".material-opcion")
+            .forEach((b) => b.classList.remove("seleccionado"));
+        boton.classList.add("seleccionado");
+        estado.material = boton.dataset.material;
+        refrescar();
+    });
+});
+
+document.querySelectorAll(".herraje-opcion").forEach((boton) => {
+    boton.addEventListener("click", () => {
+        boton.parentElement.querySelectorAll(".herraje-opcion")
+            .forEach((b) => b.classList.remove("seleccionado"));
+        boton.classList.add("seleccionado");
+        estado.herrajes = boton.dataset.herraje;
+        refrescar();
+    });
+});
+
+$("suela").addEventListener("change", function () {
+    estado.suela = this.value;
+    refrescar();
+});
+
+$("producto").addEventListener("change", function () {
+    estado.producto = this.value;
+    actualizarControlesProducto();
+    refrescar();
+});
+
+$("iniciales").addEventListener("input", function () {
+    const limpio = this.value.toUpperCase()
+        .replace(/[^A-Z0-9ÁÉÍÓÚÑÜ]/g, "").slice(0, 3);
+    if (limpio !== this.value) this.value = limpio;
+    estado.iniciales = limpio;
+    refrescar();
+});
+
+/* =========================================
+   BOTÓN "COMPRAR ESTE DISEÑO" -> CONFIRMAR COMPRA
+========================================= */
+
+const botonComprar = $("comprar-diseno");
+const mensaje = $("mensaje-compra");
+
+function mostrarMensaje(texto) {
+    mensaje.textContent = texto;
+    mensaje.hidden = !texto;
+}
+
+botonComprar.addEventListener("click", async () => {
+
+    botonComprar.disabled = true;
+    botonComprar.textContent = "Guardando tu diseño...";
+    mostrarMensaje("");
+
+    try {
+        const r = await fetch(raiz.dataset.urlDiseno, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            body: JSON.stringify(diseno())
         });
-    });
-}
 
-function ajustarModelo(modelo) {
-    const caja = new THREE.Box3().setFromObject(modelo);
-    const tamano = caja.getSize(new THREE.Vector3());
-    const centro = caja.getCenter(new THREE.Vector3());
-    modelo.position.sub(centro);
+        let datos = {};
+        try { datos = await r.json(); } catch (e) { datos = {}; }
 
-    const mayor = Math.max(tamano.x, tamano.y, tamano.z);
-    if (mayor > 0) modelo.scale.setScalar(3.2 / mayor);
-
-    const cajaFinal = new THREE.Box3().setFromObject(modelo);
-    modelo.position.sub(cajaFinal.getCenter(new THREE.Vector3()));
-
-    modelo.traverse(objeto => {
-        if (objeto.isMesh) {
-            objeto.castShadow = true;
-            objeto.receiveShadow = true;
+        if (datos.redirigir) {          // confirmar compra, o login si venció
+            window.location.href = datos.redirigir;
+            return;
         }
-    });
-}
 
-function actualizarControlesProducto() {
-    const esZapato = productoActual === "zapato";
-    const grupoSuela = document.getElementById("suela")?.closest(".config-grupo");
-    const grupoHerrajes = document.querySelector(".herraje-opcion")?.closest(".config-grupo");
-    if (grupoSuela) grupoSuela.hidden = !esZapato;
-    if (grupoHerrajes) grupoHerrajes.hidden = productoActual === "sombrero";
-}
+        mostrarMensaje(datos.mensaje ||
+            "No se pudo guardar tu diseño. Inténtalo de nuevo.");
 
-function cargarModeloProducto() {
-    const ruta = rutasModelos[productoActual];
-    const miSolicitud = ++solicitudModelo;
-    producto3D.clear();
-    modeloCargado = null;
-
-    const aviso = document.getElementById("estado-modelo-3d");
-    if (aviso) {
-        aviso.hidden = false;
-        aviso.textContent = "Cargando modelo 3D…";
+    } catch (error) {
+        mostrarMensaje("No hay conexión con el servidor. Inténtalo de nuevo.");
     }
 
-    if (!ruta) {
-        mostrarErrorModelo("No hay una ruta configurada para este producto.");
-        return;
-    }
-
-    cargadorGLB.load(ruta, gltf => {
-        if (miSolicitud !== solicitudModelo) return;
-        modeloCargado = gltf.scene;
-        ajustarModelo(modeloCargado);
-        producto3D.add(modeloCargado);
-        aplicarPersonalizacionModelo();
-        actualizarIniciales();
-        if (aviso) aviso.hidden = true;
-        controles.target.set(0, 0, 0);
-        controles.update();
-    }, undefined, error => {
-        if (miSolicitud !== solicitudModelo) return;
-        console.error("No se pudo cargar el modelo 3D:", ruta, error);
-        mostrarErrorModelo(`No se pudo cargar ${ruta}. Comprueba que el archivo exista en static/models/ y que el nombre coincida.`);
-    });
-}
-
-function mostrarErrorModelo(mensaje) {
-    const aviso = document.getElementById("estado-modelo-3d");
-    if (aviso) {
-        aviso.hidden = false;
-        aviso.textContent = mensaje;
-    }
-}
-
-/* Mantiene el nombre usado por los controles existentes. */
-function crearZapato() {
-    aplicarPersonalizacionModelo();
-    actualizarIniciales();
-}
+    botonComprar.disabled = false;
+    botonComprar.textContent = "Comprar este diseño";
+});
 
 /* =========================================
-   INICIALES 3D
+   INICIO
 ========================================= */
-
-function actualizarIniciales() {
-    if (!modeloCargado) return;
-    const anterior = modeloCargado.getObjectByName("iniciales");
-    if (anterior) modeloCargado.remove(anterior);
-
-    const texto = document.getElementById("iniciales").value.trim().toUpperCase();
-    if (!texto || productoActual !== "zapato") return;
-
-    // Placa visual provisional; su posición exacta se ajustará al modelo definitivo.
-    const grupo = new THREE.Group();
-    grupo.name = "iniciales";
-    const material = new THREE.MeshStandardMaterial({
-        color: "#d8c4a8", metalness: 0.1, roughness: 0.4
-    });
-    const cantidad = Math.min(texto.length, 3);
-    for (let i = 0; i < cantidad; i++) {
-        const letra = new THREE.Mesh(
-            new THREE.BoxGeometry(0.12, 0.08, 0.025), material
-        );
-        letra.position.set((i - (cantidad - 1) / 2) * 0.14, 0.12, 0.15);
-        grupo.add(letra);
-    }
-    modeloCargado.add(grupo);
-}
-
-/* =========================================
-   PRECIO
-========================================= */
-
-function calcularPrecio() {
-
-    let precio =
-        320000;
-
-
-    if (
-        productoActual === "bolso"
-    ) {
-
-        precio =
-            280000;
-
-    }
-
-
-    if (
-        productoActual === "sombrero"
-    ) {
-
-        precio =
-            180000;
-
-    }
-
-
-    if (
-        materialActual === "ante"
-    ) {
-
-        precio +=
-            30000;
-
-    }
-
-
-    if (
-        materialActual === "sintetico"
-    ) {
-
-        precio -=
-            20000;
-
-    }
-
-
-    if (
-        suelaActual === "premium"
-    ) {
-
-        precio +=
-            25000;
-
-    }
-
-
-    if (
-        suelaActual === "urbana"
-    ) {
-
-        precio +=
-            40000;
-
-    }
-
-
-    if (
-        herrajeActual === "dorado"
-    ) {
-
-        precio +=
-            15000;
-
-    }
-
-
-    const precioFormato =
-        new Intl.NumberFormat(
-            "es-CO",
-            {
-                style: "currency",
-                currency: "COP",
-                maximumFractionDigits: 0
-            }
-        ).format(precio);
-
-
-    document
-        .getElementById("precio")
-        .textContent =
-        precioFormato;
-
-}
-
-
-/* =========================================
-   ACTUALIZAR RESUMEN
-========================================= */
-
-function actualizarResumen() {
-
-    const producto =
-        document
-            .getElementById("producto");
-
-
-    const productoNombre =
-        producto.options[
-            producto.selectedIndex
-        ].text;
-
-
-    document
-        .getElementById(
-            "resumen-producto"
-        )
-        .textContent =
-        productoNombre;
-
-
-    document
-        .getElementById(
-            "resumen-personalizacion"
-        )
-        .textContent =
-        `${document.getElementById("nombre-color").textContent} · ${materialActual}`;
-
-}
-
-
-/* =========================================
-   CAMBIO DE COLOR
-========================================= */
-
-document
-    .querySelectorAll(".color-opcion")
-    .forEach(
-        boton => {
-
-            boton.addEventListener(
-                "click",
-                () => {
-
-                    document
-                        .querySelectorAll(
-                            ".color-opcion"
-                        )
-                        .forEach(
-                            b =>
-                                b.classList.remove(
-                                    "seleccionado"
-                                )
-                        );
-
-
-                    boton.classList.add(
-                        "seleccionado"
-                    );
-
-
-                    colorActual =
-                        boton.dataset.color;
-
-
-                    document
-                        .getElementById(
-                            "nombre-color"
-                        )
-                        .textContent =
-                        boton.dataset.nombre;
-
-
-                    crearZapato();
-
-                    calcularPrecio();
-
-                    actualizarResumen();
-
-                }
-            );
-
-        }
-    );
-
-
-/* =========================================
-   CAMBIO DE MATERIAL
-========================================= */
-
-document
-    .querySelectorAll(
-        ".material-opcion"
-    )
-    .forEach(
-        boton => {
-
-            boton.addEventListener(
-                "click",
-                () => {
-
-                    const grupo =
-                        boton.parentElement;
-
-
-                    grupo
-                        .querySelectorAll(
-                            ".material-opcion"
-                        )
-                        .forEach(
-                            b =>
-                                b.classList.remove(
-                                    "seleccionado"
-                                )
-                        );
-
-
-                    boton.classList.add(
-                        "seleccionado"
-                    );
-
-
-                    materialActual =
-                        boton.dataset.material;
-
-
-                    crearZapato();
-
-                    calcularPrecio();
-
-                    actualizarResumen();
-
-                }
-            );
-
-        }
-    );
-
-
-/* =========================================
-   CAMBIO DE HERRAJE
-========================================= */
-
-document
-    .querySelectorAll(
-        ".herraje-opcion"
-    )
-    .forEach(
-        boton => {
-
-            boton.addEventListener(
-                "click",
-                () => {
-
-                    boton
-                        .parentElement
-                        .querySelectorAll(
-                            ".herraje-opcion"
-                        )
-                        .forEach(
-                            b =>
-                                b.classList.remove(
-                                    "seleccionado"
-                                )
-                        );
-
-
-                    boton.classList.add(
-                        "seleccionado"
-                    );
-
-
-                    herrajeActual =
-                        boton.dataset.herraje;
-
-
-                    crearZapato();
-
-                }
-            );
-
-        }
-    );
-
-
-/* =========================================
-   CAMBIO DE SUELA
-========================================= */
-
-document
-    .getElementById("suela")
-    .addEventListener(
-        "change",
-        function () {
-
-            suelaActual =
-                this.value;
-
-
-            crearZapato();
-
-            calcularPrecio();
-
-        }
-    );
-
-
-/* =========================================
-   CAMBIO DE PRODUCTO
-========================================= */
-
-document
-    .getElementById("producto")
-    .addEventListener(
-        "change",
-        function () {
-
-            productoActual =
-                this.value;
-
-            cargarModeloProducto();
-            actualizarControlesProducto();
-            calcularPrecio();
-            actualizarResumen();
-
-        }
-    );
-
-
-/* =========================================
-   INICIALES
-========================================= */
-
-document
-    .getElementById("iniciales")
-    .addEventListener(
-        "input",
-        () => {
-
-            actualizarIniciales();
-
-        }
-    );
-
-
-/* =========================================
-   BOTÓN DE COMPRA
-========================================= */
-
-document
-    .getElementById("comprar-diseno")
-    .addEventListener(
-        "click",
-        () => {
-
-            /*
-                Por ahora enviamos al login.
-                Después conectaremos esto con
-                PostgreSQL y el carrito/pedido.
-            */
-
-            window.location.href =
-                "{{ url_for('auth.login') }}";
-
-        }
-    );
-
-
-/* =========================================
-   REDIMENSIONAMIENTO
-========================================= */
-
-window.addEventListener(
-    "resize",
-    () => {
-
-        const ancho =
-            contenedor.clientWidth;
-
-        const alto =
-            contenedor.clientHeight;
-
-
-        camara.aspect =
-            ancho / alto;
-
-
-        camara.updateProjectionMatrix();
-
-
-        renderer.setSize(
-            ancho,
-            alto
-        );
-
-    }
-);
-
-
-/* =========================================
-   ANIMACIÓN
-========================================= */
-
-function animar() {
-
-    requestAnimationFrame(
-        animar
-    );
-
-
-    controles.update();
-
-
-    renderer.render(
-        escena,
-        camara
-    );
-
-}
-
 
 actualizarControlesProducto();
-cargarModeloProducto();
-
-calcularPrecio();
-actualizarResumen();
-animar();
+refrescar();
 
 </script>
+
 
 {% endblock %}

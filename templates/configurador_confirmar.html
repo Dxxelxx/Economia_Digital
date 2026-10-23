@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Confirmar compra | Taller El Obrero
+{% endblock %}
+
+{% block contenido %}
+
+<style>
+    .conf-pagina { max-width: 1120px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+    .conf-pagina h1 { font-size: 2rem; color: #7A4B24; margin: 0 0 .4rem; }
+    .conf-sub { color: #6b5b4b; margin: 0 0 1.5rem; }
+    .conf-rejilla { display: grid; grid-template-columns: 1.15fr .85fr; gap: 1.5rem; align-items: start; }
+    @media (max-width: 860px) { .conf-rejilla { grid-template-columns: 1fr; } }
+
+    .conf-tarjeta { background: #fff; border-radius: 16px; padding: 1.5rem; box-shadow: 0 6px 22px rgba(0,0,0,.08); }
+    .conf-tarjeta h2 { margin: 0 0 1rem; font-size: 1.25rem; color: #3b2a1c; }
+
+    .conf-visor { position: relative; height: 460px; border-radius: 12px; overflow: hidden; background: #e9e1d8; }
+    .conf-visor canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+    .conf-estado { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+        text-align: center; padding: 1rem; color: #5a4d41; font-size: 14px; pointer-events: none; }
+    .conf-estado[hidden] { display: none; }
+    .conf-estado.visor-error { color: #8a2a1c; }
+    .conf-ayuda { font-size: 12px; color: #7d6e60; margin: .6rem 0 0; text-align: center; }
+
+    .conf-lista { list-style: none; margin: 1rem 0 0; padding: 0; }
+    .conf-lista li { display: flex; justify-content: space-between; gap: 1rem; padding: .5rem 0;
+        border-bottom: 1px solid #eee5da; font-size: 14px; }
+    .conf-lista li span:first-child { color: #7d6e60; }
+    .conf-muestra { display: inline-block; width: 14px; height: 14px; border-radius: 50%;
+        border: 1px solid rgba(0,0,0,.25); vertical-align: -2px; margin-right: 6px; }
+
+    .conf-total { margin-top: 1rem; }
+    .conf-total div { display: flex; justify-content: space-between; padding: .3rem 0; font-size: 14px; }
+    .conf-total .conf-gran { font-size: 1.25rem; font-weight: 700; color: #7A4B24; border-top: 2px solid #e5d7c6; margin-top: .4rem; padding-top: .7rem; }
+
+    .conf-form label { display: block; font-weight: 600; font-size: 13px; margin: .8rem 0 .3rem; color: #3b2a1c; }
+    .conf-form input, .conf-form textarea { width: 100%; padding: .65rem .75rem; border: 1px solid #d8c9b8;
+        border-radius: 8px; font: inherit; box-sizing: border-box; }
+    .conf-form input:focus, .conf-form textarea:focus { outline: none; border-color: #7A4B24; }
+
+    .conf-boton { width: 100%; margin-top: 1.2rem; padding: .9rem 1rem; border: 0; border-radius: 10px;
+        background: #7A4B24; color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer; }
+    .conf-boton:hover { background: #5f3a1a; }
+    .conf-volver { display: block; text-align: center; margin-top: .8rem; color: #7A4B24; font-size: 14px; }
+    .conf-mensajes p { background: #f8d7da; color: #721c24; padding: .7rem 1rem; border-radius: 8px; margin: 0 0 1rem; font-size: 14px; }
+    .conf-nota { font-size: 12px; color: #7d6e60; margin: .8rem 0 0; }
+</style>
+
+<div class="conf-pagina"
+     id="confirmar-raiz"
+     data-iva="{{ iva }}"
+     data-precio="{{ diseno.precio_unitario }}"
+     data-modelos='{{ {
+         "zapato": url_for("static", filename="models/zapato.glb"),
+         "bolso": url_for("static", filename="models/bolso.glb"),
+         "sombrero": url_for("static", filename="models/sombrero.glb")
+     }|tojson|forceescape }}'>
+
+    <h1>Confirma tu compra</h1>
+    <p class="conf-sub">
+        Revisa tu diseño en 3D, el costo y confirma. Después pagas con MetaMask
+        y recibes tu factura.
+    </p>
+
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% if mensajes %}
+            <div class="conf-mensajes">
+                {% for categoria, mensaje in mensajes %}<p>{{ mensaje }}</p>{% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="conf-rejilla">
+
+        <!-- DISEÑO EN 3D + DETALLE -->
+        <div class="conf-tarjeta">
+            <h2>Tu diseño: {{ producto.nombre }}</h2>
+
+            <div class="conf-visor" id="contenedor-3d">
+                <div class="conf-estado" id="visor-estado">Cargando modelo 3D…</div>
+            </div>
+            <p class="conf-ayuda">Arrastra para girar · rueda para acercar</p>
+
+            <ul class="conf-lista">
+                <li><span>Color principal</span>
+                    <span><i class="conf-muestra" data-color="{{ diseno.color }}"></i>{{ nombre_color }}</span></li>
+                <li><span>Color secundario</span>
+                    <span><i class="conf-muestra" data-color="{{ diseno.colorSecundario }}"></i>{{ nombre_color_secundario }}</span></li>
+                <li><span>Material</span><span>{{ textos.material }}</span></li>
+                <li><span>{{ producto.etiqueta_estilo }}</span><span>{{ textos.suela.split(': ', 1)[-1] }}</span></li>
+                {% if diseno.producto != 'sombrero' %}
+                <li><span>Herrajes</span><span>{{ textos.herrajes }}</span></li>
+                {% endif %}
+                {% if textos.iniciales %}
+                <li><span>Iniciales</span><span>{{ textos.iniciales }}</span></li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <!-- COSTO Y CONFIRMACIÓN -->
+        <div class="conf-tarjeta">
+            <h2>Costo y datos de compra</h2>
+
+            <form method="post" class="conf-form" id="form-confirmar">
+
+                <label for="cantidad">Cantidad</label>
+                <input type="number" id="cantidad" name="cantidad" min="1" max="100"
+                       value="{{ cantidad }}" required>
+
+                {% if cliente is none or not cliente.documento %}
+                <label for="documento">Documento</label>
+                <input type="text" id="documento" name="documento" required>
+                {% endif %}
+
+                <label for="telefono">Teléfono</label>
+                <input type="text" id="telefono" name="telefono"
+                       value="{{ cliente.telefono if cliente and cliente.telefono else '' }}">
+
+                <label for="direccion">Dirección de entrega</label>
+                <textarea id="direccion" name="direccion" rows="2">{{ cliente.direccion if cliente and cliente.direccion else '' }}</textarea>
+
+                <div class="conf-total">
+                    <div><span>Precio unitario</span><span id="c-unitario"></span></div>
+                    <div><span>Subtotal</span><span id="c-subtotal"></span></div>
+                    <div><span>IVA ({{ iva }}%)</span><span id="c-iva"></span></div>
+                    <div class="conf-gran"><span>Total a pagar</span><span id="c-total"></span></div>
+                </div>
+
+                <button type="submit" class="conf-boton">Confirmar compra y pagar</button>
+                <a class="conf-volver" href="{{ url_for('configurador.inicio') }}">← Seguir editando mi diseño</a>
+                <p class="conf-nota">
+                    El precio final lo recalcula el servidor al registrar el pedido.
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script id="diseno-json" type="application/json">{{ diseno|tojson }}</script>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+    }
+}
+</script>
+
+<script type="module" src="{{ url_for('static', filename='js/configurador/confirmar.js') }}"></script>
+
+{% endblock %}
