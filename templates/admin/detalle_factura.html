@@ -637,6 +637,19 @@
                 >
                     🖨 Imprimir factura
                 </button>
+
+                {% if (factura.estado_dian or 'PENDIENTE')|upper != 'ACEPTADA' %}
+                    <form
+                        method="post"
+                        action="{{ url_for('alegra.emitir', factura_id=factura.id) }}"
+                        onsubmit="return confirm('¿Emitir esta factura en Alegra y enviarla a la DIAN?');"
+                        style="display:inline-flex;"
+                    >
+                        <button type="submit" class="btn btn-primary">
+                            ⚡ Emitir factura electrónica (Alegra)
+                        </button>
+                    </form>
+                {% endif %}
             </div>
         </div>
 
@@ -1183,7 +1196,7 @@
                             </a>
                         {% endif %}
 
-                        {% if factura.xml %}
+                        {% if factura.xml and not factura.xml.startswith('{') %}
                             <a
                                 class="btn btn-light"
                                 href="{{ url_for('static', filename=factura.xml) }}"
@@ -1205,7 +1218,7 @@
                             </a>
                         {% endif %}
 
-                        {% if not factura.pdf and not factura.xml and not factura.qr %}
+                        {% if not factura.pdf and not (factura.xml and not factura.xml.startswith('{')) and not factura.qr %}
                             <p class="muted">
                                 No hay archivos electrónicos asociados a esta factura.
                             </p>
@@ -1213,7 +1226,13 @@
 
                     </div>
 
-                    {% if factura.xml %}
+                    {% if factura.xml and factura.xml.startswith('{') %}
+                        <br>
+                        <p class="muted">
+                            Factura registrada en Alegra
+                            (respuesta guardada en el sistema).
+                        </p>
+                    {% elif factura.xml %}
                         <br>
                         <p class="muted">
                             El registro XML está disponible en la ubicación configurada

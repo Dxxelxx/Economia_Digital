@@ -69,6 +69,7 @@ def create_app():
     from routes.facturacion import facturacion
     from routes.dashboard import dashboard
     from routes.pagos import pagos
+    from routes.alegra import alegra
 
     # =====================================================
     # REGISTRAR BLUEPRINTS
@@ -79,6 +80,11 @@ def create_app():
     app.register_blueprint(
         auth,
         url_prefix="/auth"
+    )
+
+    app.register_blueprint(
+        alegra, 
+        url_prefix="/alegra"
     )
 
     app.register_blueprint(
