@@ -25,6 +25,7 @@ from servicies.configurador_service import (
 )
 
 from servicies.pedido_service import crear_pedido_desde_diseno
+from servicies.tallas import es_calzado, tallas_disponibles
 
 
 configurador = Blueprint("configurador", __name__)
@@ -56,6 +57,17 @@ def obtener_cliente_actual():
 # =========================================================
 # CONFIGURADOR PRINCIPAL
 # =========================================================
+
+# Funciones disponibles en TODAS las plantillas (catálogo, producto, compra).
+@configurador.app_template_global("tallas_zapato")
+def tallas_zapato():
+    return tallas_disponibles()
+
+
+@configurador.app_template_global("es_calzado")
+def es_calzado_plantilla(producto):
+    return es_calzado(producto)
+
 
 @configurador.route("/")
 def inicio():

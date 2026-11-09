@@ -136,6 +136,18 @@
                 </p>
 
 
+                {% if es_calzado(producto) %}
+                <div class="producto-tallas" style="margin:16px 0;">
+                    <strong style="display:block; font-size:13px; letter-spacing:.5px; margin-bottom:8px;">
+                        TALLAS DISPONIBLES
+                    </strong>
+                    {% for t in tallas_zapato() %}
+                        <span style="display:inline-block; min-width:38px; text-align:center; padding:6px 10px; margin:0 6px 6px 0; border:1px solid #d8c9b8; border-radius:6px; font-size:13px;">{{ t }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+
 
                 <!-- ================================== -->
                 <!-- BENEFICIOS -->

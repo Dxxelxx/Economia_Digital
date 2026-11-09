@@ -282,6 +282,35 @@ Personaliza tu producto | Taller El Obrero
             </div>
 
 
+            <!-- TALLA (solo zapatos) -->
+
+            <div class="config-grupo" id="grupo-talla">
+
+                <label for="talla">
+                    Talla
+                </label>
+
+                <select id="talla">
+
+                    <option value="">
+                        Elige tu talla
+                    </option>
+
+                    {% for t in tallas_zapato() %}
+                        <option value="{{ t }}">
+                            {{ t }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+
+                <small>
+                    Tallas disponibles: {{ tallas_zapato()|join(", ") }}
+                </small>
+
+            </div>
+
+
             <!-- HERRAJES -->
 
             <div class="config-grupo">
@@ -457,7 +486,8 @@ const estado = {
     material: "cuero",
     suela: "clasica",
     herrajes: "dorado",
-    iniciales: ""
+    iniciales: "",
+    talla: ""
 };
 
 const buscar = (lista, valor) => lista.find((o) => o.valor === valor);
@@ -488,7 +518,8 @@ function diseno() {
         material: estado.material,
         estilo: estiloEfectivo(),
         herrajes: herrajesEfectivos(),
-        iniciales: estado.iniciales
+        iniciales: estado.iniciales,
+        talla: estado.producto === "zapato" ? estado.talla : ""
     };
 }
 
@@ -537,7 +568,9 @@ function actualizarPrecioYResumen() {
     $("resumen-producto").textContent = p.nombre;
     $("resumen-personalizacion").textContent =
         `${estado.nombreColor} · ${material.nombre}` +
-        (estado.iniciales ? ` · ${estado.iniciales}` : "");
+        (estado.iniciales ? ` · ${estado.iniciales}` : "") +
+        (estado.producto === "zapato" && estado.talla
+            ? ` · Talla ${estado.talla}` : "");
 }
 
 function refrescar() {
@@ -551,6 +584,7 @@ function actualizarControlesProducto() {
         .closest(".config-grupo");
 
     grupoSuela.hidden = estado.producto !== "zapato";
+    $("grupo-talla").hidden = estado.producto !== "zapato";
     grupoHerrajes.hidden = estado.producto === "sombrero";
 }
 
@@ -608,6 +642,12 @@ $("suela").addEventListener("change", function () {
     refrescar();
 });
 
+$("talla").addEventListener("change", function () {
+    estado.talla = this.value;
+    mostrarMensaje("");
+    refrescar();
+});
+
 $("producto").addEventListener("change", function () {
     estado.producto = this.value;
     actualizarControlesProducto();
@@ -635,6 +675,12 @@ function mostrarMensaje(texto) {
 }
 
 botonComprar.addEventListener("click", async () => {
+
+    if (estado.producto === "zapato" && !estado.talla) {
+        mostrarMensaje("Elige la talla de tu zapato antes de continuar.");
+        $("talla").focus();
+        return;
+    }
 
     botonComprar.disabled = true;
     botonComprar.textContent = "Guardando tu diseño...";

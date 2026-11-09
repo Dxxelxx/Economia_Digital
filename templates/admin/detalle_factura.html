@@ -992,6 +992,15 @@
                                 </div>
                             </div>
 
+                            {% if configuracion.talla %}
+                            <div class="configuration-item">
+                                <span class="info-label">Talla</span>
+                                <div class="info-value">
+                                    {{ configuracion.talla }}
+                                </div>
+                            </div>
+                            {% endif %}
+
                             <div class="configuration-item">
                                 <span class="info-label">Iniciales personalizadas</span>
                                 <div class="info-value">
@@ -1075,6 +1084,10 @@
 
                                         {% if cfg.material %}
                                             · Material: {{ cfg.material }}
+                                        {% endif %}
+
+                                        {% if cfg.talla %}
+                                            · Talla: {{ cfg.talla }}
                                         {% endif %}
 
                                     {% else %}

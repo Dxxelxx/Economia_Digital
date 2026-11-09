@@ -1,26 +1,3 @@
-"""
-Integración con Alegra (facturación electrónica DIAN) - Taller El Obrero.
-
-Qué hace emitir_factura(factura):
-  1. Busca (o crea) al cliente en Alegra por su documento.
-  2. Busca (o crea) el producto vendido.
-  3. Crea la factura en Alegra con IVA y la resolución de numeración,
-     pidiendo que la timbre (envíe a la DIAN).
-  4. Guarda en tu Factura: CUFE, estado y la respuesta de Alegra.
-
-No hace commit: quien la llame debe hacer db.session.commit().
-
-Variables de entorno (Render / .env) - NUNCA en el código:
-  ALEGRA_EMAIL               correo de tu cuenta de Alegra
-  ALEGRA_TOKEN               token de la API (Alegra > Configuración > API)
-  ALEGRA_NUMBER_TEMPLATE_ID  id de la resolución de numeración (ver probar_alegra.py)
-  ALEGRA_IVA_TAX_ID          id del impuesto IVA 19 % (ver probar_alegra.py)
-Opcionales:
-  ALEGRA_BASE_URL            por defecto https://api.alegra.com/api/v1
-  ALEGRA_TIPO_DOCUMENTO      CC, NIT, CE... (por defecto CC)
-  ALEGRA_STAMP               "1" (por defecto) envía a la DIAN; "0" deja borrador
-"""
-
 import base64
 import json
 import os
@@ -324,7 +301,11 @@ def emitir_factura(factura):
             "quantity": cantidad,
             "tax": [{"id": int(c["iva"])}],
         }],
-        "observations": f"Pedido #{pedido.id} - Taller El Obrero",
+        "observations": (
+            f"Pedido #{pedido.id} - Taller El Obrero"
+            + (f" - Talla {pedido.configuracion.talla}"
+               if getattr(pedido.configuracion, "talla", None) else "")
+        ),
     }
 
     if c["stamp"]:

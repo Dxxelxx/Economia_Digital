@@ -76,6 +76,7 @@ def crear_pedido_desde_diseno(cliente, diseno, cantidad):
         suela=textos["suela"],
         herrajes=textos["herrajes"],
         iniciales=textos["iniciales"],
+        talla=textos["talla"],
         precio=precio_unitario,
         dias_entrega=dias
     )

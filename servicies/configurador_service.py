@@ -1,15 +1,6 @@
-"""
-Catálogo, validación y precio de los diseños del configurador 3D.
-
-Este módulo es la ÚNICA fuente de verdad de opciones y precios:
-el navegador recibe una copia para mostrar el precio estimado, pero
-el precio que se cobra siempre se recalcula aquí, en el servidor.
-
-Para cambiar un precio u ofrecer una opción nueva, edita las tablas
-de abajo (PRODUCTOS, MATERIALES, HERRAJES, COLORES).
-"""
-
 import re
+
+from servicies.tallas import validar_talla
 
 
 # ==========================================================
@@ -218,6 +209,14 @@ def validar_diseno(datos):
     if not PATRON_INICIALES.match(iniciales):
         return None, "Las iniciales deben tener máximo 3 letras o números."
 
+    talla = ""
+
+    if producto == "zapato":
+        talla, error = validar_talla(datos.get("talla"))
+
+        if error:
+            return None, error
+
     diseno = {
         "producto": producto,
         "color": colores["color"],
@@ -226,6 +225,7 @@ def validar_diseno(datos):
         "estilo": estilo,
         "herrajes": herrajes,
         "iniciales": iniciales,
+        "talla": talla,
     }
 
     diseno["precio_unitario"] = calcular_precio_unitario(diseno)
@@ -259,4 +259,5 @@ def describir_diseno(diseno):
         "suela": f"{definicion['etiqueta_estilo']}: {estilo}",
         "herrajes": _buscar(HERRAJES, diseno["herrajes"])[1],
         "iniciales": diseno["iniciales"],
+        "talla": diseno.get("talla") or None,
     }

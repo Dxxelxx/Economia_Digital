@@ -82,6 +82,24 @@ Confirmar compra | Taller El Obrero
                     </div>
 
 
+                    {% if es_calzado(producto) %}
+                    <div class="compra-campo">
+
+                        <label for="talla">
+                            Talla
+                        </label>
+
+                        <select id="talla" name="talla" required>
+                            <option value="">Elige tu talla</option>
+                            {% for t in tallas_zapato() %}
+                                <option value="{{ t }}">{{ t }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+                    {% endif %}
+
+
                     <div class="compra-campo">
 
                         <label for="documento">

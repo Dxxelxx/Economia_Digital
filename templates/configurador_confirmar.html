@@ -93,6 +93,9 @@ Confirmar compra | Taller El Obrero
                 {% if diseno.producto != 'sombrero' %}
                 <li><span>Herrajes</span><span>{{ textos.herrajes }}</span></li>
                 {% endif %}
+                {% if textos.talla %}
+                <li><span>Talla</span><span>{{ textos.talla }}</span></li>
+                {% endif %}
                 {% if textos.iniciales %}
                 <li><span>Iniciales</span><span>{{ textos.iniciales }}</span></li>
                 {% endif %}

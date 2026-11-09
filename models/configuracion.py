@@ -37,6 +37,11 @@ class Configuracion(db.Model):
         db.String(10)
     )
 
+    talla = db.Column(
+        db.String(10),
+        nullable=True
+    )
+
     precio = db.Column(
         db.Numeric(12, 2),
         nullable=False,
